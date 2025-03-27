@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image" href="/images/hera_logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hera 3D Space</title>
+
+    <link rel="stylesheet" href="/style/general.css">
+    <link rel="stylesheet" href="/style/controls.css">
+  </head>
+
+  <body id="website-body">
+  
+    <canvas id="threeCanvas"></canvas>
+  
+    <div id="ui-elements">
+      <div id="playback">
+        <div class="row">
+          <input type="text" id="time-input">
+          <button id="playback-button">Play</button>
+        </div>
+        <div class="controls row" id="playback-2nd-row">
+          <label class="playback-speed hidden" id="playback-speed-label">Speed Level</label>
+          <input class="playback-speed hidden" type="text" id="playback-speed-input" min="1" max="10" value="1" step="1">
+          <button class="crement-button hidden" id="increment-button">+</button>
+          <button class="crement-button hidden" id="decrement-button">-</button>
+        </div>
+        <div class="controls row" id="playback-2nd-row">
+          <label class="playback-speed hidden" id="playback-observer-label">Spice Observer</label>
+          <select class="hidden" id="observer-dropdown"></select>
+        </div>
+      </div>
+      
+      <button id="menu-button">MENU</button>
+      <div class="controls" id="menu">
+        <button class="hidden" id="full-screen-button">FSCR</button>
+        <!-- <select class="hidden" id="observer-dropdown"></select> -->
+        <button class="toggle-button hidden" id="light-time-adjustment-button">LTA</button>
+        <button class="toggle-button hidden" id="first-person-view-button">FPV</button>
+        <button class="toggle-button hidden" id="label-visibility-button">LBL</button>
+        <button class="toggle-button hidden" id="data-visibility-button">TLM</button>
+        <button class="toggle-button hidden" id="startfield-visibility-button">SFD</button>
+        <button class="hidden" id="help-button">HELP</button>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/controls.js"></script>
+  </body>
+
+  <footer></footer>
+</html>
