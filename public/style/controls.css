@@ -71,18 +71,17 @@ input[type="number"] {
     #menu {
         grid-template-columns: repeat(2, 1fr);
     }
-    /*
     #menu > *:nth-child(7) {
-        grid-column: span 2;
-    }*/
-    @media (max-height: 300px) {
-        #menu {
-            grid-template-columns: repeat(3, 1fr);
-        }
-        /*
-        #menu > *:nth-child(7) {
-            grid-column: span 2;
-        }*/
+        grid-column: 2;
+    }
+}
+
+@media (max-height: 300px) {
+    #menu {
+        grid-template-columns: repeat(3, 1fr);
+    }    
+    #menu > *:nth-child(7) {
+        grid-column: 3;
     }
 }
 
