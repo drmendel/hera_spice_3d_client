@@ -1,5 +1,8 @@
 // ###################### GLOBAL VARIABLES ######################
 
+import { lightColor } from "./config";      // button on color
+import { darkColor } from "./config";       // button off color
+
 export let observerId = -91000;             // default observer id: Hera
 export let simulationBaseTime = new Date(); // local time
 
@@ -16,10 +19,27 @@ export let helpDisplay = false;
 
 export let touchScreen = false;
 
-// ###################### LOCAL VARIABLES ######################
+// ###################### SETUP ######################
 
-const lightColor = 'rgb(175,175,175)';
-const darkColor = 'rgb(128,128,128)';
+setParamsFromURL();
+updatePlaybackButton();
+
+// ###################### LISTENERS ######################
+
+document.getElementById('playback-button').addEventListener('click', toggleSimulationRunning);
+document.getElementById('playback-speed-input').addEventListener('change', setSpeed);
+document.getElementById('increment-button').addEventListener('click', () => crementSpeed(true));
+document.getElementById('decrement-button').addEventListener('click', () => crementSpeed(false));
+
+document.getElementById('menu-button').addEventListener('click', toggleMenu);
+
+document.getElementById('full-screen-button').addEventListener('click', toggleFullscreen);
+document.getElementById('light-time-adjustment-button').addEventListener('click', toggleLightTimeAdjustment);
+document.getElementById('first-person-view-button').addEventListener('click', toggleFirstPersonView);
+document.getElementById('label-visibility-button').addEventListener('click', toggleLabelVisibility);
+document.getElementById('data-visibility-button').addEventListener('click', toggleTelemetryVisibility);
+document.getElementById('startfield-visibility-button').addEventListener('click', toggleStartFieldVisibility);
+document.getElementById('help-button').addEventListener('click', toggleHelpDisplay);
 
 // ###################### DATA FUNCTIONS ######################
 
@@ -312,25 +332,3 @@ function updateHelpButton() {
   btn.style.borderColor = color;
   btn.style.color = color;
 }
-
-// ###################### SETUP ######################
-
-setParamsFromURL();
-updatePlaybackButton();
-
-// ###################### LISTENERS ######################
-
-document.getElementById('playback-button').addEventListener('click', toggleSimulationRunning);
-document.getElementById('playback-speed-input').addEventListener('change', setSpeed);
-document.getElementById('increment-button').addEventListener('click', () => crementSpeed(true));
-document.getElementById('decrement-button').addEventListener('click', () => crementSpeed(false));
-
-document.getElementById('menu-button').addEventListener('click', toggleMenu);
-
-document.getElementById('full-screen-button').addEventListener('click', toggleFullscreen);
-document.getElementById('light-time-adjustment-button').addEventListener('click', toggleLightTimeAdjustment);
-document.getElementById('first-person-view-button').addEventListener('click', toggleFirstPersonView);
-document.getElementById('label-visibility-button').addEventListener('click', toggleLabelVisibility);
-document.getElementById('data-visibility-button').addEventListener('click', toggleTelemetryVisibility);
-document.getElementById('startfield-visibility-button').addEventListener('click', toggleStartFieldVisibility);
-document.getElementById('help-button').addEventListener('click', toggleHelpDisplay);
