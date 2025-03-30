@@ -29,10 +29,10 @@ camera.position.z = 5;
 // Render the scene
 function animate() {
   requestAnimationFrame(animate);
+  renderer.render(scene, camera);
   if(!ctrl.simulationRunning) return;
   cube.rotation.x += 0.01;
   cube.rotation.y += 0.01;
-  renderer.render(scene, camera);
 }
 
 animate();
