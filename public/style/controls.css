@@ -12,6 +12,10 @@ input, button, select, label {
     outline: none;
 }
 
+#time-input::placeholder {
+    color: rgb(128, 128, 128);
+}
+
 #playback-speed-input {
     width: 65px;
     text-align: center;
