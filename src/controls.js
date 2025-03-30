@@ -1,5 +1,6 @@
 // ###################### GLOBAL VARIABLES ######################
 
+import { float } from "three/tsl";
 import { lightColor } from "./config";      // button on color
 import { darkColor } from "./config";       // button off color
 
@@ -7,7 +8,7 @@ export let observerId = -91000;             // default observer id: Hera
 export let simulationBaseTime = new Date(); // local time
 
 export let realBaseTime = new Date();       // local time
-export let simulationSpeedLevel = 1;
+export let speedLevel = 1;
 
 export let simulationRunning = true;
 export let lightTimeAdjustment = false;
@@ -17,31 +18,118 @@ export let telemetryDisplay = false;
 export let startFieldDisplay = false;
 export let helpDisplay = false;
 
-export let touchScreen = false;
+const speedValues = [
+  1,        //  1 [second]
+  2,        //  2 [second]
+  30,       // 30 [second]
+  60,       //  1 [minute]
+  1800,     // 30 [minute]
+  3600,     //  1 [hour]
+  21600,    //  6 [hour]
+  86400,    //  1 [day] 
+  604800,   //  1 [week]
+  2629800   //  1 [month]
+];
+
+const timeInputElement = document.getElementById('time-input');
+const minDate = new Date("2024-08-01T00:00:00.000"); // Minimum allowed date
+const maxDate = new Date("2029-01-01T00:00:00.000"); // Maximum allowed date
 
 // ###################### SETUP ######################
 
 setParamsFromURL();
 updatePlaybackButton();
+updatePlaceholder();
+updateSpeed();
 
 // ###################### LISTENERS ######################
 
-document.getElementById('playback-button').addEventListener('click', toggleSimulationRunning);
+setInterval(updatePlaceholder, 7);
+timeInputElement.addEventListener('change', () => setSimulationTime(String(timeInputElement.value)));
+document.getElementById('playback-button').addEventListener('mousedown', toggleSimulationRunning);
 document.getElementById('playback-speed-input').addEventListener('change', setSpeed);
-document.getElementById('increment-button').addEventListener('click', () => crementSpeed(true));
-document.getElementById('decrement-button').addEventListener('click', () => crementSpeed(false));
+document.getElementById('increment-button').addEventListener('mousedown', () => crementSpeed(true));
+document.getElementById('decrement-button').addEventListener('mousedown', () => crementSpeed(false));
 
-document.getElementById('menu-button').addEventListener('click', toggleMenu);
+document.getElementById('menu-button').addEventListener('mousedown', toggleMenu);
 
-document.getElementById('full-screen-button').addEventListener('click', toggleFullscreen);
-document.getElementById('light-time-adjustment-button').addEventListener('click', toggleLightTimeAdjustment);
-document.getElementById('first-person-view-button').addEventListener('click', toggleFirstPersonView);
-document.getElementById('label-visibility-button').addEventListener('click', toggleLabelVisibility);
-document.getElementById('data-visibility-button').addEventListener('click', toggleTelemetryVisibility);
-document.getElementById('startfield-visibility-button').addEventListener('click', toggleStartFieldVisibility);
-document.getElementById('help-button').addEventListener('click', toggleHelpDisplay);
+document.getElementById('full-screen-button').addEventListener('mousedown', toggleFullscreen);
+document.getElementById('light-time-adjustment-button').addEventListener('mousedown', toggleLightTimeAdjustment);
+document.getElementById('first-person-view-button').addEventListener('mousedown', toggleFirstPersonView);
+document.getElementById('label-visibility-button').addEventListener('mousedown', toggleLabelVisibility);
+document.getElementById('data-visibility-button').addEventListener('mousedown', toggleTelemetryVisibility);
+document.getElementById('startfield-visibility-button').addEventListener('mousedown', toggleStartFieldVisibility);
+document.getElementById('help-button').addEventListener('mousedown', toggleHelpDisplay);
 
 // ###################### DATA FUNCTIONS ######################
+
+/**
+ * Calculates the current simulation time based on elapsed real-world time.
+ * - Computes the elapsed time since `realBaseTime` in milliseconds.
+ * - Scales the elapsed time by the current speed factor.
+ * - Returns the updated simulation time as a `Date` object.
+ * - Stops the simulation if the computed simulation time exceeds `maxDate`.
+ *
+ * @returns {Date} The computed simulation time as a Date object.
+ */
+export function getSimulationTime() {
+  const elapsedTime = new Date() - realBaseTime;  // Elapsed time in milliseconds
+  const scaledTime = elapsedTime * speedValues[speedLevel - 1];  // Scaled elapsed time
+
+  const simulationTime = simulationBaseTime.getTime() + scaledTime;
+
+  // Stop simulation if the computed time exceeds maxDate
+  if (simulationTime > maxDate.getTime()) setSimulationTime();
+  return new Date(simulationTime);  // Return the computed simulation time as a Date object
+}
+
+
+
+
+function getTimeString(time) {
+  const year = time.getFullYear();  // Use getFullYear() to get the full year
+  const month = String(time.getMonth() + 1).padStart(2, '0'); // Ensure two digits
+  const day = String(time.getDate()).padStart(2, '0');
+  const hours = String(time.getHours()).padStart(2, '0');
+  const minutes = String(time.getMinutes()).padStart(2, '0');
+  const seconds = String(time.getSeconds()).padStart(2, '0');
+
+  if(speedLevel >= 3) return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  const milliseconds = String(time.getMilliseconds()).padStart(3, '0');
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
+
+function setSimulationTime(dateString) {
+  if (!dateString) {
+    simulationBaseTime = new Date(minDate);
+  } else {
+    const defaultParts = ["0000", "01", "01", "00", "00", "00", "000"];
+    const parts = dateString.split(/[-T:.]/);
+
+    // Fill missing parts with defaults
+    for (let i = 0; i < defaultParts.length; i++) {
+      parts[i] = parts[i] || defaultParts[i];
+    }
+
+    let fullDateString = `${parts[0].padStart(4, "0")}-${parts[1].padStart(2, "0")}-${parts[2].padStart(2, "0")}` +
+        `T${parts[3].padStart(2, "0")}:${parts[4].padStart(2, "0")}:${parts[5].padStart(2, "0")}.${parts[6].padStart(3, "0")}`;
+
+    let parsedDate = new Date(fullDateString);
+
+    if (isNaN(parsedDate.getTime())) {
+      console.error("Invalid date, using minimum date instead.");
+      parsedDate = new Date(minDate);
+    }
+
+    // Ensure the date is within the allowed range
+    simulationBaseTime = new Date(Math.max(minDate.getTime(), Math.min(parsedDate.getTime(), maxDate.getTime())));
+  }
+
+  setRealBaseTime();
+  timeInputElement.value = "";
+  timeInputElement.blur();
+}
 
 /**
  * Extracts parameters from the URL query string and sets the corresponding variables.
@@ -59,8 +147,9 @@ function setParamsFromURL() {
   const observerIdParam = urlParams.get('observerId');
 
   simulationBaseTime = timestampParam ? new Date(timestampParam) : new Date();
+  setRealBaseTime();
   observerId = observerIdParam ? parseInt(observerIdParam, 10) : -91000;
-
+  if(timestampParam && observerIdParam) simulationRunning = false;  // stop the simulation in that point
 
   const url = new URL(window.location);
   url.search = ''; // Clear all query parameters
@@ -71,33 +160,23 @@ function setParamsFromURL() {
 
 /**
  * Updates `realBaseTime` to the given timestamp or the current local timestamp.
- * If a `date` argument is provided, it will be used to set `realBaseTime`. 
- * Otherwise, the current time (`new Date()`) will be used.
+ * If a valid `date` argument is provided, it will be used; otherwise, the current time is used.
  * 
- * @param {Date} [date] Optional. If provided, sets `realBaseTime` to this value.
+ * @param {Date} [date] Optional. If provided and valid, sets `realBaseTime` to this value.
  */
 function setRealBaseTime(date) {
-  if (date instanceof Date && !isNaN(date)) realBaseTime = date;
-  else realBaseTime = new Date();
-}
-
-/**
- * Returns the real elapsed time in seconds since the start of the simulation.
- * The elapsed time is calculated based on the realLocalTimestamp of the 
- * simulation start and the current local timestamp: `new Date()`.
- * 
- * @return {number} The real elapsed time in seconds since the simulation started.
- */
-function getRealElapsedTime() {
-  const elapsedTime = 0;
-  return elapsedTime;
+  if (date instanceof Date && !isNaN(date.getTime())) realBaseTime = date;
+  else realBaseTime = new Date;
 }
 
 // ###################### UI FUNCTIONS ######################
 
-/** 
- * TIME INPUT FUNCTION
-*/
+// Function to update the placeholder with the simulation time
+function updatePlaceholder() {
+  if (simulationRunning) {
+    timeInputElement.placeholder = getTimeString(getSimulationTime());  // Pass the timestamp to getTimeString
+  }
+}
 
 /**
  * Toggles the state of the `simulationRunning` variable.
@@ -117,20 +196,23 @@ function updatePlaybackButton() {
   document.getElementById('playback-button').textContent = simulationRunning ? "Pause" : "Play";
 }
 
+function updateSpeed() {
+  document.getElementById('playback-speed-input').value = String(speedLevel);
+}
 
-
-/**
- * Updates the animation speed based on the value of the playback speed input.
- * - Ensures the value stays within a valid range (1 to 10).
- * - Updates the `simulationSpeedLevel` variable.
- * - Logs the updated value to the console.
- */
 function setSpeed() {
   const psi = document.getElementById('playback-speed-input');
   if (!psi) return;
-  psi.value = Math.min(10, Math.max(1, psi.value));
-  simulationSpeedLevel = Number(psi.value);
+
+  const speed = Math.min(10, Math.max(1, Number(psi.value)));
+  psi.value = String(speed);
+
+  // Ensure correct time tracking
+  simulationBaseTime = new Date(getSimulationTime().getTime());
+  setRealBaseTime();
+  speedLevel = speed;
 }
+
 
 /**
  * Increments or decrements the playback speed.
@@ -140,9 +222,19 @@ function setSpeed() {
 function crementSpeed(increment) {
   const psi = document.getElementById('playback-speed-input');
   if (!psi) return;
+
+  // Update speed level
   psi.value = Math.min(10, Math.max(1, Number(psi.value) + (increment ? 1 : -1)));
-  simulationSpeedLevel = Number(psi.value);
+
+  // Preserve the correct simulation time before updating speed
+  const elapsedSimTime = getSimulationTime(); // This returns a Date object
+
+  // Update speed and timing references
+  speedLevel = Number(psi.value);
+  simulationBaseTime = new Date(elapsedSimTime.getTime());  // Preserve the current simulation time
+  realBaseTime = new Date();  // Use Date object for consistency
 }
+
 
 
 
