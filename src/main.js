@@ -31,8 +31,8 @@ function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
   if(!ctrl.simulationRunning) return;
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
+  cube.rotation.x += 0.01 * ctrl.speedValues[ctrl.speedLevel - 1];
+  cube.rotation.y += 0.01 * ctrl.speedValues[ctrl.speedLevel - 1];
 }
 
 animate();
