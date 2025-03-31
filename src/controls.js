@@ -1,8 +1,6 @@
 // ###################### GLOBAL VARIABLES ######################
 
-import { float } from "three/tsl";
-import { lightColor } from "./config";      // button on color
-import { darkColor } from "./config";       // button off color
+import * as conf from "./config";
 
 export let observerId = -91000;             // default observer id: Hera
 export let simulationBaseTime = new Date(); // local time
@@ -18,7 +16,7 @@ export let telemetryDisplay = false;
 export let startFieldDisplay = false;
 export let helpDisplay = false;
 
-const speedValues = [
+export const speedValues = [
   1,        //  1 [second]
   2,        //  2 [second]
   30,       // 30 [second]
@@ -32,8 +30,6 @@ const speedValues = [
 ];
 
 const timeInputElement = document.getElementById('time-input');
-const minDate = new Date("2024-08-01T00:00:00.000"); // Minimum allowed date
-const maxDate = new Date("2029-01-01T00:00:00.000"); // Maximum allowed date
 
 // ###################### SETUP ######################
 
@@ -68,7 +64,7 @@ document.getElementById('help-button').addEventListener('mousedown', toggleHelpD
  * - Computes the elapsed time since `realBaseTime` in milliseconds.
  * - Scales the elapsed time by the current speed factor.
  * - Returns the updated simulation time as a `Date` object.
- * - Stops the simulation if the computed simulation time exceeds `maxDate`.
+ * - Stops the simulation if the computed simulation time exceeds `conf.maxDate`.
  *
  * @returns {Date} The computed simulation time as a Date object.
  */
@@ -78,8 +74,8 @@ export function getSimulationTime() {
 
   const simulationTime = simulationBaseTime.getTime() + scaledTime;
 
-  // Stop simulation if the computed time exceeds maxDate
-  if (simulationTime > maxDate.getTime()) setSimulationTime();
+  // Stop simulation if the computed time exceeds conf.maxDate
+  if (simulationTime > conf.maxDate.getTime()) setSimulationTime();
   return new Date(simulationTime);  // Return the computed simulation time as a Date object
 }
 
@@ -102,7 +98,7 @@ function getTimeString(time) {
 
 function setSimulationTime(dateString) {
   if (!dateString) {
-    simulationBaseTime = new Date(minDate);
+    simulationBaseTime = new Date(conf.minDate);
   } else {
     const defaultParts = ["0000", "01", "01", "00", "00", "00", "000"];
     const parts = dateString.split(/[-T:.]/);
@@ -119,11 +115,11 @@ function setSimulationTime(dateString) {
 
     if (isNaN(parsedDate.getTime())) {
       console.error("Invalid date, using minimum date instead.");
-      parsedDate = new Date(minDate);
+      parsedDate = new Date(conf.minDate);
     }
 
     // Ensure the date is within the allowed range
-    simulationBaseTime = new Date(Math.max(minDate.getTime(), Math.min(parsedDate.getTime(), maxDate.getTime())));
+    simulationBaseTime = new Date(Math.max(conf.minDate.getTime(), Math.min(parsedDate.getTime(), conf.maxDate.getTime())));
   }
 
   setRealBaseTime();
@@ -285,7 +281,7 @@ function updateFullScreenButton(isFullscreen) {
 
   if (!btn) return; // Avoid errors if button is missing
 
-  const color = isFullscreen ? lightColor : darkColor;
+  const color = isFullscreen ? conf.lightColor : conf.darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
@@ -308,7 +304,7 @@ function toggleLightTimeAdjustment() {
 function updateLighTimeAdjustmentButton() {
   const btn = document.getElementById('light-time-adjustment-button');
   if (!btn) return;
-  const color = lightTimeAdjustment ? lightColor : darkColor;
+  const color = lightTimeAdjustment ? conf.lightColor : conf.darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
@@ -330,7 +326,7 @@ function toggleFirstPersonView() {
 function updateFirstPersonViewButton() {
   const btn = document.getElementById('first-person-view-button');
   if (!btn) return;
-  const color = firstPersonView ? lightColor : darkColor;
+  const color = firstPersonView ? conf.lightColor : conf.darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
@@ -354,7 +350,7 @@ function toggleLabelVisibility() {
 function updateLabelVisibilityButton() {
   const btn = document.getElementById('label-visibility-button');
   if (!btn) return;
-  const color = labelDisplay ? lightColor : darkColor;
+  const color = labelDisplay ? conf.lightColor : conf.darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
@@ -376,7 +372,7 @@ function toggleTelemetryVisibility() {
 function updateTelemetryVisibilityButton() {
   const btn = document.getElementById('data-visibility-button');
   if (!btn) return;
-  const color = telemetryDisplay ? lightColor : darkColor;
+  const color = telemetryDisplay ? conf.lightColor : conf.darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
@@ -398,7 +394,7 @@ function toggleStartFieldVisibility() {
 function updateStartFieldVisibilityButton() {
   const btn = document.getElementById('startfield-visibility-button');
   if (!btn) return;
-  const color = startFieldDisplay ? lightColor : darkColor;
+  const color = startFieldDisplay ? conf.lightColor : conf.darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
@@ -420,7 +416,7 @@ function toggleHelpDisplay() {
 function updateHelpButton() {
   const btn = document.getElementById('help-button');
   if (!btn) return;
-  const color = helpDisplay ? lightColor : darkColor;
+  const color = helpDisplay ? conf.lightColor : conf.darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
