@@ -1,10 +1,9 @@
 import { websocketUrl } from "./config";
 
 export let websocket = null;
-export let shouldWebSocketBeAvailable = false;
+export let shouldWebSocketBeAvailable = true;
 export let websocketError = false;
 let disconnectionTime = 0;
-let reconnectTimeout = null;
 
 /**
  * Opens a WebSocket connection if it's closed and should be available.
@@ -50,6 +49,10 @@ export function openWebSocket() {
 export function sendMessage(message) {
     return new Promise((resolve, reject) => {
         if (websocket && websocket.readyState === WebSocket.OPEN) {
+            websocket.openWebSocket();
+            while (!websocket) {
+                sleep(100);                
+            }
             websocket.send(message);
             console.log('Message sent:', message);
 
