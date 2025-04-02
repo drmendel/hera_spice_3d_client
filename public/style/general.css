@@ -36,6 +36,10 @@ canvas {
     pointer-events: none;
 }
 
+#ui-elements * {
+    pointer-events: auto;
+}
+
 .hidden {
     display: none;
 }
