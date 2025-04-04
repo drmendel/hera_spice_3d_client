@@ -1,0 +1,332 @@
+import * as THREE from 'three';
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+
+import { canvasName } from './config';
+import { objects, cameras } from './spice';
+
+let canvas;
+let scene;
+let camera;
+let cameraControls;
+let renderer;
+let textureLoader;
+let objLoader;
+let gltfLoader;
+
+function init() {
+    canvas = document.getElementById(canvasName);
+    scene = new THREE.Scene();
+    
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 5000000000);
+    camera.position.set(0, 0, 1000); // Set an initial position for the camera
+    
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, logarithmicDepthBuffer: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    cameraControls = new OrbitControls(camera, renderer.domElement);
+    cameraControls.enableDamping = true;
+    cameraControls.dampingFactor = 0.03;
+    cameraControls.enableZoom = true;
+    
+    textureLoader = new THREE.TextureLoader();
+    gltfLoader = new GLTFLoader();
+    objLoader = new OBJLoader();
+
+    window.addEventListener('resize', () => {
+        const canvas = document.querySelector('canvas');
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+      
+        // Update canvas size
+        canvas.width = width;
+        canvas.height = height;
+      
+        // Update renderer size
+        renderer.setSize(width, height);
+      
+        // Update camera aspect ratio and projection matrix
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+    });  
+}
+
+let starFieldTexture;
+
+let sunTexture;
+let mercuryTexture;
+let venusTexture;
+let earthTexture;
+let moonTexture;
+let marsTexture;
+let phobosTexture;
+let deimosTexture;
+let didymosTexture;
+
+function loadTextures() {
+    starFieldTexture = textureLoader.load('/images/stars/8k_stars.jpg');
+
+    sunTexture = textureLoader.load('/images/sun/8k_sun.jpg');
+    mercuryTexture = textureLoader.load('/images/mercury/2k_mercury.jpg');
+    venusTexture = textureLoader.load('/images/venus/2k_venus.jpg');
+    
+    earthTexture = textureLoader.load('/images/earth/2k_earth_daymap.jpg');
+    moonTexture = textureLoader.load('/images/moon/2k_moon.jpg');
+    
+    marsTexture = textureLoader.load('/images/mars/2k_mars.jpg');
+    phobosTexture = textureLoader.load('/images/phobos/mar1kuu2.jpg');
+    deimosTexture = textureLoader.load('/images/deimos/mar2kuu2.jpg');
+
+    didymosTexture = textureLoader.load('/images/didymos/didymos.jpg');
+}
+
+let phobosModel;
+let deimosModel;
+
+let didymosModel;
+let dimorphosModel;
+
+let heraModel;
+let juventasModel;
+let milaniModel;
+
+function loadModel(loader, url) {
+    return new Promise((resolve, reject) => {
+        loader.load(url,
+            function(obj) { resolve(obj); },
+            undefined,
+            reject
+        );
+    });
+}
+
+async function loadModels() {
+    try {
+        const promises = [
+            loadModel(gltfLoader, '/models/phobos/24878_Phobos_1_1000.glb'),
+            //loadModel(loader, url2),
+            //loadModel(loader, url3),
+        ];
+        const [tmpPhobos] = await Promise.all(promises);
+        tmpPhobos.scene.scale.set(1, 1, 1); // Scale the model if necessary
+        phobosModel = tmpPhobos.scene;
+        // objects.get(401).group.add(tmpPhobos.scene);
+        console.log('Loaded model:', tmpPhobos);
+        console.log('Model position:', tmpPhobos.scene.position);
+        console.log('Model scale:', tmpPhobos.scene.scale);
+    } catch (error) {
+        console.error('Error loading models:', error);
+    }
+}
+
+let starFieldMaterial;
+
+let sunMaterial;
+let mercuryMaterial;
+let venusMaterial;
+let earthMaterial;
+let moonMaterial;
+let marsMaterial;
+
+let didymosMaterial;
+
+function loadMaterials() {
+    starFieldMaterial = new THREE.MeshBasicMaterial({
+        map: starFieldTexture,
+        side: THREE.BackSide,
+        color: new THREE.Color(0x555555),
+    });
+
+    sunMaterial = new THREE.MeshStandardMaterial({
+        map: sunTexture,
+        emissive: 0xffffff,           
+        emissiveMap: sunTexture,         
+        emissiveIntensity: 2
+    });
+    mercuryMaterial = new THREE.MeshStandardMaterial({ map: mercuryTexture });
+    venusMaterial = new THREE.MeshStandardMaterial({ map: venusTexture });
+    earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
+    moonMaterial = new THREE.MeshStandardMaterial({ map: moonTexture });
+    marsMaterial = new THREE.MeshStandardMaterial({ map: marsTexture });
+
+    didymosMaterial = new THREE.MeshStandardMaterial({ map: didymosTexture });
+}
+
+let starFieldGeometry;
+
+let sunGeometry;
+let mercuryGeometry;
+let venusGeometry;
+let earthGeometry;
+let moonGeometry;
+let marsGeometry;
+
+function loadGeometry() {
+    starFieldGeometry = new THREE.SphereGeometry(3E25, 300, 300);
+
+    sunGeometry = new THREE.SphereGeometry(696340, 32, 32);
+    mercuryGeometry = new THREE.SphereGeometry(2439.7, 32, 32);
+    venusGeometry = new THREE.SphereGeometry(6051.8, 32, 32);
+    earthGeometry = new THREE.SphereGeometry(6378, 32, 32);
+    moonGeometry = new THREE.SphereGeometry(1737.4, 32, 32);
+    marsGeometry = new THREE.SphereGeometry(3389.5, 32, 32);
+}
+
+let starFieldSurface;
+let starFieldLight;
+
+let sunSurface;
+let sunLight;
+
+let mercurySurface;
+let venusSurface;
+let earthSurface;
+let moonSurface;
+let marsSurface;
+
+function loadSurfaces() {
+    starFieldSurface = new THREE.Mesh(starFieldGeometry, starFieldMaterial);
+    starFieldLight = new THREE.AmbientLight(0xffffff, 0.015);
+
+    sunSurface = new THREE.Mesh(sunGeometry, sunMaterial);
+    sunLight = new THREE.PointLight(0xffffff, 2, 0, 3);
+    sunLight.decay = 0;
+    sunLight.castShadow = true;
+    
+    mercurySurface = new THREE.Mesh(mercuryGeometry, mercuryMaterial);
+    mercurySurface.castShadow = true;
+    mercurySurface.receiveShadow = true;
+    
+    venusSurface = new THREE.Mesh(venusGeometry, venusMaterial);
+    venusSurface.castShadow = true;
+    venusSurface.receiveShadow = true;
+    
+    earthSurface = new THREE.Mesh(earthGeometry, earthMaterial);
+    earthSurface.castShadow = true;
+    earthSurface.receiveShadow = true;
+    
+    moonSurface = new THREE.Mesh(moonGeometry, moonMaterial);
+    moonSurface.castShadow = true;
+    moonSurface.receiveShadow = true;
+    
+    marsSurface = new THREE.Mesh(marsGeometry, marsMaterial);
+    marsSurface.castShadow = true;
+    marsSurface.receiveShadow = true;    
+}
+
+export function loadObjects() {
+    objects.get(0).group = new THREE.Group();
+    objects.get(0).group.add(starFieldSurface);
+    objects.get(0).group.add(starFieldLight);
+
+    objects.get(10).group = new THREE.Group();
+    objects.get(10).group.add(sunSurface);
+    objects.get(10).group.add(sunLight);
+
+    objects.get(199).group = new THREE.Group();
+    objects.get(199).group.add(mercurySurface);
+
+    objects.get(299).group = new THREE.Group();
+    objects.get(299).group.add(venusSurface);
+
+    objects.get(399).group = new THREE.Group();
+    objects.get(399).group.add(earthSurface);
+
+    objects.get(301).group = new THREE.Group();
+    objects.get(301).group.add(moonSurface);
+
+    objects.get(499).group = new THREE.Group();
+    objects.get(499).group.add(marsSurface);
+
+    objects.get(401).group = new THREE.Group();
+    objects.get(401).group.add(phobosModel);
+    //console.log(objects.get(401));
+}
+
+export function loadScene() {
+    /*objects.forEach((value) => {
+        scene.add(value.group);
+    });*/
+
+    // STARFIELD
+    objects.get(0).group.position.set(0, 0, 0);
+    scene.add(objects.get(0).group);
+
+    // SUN
+    objects.get(10).group.position.set(-10000000, 0, 0);
+    scene.add(objects.get(10).group);
+
+    // MERCURY
+    objects.get(199).group.position.set(10, 0, 0);
+    scene.add(objects.get(199).group);
+
+    // VENUS
+    objects.get(299).group.position.set(50000, 0, 0);
+    scene.add(objects.get(299).group);
+
+    // EARTH
+    objects.get(399).group.position.set(100000, 0, 0);
+    scene.add(objects.get(399).group);
+
+    // MOON
+    objects.get(301).group.position.set(100000, 0, 20000);
+    scene.add(objects.get(301).group);
+
+    // MARS
+    objects.get(499).group.position.set(150000, 0, 0);
+    scene.add(objects.get(499).group);
+
+    // PHOBOS
+    objects.get(401).group.position.set(150000, 0, 20000);
+    scene.add(objects.get(401).group);
+}
+
+export async function loadThreeJSEngine() {
+    init();
+    loadTextures();
+    loadMaterials();
+    loadGeometry();
+    loadSurfaces();
+    await loadModels();
+    loadObjects();
+    console.log('objects loaded');
+    loadScene();
+    console.log('scene loaded');
+    animate();
+}
+
+export function getCameraId(cameraName) {
+    for (let [id, name] of cameras) {
+        if (name === cameraName) return id;
+    }
+    return -91000;  // Default Hera
+}
+
+export function cameraLookAt(objectId) {
+    const obj = objects.get(objectId);
+    cameraControls.target.copy(obj.group.position);
+    const distance = obj.cameraRadius * 10;
+    const direction = camera.position.clone().sub(obj.group.position).normalize();
+    camera.position.copy(obj.group.position).add(direction.multiplyScalar(distance));
+    cameraControls.update();
+    camera.lookAt(obj.group.position);
+}
+
+export function cameraSetTo(cameraId) {
+    // Implement camera set to functionality if needed
+}
+
+export function hide(id) {
+    objects.get(id).group.visible = false;
+}
+
+export function show(id) {
+    objects.get(id).group.visible = true;
+}
+
+export function animate() {
+    requestAnimationFrame(animate);
+    cameraControls.update();
+    renderer.render(scene, camera);
+}
