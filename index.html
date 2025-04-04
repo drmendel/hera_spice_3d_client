@@ -28,7 +28,32 @@
         </div>
         <div class="controls row" id="playback-3rd-row">
           <label class="playback" id="playback-observer-label">Observer</label>
-          <select class="playback" id="observer-dropdown"></select>
+          <select class="playback" id="observer-dropdown">
+            <!-- Camera options -->
+            <option value="-91500">SMC</option>
+            <option value="-91400">HSH</option>
+            <option value="-91110">AFC1</option>
+            <option value="-91120">AFC2</option>
+            <option value="-15513310">JNC</option>
+            <option value="-91002310">MNC</option>
+            <!-- Spacecraft options -->
+            <option value="-91000">HERA</option>
+            <option value="-155130000">JUVENTAS</option>
+            <option value="-9102000">MILANI</option>
+            <!-- Hera target options -->
+            <option value="-658030">DIDYMOS</option>
+            <option value="-658031">DIMORPHOS</option>
+            <!-- Solar system options -->
+            <option value="10">SUN</option>
+            <option value="199">MERCURY</option>
+            <option value="299">VENUS</option>
+            <option value="399">EARTH</option>
+            <option value="301">MOON</option>
+            <option value="499">MARS</option>
+            <option value="401">PHOBOS</option>
+            <option value="402">DEIMOS</option>
+
+          </select>
         </div>
       </div>
       <button id="menu-button">MENU</button>
@@ -38,7 +63,7 @@
         <button class="toggle-button" id="first-person-view-button">FPV</button>
         <button class="toggle-button" id="label-visibility-button">LBL</button>
         <button class="toggle-button" id="data-visibility-button">TLM</button>
-        <button class="toggle-button" id="startfield-visibility-button">SFD</button>
+        <button class="toggle-button" id="starfield-visibility-button">SFD</button>
         <button class="toggle-button" id="help-button">HELP</button>
       </div>
     </div>
