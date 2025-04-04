@@ -1,5 +1,6 @@
 // ###################### GLOBAL VARIABLES ######################
 
+import * as engine from "./animation";
 import * as conf from "./config";
 
 export let observerId = -91000;             // default observer id: Hera
@@ -13,7 +14,7 @@ export let lightTimeAdjustment = false;
 export let firstPersonView = false;
 export let labelDisplay = false;
 export let telemetryDisplay = false;
-export let startFieldDisplay = false;
+export let starFieldDisplay = false;
 export let helpDisplay = false;
 
 export const speedValues = [
@@ -46,6 +47,7 @@ document.getElementById('playback-button').addEventListener('mousedown', toggleS
 document.getElementById('playback-speed-input').addEventListener('change', setSpeed);
 document.getElementById('increment-button').addEventListener('mousedown', () => crementSpeed(true));
 document.getElementById('decrement-button').addEventListener('mousedown', () => crementSpeed(false));
+document.getElementById('observer-dropdown').addEventListener('change', updatePlaceholder);
 
 document.getElementById('menu-button').addEventListener('mousedown', toggleMenu);
 
@@ -54,7 +56,7 @@ document.getElementById('light-time-adjustment-button').addEventListener('moused
 document.getElementById('first-person-view-button').addEventListener('mousedown', toggleFirstPersonView);
 document.getElementById('label-visibility-button').addEventListener('mousedown', toggleLabelVisibility);
 document.getElementById('data-visibility-button').addEventListener('mousedown', toggleTelemetryVisibility);
-document.getElementById('startfield-visibility-button').addEventListener('mousedown', toggleStartFieldVisibility);
+document.getElementById('starfield-visibility-button').addEventListener('mousedown', toggleStarFieldVisibility);
 document.getElementById('help-button').addEventListener('mousedown', toggleHelpDisplay);
 
 // ###################### DATA FUNCTIONS ######################
@@ -318,7 +320,9 @@ function updateLighTimeAdjustmentButton() {
 function toggleFirstPersonView() {
   firstPersonView = !firstPersonView;
   updateFirstPersonViewButton();
+  engine.loadCameraView();
 }
+
 /**
  * Updates the appearance of the first person view button.
  * - Changes the button's border and text color based on `firstPersonView` state.
@@ -379,22 +383,23 @@ function updateTelemetryVisibilityButton() {
 
 /**
  * Toggles the start field visibility setting.
- * - Flips the `startFieldDisplay` boolean between true and false.
- * - Calls `updateStartFieldVisibilityButton` to update the button's appearance.
+ * - Flips the `starFieldDisplay` boolean between true and false.
+ * - Calls `updateStarFieldVisibilityButton` to update the button's appearance.
  */
-function toggleStartFieldVisibility() {
-  startFieldDisplay = !startFieldDisplay;
-  updateStartFieldVisibilityButton();
+function toggleStarFieldVisibility() {
+  starFieldDisplay = !starFieldDisplay;
+  updateStarFieldVisibilityButton();
+  starFieldDisplay ? engine.show(0) : engine.hide(0);
 }
 
 /**
  * Updates the appearance of the start field visibility button.
- * - Changes the button's border and text color based on `startFieldDisplay` state.
+ * - Changes the button's border and text color based on `starFieldDisplay` state.
  */
-function updateStartFieldVisibilityButton() {
-  const btn = document.getElementById('startfield-visibility-button');
+function updateStarFieldVisibilityButton() {
+  const btn = document.getElementById('starfield-visibility-button');
   if (!btn) return;
-  const color = startFieldDisplay ? conf.lightColor : conf.darkColor;
+  const color = starFieldDisplay ? conf.lightColor : conf.darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
