@@ -60,8 +60,9 @@ let venusTexture;
 let earthTexture;
 let moonTexture;
 let marsTexture;
-let phobosTexture;
-let deimosTexture;
+// let phobosTexture;   // not needed, glb already has texture
+// let deimosTexture;   // not needed, glb already has texture
+
 let didymosTexture;
 
 function loadTextures() {
@@ -75,8 +76,8 @@ function loadTextures() {
     moonTexture = textureLoader.load('/images/moon/2k_moon.jpg');
     
     marsTexture = textureLoader.load('/images/mars/2k_mars.jpg');
-    phobosTexture = textureLoader.load('/images/phobos/mar1kuu2.jpg');
-    deimosTexture = textureLoader.load('/images/deimos/mar2kuu2.jpg');
+    // phobosTexture = textureLoader.load('/images/phobos/mar1kuu2.jpg');   // not needed, glb already has texture
+    // deimosTexture = textureLoader.load('/images/deimos/mar2kuu2.jpg');   // not needed, glb already has texture
 
     didymosTexture = textureLoader.load('/images/didymos/didymos.jpg');
 }
@@ -105,16 +106,21 @@ async function loadModels() {
     try {
         const promises = [
             loadModel(gltfLoader, '/models/phobos/24878_Phobos_1_1000.glb'),
-            //loadModel(loader, url2),
-            //loadModel(loader, url3),
+            loadModel(gltfLoader, '/models/deimos/24879_Deimos_1_1000.glb'),
+            loadModel(objLoader, '/models/didymos/g_50677mm_rad_obj_didy_0000n00000_v001.obj'),
+            loadModel(objLoader, '/models/dimorphos/g_08438mm_lgt_obj_dimo_0000n00000_v002.obj'),
         ];
-        const [tmpPhobos] = await Promise.all(promises);
-        tmpPhobos.scene.scale.set(1, 1, 1); // Scale the model if necessary
+        const [tmpPhobos, tmpDeimos, tmpDidymos, tmpDimorphos] = await Promise.all(promises);
+        
+        tmpPhobos.scene.scale.set(1, 1, 1);
         phobosModel = tmpPhobos.scene;
-        // objects.get(401).group.add(tmpPhobos.scene);
-        console.log('Loaded model:', tmpPhobos);
-        console.log('Model position:', tmpPhobos.scene.position);
-        console.log('Model scale:', tmpPhobos.scene.scale);
+        
+        tmpDeimos.scene.scale.set(1, 1, 1);
+        deimosModel = tmpDeimos.scene;
+
+        didymosModel = tmpDidymos;
+        dimorphosModel = tmpDimorphos;
+
     } catch (error) {
         console.error('Error loading models:', error);
     }
@@ -241,7 +247,15 @@ export function loadObjects() {
 
     objects.get(401).group = new THREE.Group();
     objects.get(401).group.add(phobosModel);
-    //console.log(objects.get(401));
+    
+    objects.get(402).group = new THREE.Group();
+    objects.get(402).group.add(deimosModel);
+
+    objects.get(-658030).group = new THREE.Group();
+    objects.get(-658030).group.add(didymosModel);
+
+    objects.get(-658031).group = new THREE.Group();
+    objects.get(-658031).group.add(dimorphosModel);
 }
 
 export function loadScene() {
@@ -280,6 +294,18 @@ export function loadScene() {
     // PHOBOS
     objects.get(401).group.position.set(150000, 0, 20000);
     scene.add(objects.get(401).group);
+
+    // DEIMOS
+    objects.get(402).group.position.set(150000, 0, -20000);
+    scene.add(objects.get(402).group);
+
+    // DIDYMOS
+    objects.get(-658030).group.position.set(150000, 0, 251-20000);
+    scene.add(objects.get(-658030).group);
+
+    // DIMORPHOS
+    objects.get(-658031).group.position.set(150000, 0, 250-20000);
+    scene.add(objects.get(-658031).group);
 }
 
 export async function loadThreeJSEngine() {
