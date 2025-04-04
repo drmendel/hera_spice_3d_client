@@ -5,6 +5,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import { canvasName } from './config';
 import { objects, cameras } from './spice';
+import { firstPersonView } from './controls';
 
 let canvas;
 let scene;
@@ -318,7 +319,8 @@ export async function loadThreeJSEngine() {
     await loadModels();
     loadObjects();
     console.log('objects loaded');
-    loadScene();
+    loadScene();    // hide by default
+    hide(0);
     console.log('scene loaded');
     animate();
 }
@@ -330,18 +332,68 @@ export function getCameraId(cameraName) {
     return -91000;  // Default Hera
 }
 
-export function cameraLookAt(objectId) {
+
+
+let lastObjectId = -91000;  // Default Hera
+
+export function setCameraTo(objectId) {
     const obj = objects.get(objectId);
+    camera.lookAt(obj.group.position);
     cameraControls.target.copy(obj.group.position);
-    const distance = obj.cameraRadius * 10;
-    const direction = camera.position.clone().sub(obj.group.position).normalize();
+
+    let distance;
+    let direction;
+    if(firstPersonView) {
+        distance = obj.cameraRadius / 1000;
+        direction = camera.position.clone().sub(obj.group.position).normalize();
+    }
+    else if(!firstPersonView) {
+        distance = obj.cameraRadius * 10;
+        direction = camera.position.clone().sub(obj.group.position).normalize();
+    }
+
     camera.position.copy(obj.group.position).add(direction.multiplyScalar(distance));
     cameraControls.update();
-    camera.lookAt(obj.group.position);
+    lastObjectId = objectId;
+}
+
+export function loadCameraView() {
+    const T = cameraControls.target;
+    const C = camera.position;
+    let nextPosition;
+    const obj = objects.get(lastObjectId);
+    if(firstPersonView) {
+        obj.group.visible = false;
+        nextPosition = C.sub(T).normalize().multiplyScalar(obj.cameraRadius/1000).add(T);
+        cameraControls.enableZoom = false;
+    } else if (!firstPersonView){
+        obj.group.visible = true;
+        nextPosition = C.sub(T).normalize().multiplyScalar(obj.cameraRadius * 10).add(T);
+        cameraControls.enableZoom = true;
+        console.log('back');
+    }
+    camera.position.copy(nextPosition);
+    cameraControls.update();
 }
 
 export function cameraSetTo(cameraId) {
-    // Implement camera set to functionality if needed
+    switch (cameraId) {
+        case -91500:
+            break;
+        case -91400:
+            break;
+        case -91120:
+            break;
+        case -91110:
+            break;
+        case -15513310:
+            break;
+        case -91002310:
+            break;
+        default:
+            console.log('Camera not found!');
+            break;
+    }
 }
 
 export function hide(id) {
