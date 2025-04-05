@@ -37,7 +37,7 @@ export let objects = new Map([
  * These represent different camera systems on the HERA spacecraft.
  */
 export const cameras = new Map([
-    [-91500, "SMC"],    // Small Monitoring Camera
+    [-91500, "SMC"],    // Spacecraft Monitoring Camera
     [-91400, "HSH"],    // HyperScout Hyperspectral
     [-91120, "AFC2"],   // Asteriod Framing Camera 2
     [-91110, "AFC1"],   // Asteroid Framing Camera 1
