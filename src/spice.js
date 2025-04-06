@@ -7,29 +7,27 @@
 
 import * as THREE from "three";
 
-const cameraDistanceRatio = 1.05;
-
 /**
  * Mapping of Spice Objects to their respective identifiers.
  * These represent celestial bodies and spacecraft in the CSPICE system.
  */
 export let objects = new Map([
     [0, { name: "SOLAR SYSTEM BARYCENTER", cameraRadius: 0, group: new THREE.Group() }],
-    [10, { name: "SUN", cameraRadius: 696340*cameraDistanceRatio, group: new THREE.Group() }],
-    [199, { name: "MERCURY", cameraRadius: 2439.7*cameraDistanceRatio, group: new THREE.Group() }],
-    [299, { name: "VENUS", cameraRadius: 6051.8*cameraDistanceRatio, group: new THREE.Group() }],
-    [399, { name: "EARTH", cameraRadius: 6378*cameraDistanceRatio, group: new THREE.Group() }],
-    [301, { name: "MOON", cameraRadius: 1737.4*cameraDistanceRatio, group: new THREE.Group() }],
-    [499, { name: "MARS", cameraRadius: 3389.5*cameraDistanceRatio, group: new THREE.Group() }],
-    [401, { name: "PHOBOS", cameraRadius: 13.1*cameraDistanceRatio, group: new THREE.Group() }],
-    [402, { name: "DEIMOS", cameraRadius: 6.2*cameraDistanceRatio, group: new THREE.Group() }],
-    [-658030, { name: "DIDYMOS", cameraRadius: 0.780*cameraDistanceRatio, group: new THREE.Group() }],
-    [-658031, { name: "DIMORPHOS", cameraRadius: 0.085*cameraDistanceRatio, group: new THREE.Group() }],
+    [10, { name: "SUN", cameraRadius: 696340, group: new THREE.Group() }],
+    [199, { name: "MERCURY", cameraRadius: 2439.7, group: new THREE.Group() }],
+    [299, { name: "VENUS", cameraRadius: 6051.8, group: new THREE.Group() }],
+    [399, { name: "EARTH", cameraRadius: 6378, group: new THREE.Group() }],
+    [301, { name: "MOON", cameraRadius: 1737.4, group: new THREE.Group() }],
+    [499, { name: "MARS", cameraRadius: 3389.5, group: new THREE.Group() }],
+    [401, { name: "PHOBOS", cameraRadius: 13.1, group: new THREE.Group() }],
+    [402, { name: "DEIMOS", cameraRadius: 6.2, group: new THREE.Group() }],
+    [-658030, { name: "DIDYMOS", cameraRadius: 0.780, group: new THREE.Group() }],
+    [-658031, { name: "DIMORPHOS", cameraRadius: 0.085, group: new THREE.Group() }],
     
     [-91900, { name: "DART IMPACT SITE", cameraRadius: 0, group: new THREE.Group() }],                              // this is just a point
-    [-91000, { name: "HERA SPACECRAFT", cameraRadius: 0.001*cameraDistanceRatio, group: new THREE.Group() }],
-    [-15513000, { name: "JUVENTAS SPACECRAFT", cameraRadius: 0.001*cameraDistanceRatio, group: new THREE.Group() }],
-    [-9102000, { name: "MILANI SPACECRAFT", cameraRadius: 0.001*cameraDistanceRatio, group: new THREE.Group() }]
+    [-91000, { name: "HERA SPACECRAFT", cameraRadius: 0.001, group: new THREE.Group() }],
+    [-15513000, { name: "JUVENTAS SPACECRAFT", cameraRadius: 0.001, group: new THREE.Group() }],
+    [-9102000, { name: "MILANI SPACECRAFT", cameraRadius: 0.001, group: new THREE.Group() }]
 ]);
 
 /**
