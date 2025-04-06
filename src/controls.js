@@ -47,7 +47,10 @@ document.getElementById('playback-button').addEventListener('mousedown', toggleS
 document.getElementById('playback-speed-input').addEventListener('change', setSpeed);
 document.getElementById('increment-button').addEventListener('mousedown', () => crementSpeed(true));
 document.getElementById('decrement-button').addEventListener('mousedown', () => crementSpeed(false));
-document.getElementById('observer-dropdown').addEventListener('change', updatePlaceholder);
+document.getElementById('observer-dropdown').addEventListener('change', event => {
+  const observerId = Number(event.target.value);
+  engine.gsapCameraTo(observerId);
+});
 
 document.getElementById('menu-button').addEventListener('mousedown', toggleMenu);
 
@@ -320,7 +323,7 @@ function updateLighTimeAdjustmentButton() {
 function toggleFirstPersonView() {
   firstPersonView = !firstPersonView;
   updateFirstPersonViewButton();
-  engine.loadCameraView();
+  engine.gsapCameraFPV();
 }
 
 /**
