@@ -23,11 +23,11 @@ export let objects = new Map([
     [402, { name: "DEIMOS", cameraRadius: 6.2, group: new THREE.Group() }],
     [-658030, { name: "DIDYMOS", cameraRadius: 0.780, group: new THREE.Group() }],
     [-658031, { name: "DIMORPHOS", cameraRadius: 0.085, group: new THREE.Group() }],
-    
+
     [-91900, { name: "DART IMPACT SITE", cameraRadius: 0, group: new THREE.Group() }],                              // this is just a point
-    [-91000, { name: "HERA SPACECRAFT", cameraRadius: 0.001, group: new THREE.Group() }],
-    [-15513000, { name: "JUVENTAS SPACECRAFT", cameraRadius: 0.001, group: new THREE.Group() }],
-    [-9102000, { name: "MILANI SPACECRAFT", cameraRadius: 0.001, group: new THREE.Group() }]
+    [-91000, { name: "HERA SPACECRAFT", cameraRadius: 0.015, group: new THREE.Group() }],
+    [-15513000, { name: "JUVENTAS SPACECRAFT", cameraRadius: 0.0001, group: new THREE.Group() }],
+    [-9102000, { name: "MILANI SPACECRAFT", cameraRadius: 0.0001, group: new THREE.Group() }]
 ]);
 
 /**
