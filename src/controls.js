@@ -48,7 +48,7 @@ document.getElementById('playback-speed-input').addEventListener('change', setSp
 document.getElementById('increment-button').addEventListener('mousedown', () => crementSpeed(true));
 document.getElementById('decrement-button').addEventListener('mousedown', () => crementSpeed(false));
 document.getElementById('observer-dropdown').addEventListener('change', event => {
-  const observerId = Number(event.target.value);
+  observerId = Number(event.target.value);
   engine.gsapCameraTo(observerId);
 });
 
