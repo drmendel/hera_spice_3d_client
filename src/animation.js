@@ -2,10 +2,11 @@ import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { gsap } from 'gsap';
 
 import { canvasName } from './config';
 import { objects, cameras } from './spice';
-import { firstPersonView } from './controls';
+import { firstPersonView, observerId } from './controls';
 
 let canvas;
 let scene;
@@ -391,6 +392,80 @@ export function getCameraId(cameraName) {
 
 let lastObjectId = -91000;  // Default Hera
 
+export function gsapCameraTo(objectId) {
+    const object = objects.get(objectId);
+
+    cameraControls.enabled = false;
+    cameraControls.target = object.group.position;
+    cameraControls.update();
+
+    let distance;
+    let direction;
+
+    if(firstPersonView) {
+        distance = object.cameraRadius / 100;
+        direction = camera.position.clone().sub(object.group.position).normalize();
+    }
+    else {
+        distance = object.cameraRadius * 10;
+        direction = camera.position.clone().sub(object.group.position).normalize();
+    }
+
+    const newPosition = object.group.position.clone().add(direction.multiplyScalar(distance));
+
+    gsap.to(camera.position,
+    {
+        x: newPosition.x,
+        y: newPosition.y,
+        z: newPosition.z,
+        duration: 0.5,
+        onUpdate: function () {
+            camera.lookAt(object.group.position);
+            cameraControls.update();
+        }
+    });
+
+    if(objectId != lastObjectId) lastObjectId = objectId;
+    cameraControls.enabled = true;
+    cameraControls.update();
+}
+
+export function gsapCameraFPV() {
+    const object = objects.get(lastObjectId);
+
+    cameraControls.enabled = false;
+
+    let distance;
+    let direction;
+
+    if (firstPersonView) {
+        distance = object.cameraRadius / 100;
+        direction = camera.position.clone().sub(object.group.position).normalize();
+    } else {
+        distance = object.cameraRadius * 10;
+        direction = camera.position.clone().sub(object.group.position).normalize();
+        //cameraControls.minDistance = object.cameraRadius * 1.05;
+        //cameraControls.maxDistance = object.cameraRadius * 100;
+    }
+
+    const newPosition = object.group.position.clone().add(direction.multiplyScalar(distance));
+
+    gsap.to(camera.position, {
+        x: newPosition.x,
+        y: newPosition.y,
+        z: newPosition.z,
+        duration: 0.25,
+        onUpdate: () => {
+            camera.lookAt(object.group.position);
+            cameraControls.update();
+        },
+        onComplete: () => {
+            cameraControls.enabled = true; // Re-enable user control
+            cameraControls.enableZoom = firstPersonView ? false : true;
+        }
+    });
+}
+
 export function setCameraTo(objectId) {
     const obj = objects.get(objectId);
     camera.lookAt(obj.group.position);
@@ -460,6 +535,10 @@ export function show(id) {
 }
 
 export function animate() {
+    const pos = objects.get(199).group.position;
+    pos.x += 100;
+    objects.get(199).group.position.copy(pos);
+
     requestAnimationFrame(animate);
     cameraControls.update();
     renderer.render(scene, camera);
