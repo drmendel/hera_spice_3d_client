@@ -6,11 +6,12 @@ import { gsap } from 'gsap';
 
 import { canvasName } from './config';
 import { objects, cameras } from './spice';
-import { firstPersonView, observerId } from './controls';
+import * as ctrl from './controls';
 
 let canvas;
 let scene;
-let camera;
+let currentCamera;
+let defaultCamera;
 let cameraControls;
 let renderer;
 let textureLoader;
@@ -21,14 +22,14 @@ function init() {
     canvas = document.getElementById(canvasName);
     scene = new THREE.Scene();
     
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1E-6, 5000000000);
-    // const aspect = window.innerWidth / window.innerHeight; const frustumSize = 1000; camera = new THREE.OrthographicCamera(-frustumSize * aspect / 2, frustumSize * aspect / 2, frustumSize / 2, -frustumSize / 2, 0.01, 5000000000);
-    camera.position.set(0, 0, 1000); // Set an initial position for the camera
+    defaultCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1E-6, 5000000000);
+    // const aspect = window.innerWidth / window.innerHeight; const frustumSize = 1000; defaultCamera = new THREE.OrthographicCamera(-frustumSize * aspect / 2, frustumSize * aspect / 2, frustumSize / 2, -frustumSize / 2, 0.01, 5000000000);
+    defaultCamera.position.set(0, 0, 1000); // Set an initial position for the defaultCamera
     
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, logarithmicDepthBuffer: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    cameraControls = new OrbitControls(camera, renderer.domElement);
+    cameraControls = new OrbitControls(defaultCamera, renderer.domElement);
     cameraControls.enableDamping = true;
     cameraControls.dampingFactor = 0.03;
     cameraControls.enableZoom = true;
@@ -49,9 +50,9 @@ function init() {
         // Update renderer size
         renderer.setSize(width, height);
       
-        // Update camera aspect ratio and projection matrix
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
+        // Update defaultCamera aspect ratio and projection matrix
+        defaultCamera.aspect = width / height;
+        defaultCamera.updateProjectionMatrix();
     });  
 }
 
@@ -153,7 +154,7 @@ function loadMaterials() {
     starFieldMaterial = new THREE.MeshBasicMaterial({
         map: starFieldTexture,
         side: THREE.BackSide,
-        color: new THREE.Color(0x555555),
+        color: new THREE.Color(0x555555)
     });
 
     sunMaterial = new THREE.MeshStandardMaterial({
@@ -185,7 +186,7 @@ let juventasGeometry;
 let milaniGeometry;
 
 function loadGeometry() {
-    starFieldGeometry = new THREE.SphereGeometry(3E25, 300, 300);
+    starFieldGeometry = new THREE.SphereGeometry(1E25, 300, 300);
 
     sunGeometry = new THREE.SphereGeometry(696340, 32, 32);
     mercuryGeometry = new THREE.SphereGeometry(2439.7, 32, 32);
@@ -362,7 +363,6 @@ export function loadScene() {
 
     // MILANI
     objects.get(-9102000).group.position.set(150000-0.005, 0.001, 249.750-20000);
-    console.log(objects.get(-9102000).group);
     scene.add(objects.get(-9102000).group);
 }
 
@@ -374,10 +374,8 @@ export async function loadThreeJSEngine() {
     loadSurfaces();
     await loadModels();
     loadObjects();
-    console.log('objects loaded');
     loadScene();
-    hide(0);    // hide startfield by default
-    console.log('scene loaded');
+    currentCamera = defaultCamera;
     animate();
 }
 
@@ -392,118 +390,87 @@ export function getCameraId(cameraName) {
 
 let lastObjectId = -91000;  // Default Hera
 
-export function gsapCameraTo(objectId) {
-    const object = objects.get(objectId);
+export function gsapCameraTo() {
+    const object = objects.get(ctrl.observerId);
 
     cameraControls.enabled = false;
     cameraControls.target = object.group.position;
+    cameraControls.minDistance = object.cameraRadius * 1.05;
+    cameraControls.maxDistance = object.cameraRadius * 1000;
     cameraControls.update();
 
     let distance;
     let direction;
 
-    if(firstPersonView) {
+    if(ctrl.firstPersonView && !ctrl.simulationRunning) {
         distance = object.cameraRadius / 100;
-        direction = camera.position.clone().sub(object.group.position).normalize();
+        direction = defaultCamera.position.clone().sub(object.group.position).normalize();
     }
     else {
         distance = object.cameraRadius * 10;
-        direction = camera.position.clone().sub(object.group.position).normalize();
+        direction = defaultCamera.position.clone().sub(object.group.position).normalize();
     }
 
     const newPosition = object.group.position.clone().add(direction.multiplyScalar(distance));
 
-    gsap.to(camera.position,
+    gsap.to(defaultCamera.position,
     {
         x: newPosition.x,
         y: newPosition.y,
         z: newPosition.z,
         duration: 0.5,
         onUpdate: function () {
-            camera.lookAt(object.group.position);
+            defaultCamera.lookAt(object.group.position);
             cameraControls.update();
         }
     });
 
-    if(objectId != lastObjectId) lastObjectId = objectId;
     cameraControls.enabled = true;
     cameraControls.update();
 }
 
 export function gsapCameraFPV() {
-    const object = objects.get(lastObjectId);
+    const object = objects.get(ctrl.observerId);
 
     cameraControls.enabled = false;
+    cameraControls.update();
 
     let distance;
     let direction;
 
-    if (firstPersonView) {
+    if (ctrl.firstPersonView) {
         distance = object.cameraRadius / 100;
-        direction = camera.position.clone().sub(object.group.position).normalize();
+        direction = defaultCamera.position.clone().sub(object.group.position).normalize();
+        cameraControls.minDistance = distance;
+        cameraControls.maxDistance = distance;
+        cameraControls.enableZoom = false;
     } else {
         distance = object.cameraRadius * 10;
-        direction = camera.position.clone().sub(object.group.position).normalize();
-        //cameraControls.minDistance = object.cameraRadius * 1.05;
-        //cameraControls.maxDistance = object.cameraRadius * 100;
+        direction = defaultCamera.position.clone().sub(object.group.position).normalize();
+        cameraControls.minDistance = object.cameraRadius * 1.05;
+        cameraControls.maxDistance = object.cameraRadius * 1000;
+        cameraControls.enableZoom = true;
+        show(ctrl.observerId);
     }
 
     const newPosition = object.group.position.clone().add(direction.multiplyScalar(distance));
 
-    gsap.to(camera.position, {
+    gsap.to(defaultCamera.position, {
         x: newPosition.x,
         y: newPosition.y,
         z: newPosition.z,
         duration: 0.25,
         onUpdate: () => {
-            camera.lookAt(object.group.position);
             cameraControls.update();
         },
         onComplete: () => {
             cameraControls.enabled = true; // Re-enable user control
-            cameraControls.enableZoom = firstPersonView ? false : true;
+            if(ctrl.firstPersonView) {
+                cameraControls.enableZoom = false;
+                hide(ctrl.observerId);
+            }
         }
     });
-}
-
-export function setCameraTo(objectId) {
-    const obj = objects.get(objectId);
-    camera.lookAt(obj.group.position);
-    cameraControls.target.copy(obj.group.position);
-
-    let distance;
-    let direction;
-    if(firstPersonView) {
-        distance = obj.cameraRadius / 1000;
-        direction = camera.position.clone().sub(obj.group.position).normalize();
-    }
-    else if(!firstPersonView) {
-        distance = obj.cameraRadius * 10;
-        direction = camera.position.clone().sub(obj.group.position).normalize();
-    }
-
-    camera.position.copy(obj.group.position).add(direction.multiplyScalar(distance));
-    cameraControls.update();
-    lastObjectId = objectId;
-}
-
-export function loadCameraView() {
-    const T = cameraControls.target;
-    const C = camera.position;
-    let nextPosition;
-    const obj = objects.get(lastObjectId);
-    if(firstPersonView) {
-        obj.group.visible = false;
-        nextPosition = C.sub(T).normalize().multiplyScalar(obj.cameraRadius/1000).add(T);
-        cameraControls.enableZoom = false;
-    } else if (!firstPersonView){
-        obj.group.visible = true;
-        nextPosition = C.sub(T).normalize().multiplyScalar(obj.cameraRadius * 10).add(T);
-        cameraControls.enableZoom = true;
-        console.log('back');
-    }
-    camera.position.copy(nextPosition);
-    cameraControls.update();
 }
 
 export function cameraSetTo(cameraId) {
@@ -535,11 +502,13 @@ export function show(id) {
 }
 
 export function animate() {
-    const pos = objects.get(199).group.position;
-    pos.x += 100;
-    objects.get(199).group.position.copy(pos);
-
     requestAnimationFrame(animate);
+    if(ctrl.simulationRunning) {
+        const pos = objects.get(199).group.position;
+        pos.x += 100;
+        const vec = defaultCamera.position.clone();
+        objects.get(199).group.position.copy(pos);
+    }
     cameraControls.update();
-    renderer.render(scene, camera);
+    renderer.render(scene, currentCamera);
 }

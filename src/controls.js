@@ -321,6 +321,7 @@ function updateLighTimeAdjustmentButton() {
  * - Calls `updateFirstPersonViewButton` to update the button's appearance.
  */
 function toggleFirstPersonView() {
+  if(simulationRunning) return;
   firstPersonView = !firstPersonView;
   updateFirstPersonViewButton();
   engine.gsapCameraFPV();
