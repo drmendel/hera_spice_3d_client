@@ -4,6 +4,6 @@ import * as anim from './animation';
 import * as conf from './config';
 
 anim.loadThreeJSEngine().then( async () => {
-    anim.gsapCameraTo();
+    anim.gsapCameraTo();        // Default to Hera
     anim.animate();
 });
