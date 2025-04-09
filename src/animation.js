@@ -92,9 +92,9 @@ let deimosModel;
 let didymosModel;
 let dimorphosModel;
 
-// let heraModel;
-// let juventasModel;
-// let milaniModel;
+let heraModel;
+let juventasModel;
+let milaniModel;
 
 function loadModel(loader, url) {
     return new Promise((resolve, reject) => {
@@ -113,8 +113,11 @@ async function loadModels() {
             loadModel(gltfLoader, '/models/deimos/24879_Deimos_1_1000.glb'),
             loadModel(objLoader, '/models/didymos/g_50677mm_rad_obj_didy_0000n00000_v001.obj'),
             loadModel(objLoader, '/models/dimorphos/g_08438mm_lgt_obj_dimo_0000n00000_v002.obj'),
+            loadModel(gltfLoader, '/models/hera/hera_deployed.glb'),
+            loadModel(gltfLoader, '/models/juventas/juventas_deployed.glb'),
+            loadModel(gltfLoader, '/models/milani/milani_deployed.glb')
         ];
-        const [tmpPhobos, tmpDeimos, tmpDidymos, tmpDimorphos] = await Promise.all(promises);
+        const [tmpPhobos, tmpDeimos, tmpDidymos, tmpDimorphos, tmpHera, tmpJuventas, tmpMilani] = await Promise.all(promises);
         
         tmpPhobos.scene.scale.set(1, 1, 1);
         phobosModel = tmpPhobos.scene;
@@ -124,6 +127,15 @@ async function loadModels() {
 
         didymosModel = tmpDidymos;
         dimorphosModel = tmpDimorphos;
+
+        tmpHera.scene.scale.setScalar(0.001);
+        heraModel = tmpHera.scene;
+        
+        tmpJuventas.scene.scale.setScalar(0.001);
+        juventasModel = tmpJuventas.scene;
+
+        tmpMilani.scene.scale.setScalar(0.001);
+        milaniModel = tmpMilani.scene;
 
     } catch (error) {
         console.error('Error loading models:', error);
@@ -181,10 +193,6 @@ let earthGeometry;
 let moonGeometry;
 let marsGeometry;
 
-let heraGeometry;
-let juventasGeometry;
-let milaniGeometry;
-
 function loadGeometry() {
     starFieldGeometry = new THREE.SphereGeometry(1E25, 300, 300);
 
@@ -194,10 +202,6 @@ function loadGeometry() {
     earthGeometry = new THREE.SphereGeometry(6378, 32, 32);
     moonGeometry = new THREE.SphereGeometry(1737.4, 32, 32);
     marsGeometry = new THREE.SphereGeometry(3389.5, 32, 32);
-
-    heraGeometry = new THREE.BoxGeometry(2.153E-3, 2.014E-3, 2.162E-3);
-    juventasGeometry = new THREE.BoxGeometry(0.37E-3, 0.23E-3, 0.10E-3);
-    milaniGeometry = new THREE.BoxGeometry(0.13E-3,0.246E-3,0.366E-3);
 }
 
 let starFieldSurface;
@@ -212,10 +216,6 @@ let earthSurface;
 let moonSurface;
 let marsSurface;
 
-let heraSurface;
-let juventasSurface;
-let milaniSurface;
-
 function loadSurfaces() {
     starFieldSurface = new THREE.Mesh(starFieldGeometry, starFieldMaterial);
     starFieldLight = new THREE.AmbientLight(0xffffff, 0.015);
@@ -224,7 +224,7 @@ function loadSurfaces() {
     sunLight = new THREE.PointLight(0xffffff, 2, 0, 3);
     sunLight.decay = 0;
     sunLight.castShadow = true;
-    
+
     mercurySurface = new THREE.Mesh(mercuryGeometry, mercuryMaterial);
     mercurySurface.castShadow = true;
     mercurySurface.receiveShadow = true;
@@ -244,18 +244,17 @@ function loadSurfaces() {
     marsSurface = new THREE.Mesh(marsGeometry, marsMaterial);
     marsSurface.castShadow = true;
     marsSurface.receiveShadow = true;
+}
 
-    heraSurface = new THREE.Mesh(heraGeometry, scMaterials);
-    heraSurface.castShadow = true;
-    heraSurface.receiveShadow = true;
+// let SMC;
+let HSH;
+let AFC1;
+let AFC2;
+let JNC;
+let MNC;
 
-    juventasSurface = new THREE.Mesh(juventasGeometry, scMaterials);
-    juventasSurface.castShadow = true;
-    juventasSurface.receiveShadow = true;
-
-    milaniSurface = new THREE.Mesh(milaniGeometry, scMaterials);
-    milaniSurface.castShadow = true;
-    milaniSurface.receiveShadow = true;
+export function createCameras() {
+    HSH = new THREE.PerspectiveCamera(5.5, window.innerWidth / window.innerHeight, 1E-6, 5000000000);
 }
 
 export function loadObjects() {
@@ -295,19 +294,16 @@ export function loadObjects() {
     objects.get(-658031).group.add(dimorphosModel);
 
     objects.get(-91000).group = new THREE.Group();
-    objects.get(-91000).group.add(heraSurface);
+    objects.get(-91000).group.add(heraModel);
 
     objects.get(-15513000).group = new THREE.Group();
-    objects.get(-15513000).group.add(juventasSurface);
+    objects.get(-15513000).group.add(juventasModel);
 
     objects.get(-9102000).group = new THREE.Group();
-    objects.get(-9102000).group.add(milaniSurface);
+    objects.get(-9102000).group.add(milaniModel);
 }
 
 export function loadScene() {
-    /*objects.forEach((value) => {
-        scene.add(value.group);
-    });*/
 
     // STARFIELD
     objects.get(0).group.position.set(0, 0, 0);
@@ -376,6 +372,8 @@ export async function loadThreeJSEngine() {
     loadObjects();
     loadScene();
     currentCamera = defaultCamera;
+    const axisHelper = new THREE.AxesHelper(1E6);
+    scene.add(axisHelper);
     animate();
 }
 
