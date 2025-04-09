@@ -4,6 +4,6 @@ import * as anim from './animation';
 import * as conf from './config';
 
 anim.loadThreeJSEngine().then( async () => {
-    anim.setCameraTo(-658031);
+    anim.gsapCameraTo();
     anim.animate();
 });
