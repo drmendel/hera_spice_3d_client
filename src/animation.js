@@ -401,10 +401,12 @@ export function gsapCameraTo() {
     let direction;
 
     if(ctrl.firstPersonView && !ctrl.simulationRunning) {
+        if(object.group.visible) object.group.visible = false;
         distance = object.cameraRadius / 100;
         direction = defaultCamera.position.clone().sub(object.group.position).normalize();
     }
     else {
+        if(!object.group.visible) object.group.visible = true;
         distance = object.cameraRadius * 10;
         direction = defaultCamera.position.clone().sub(object.group.position).normalize();
     }
@@ -437,12 +439,14 @@ export function gsapCameraFPV() {
     let direction;
 
     if (ctrl.firstPersonView) {
+        if(object.group.visible) object.group.visible = false;
         distance = object.cameraRadius / 100;
         direction = defaultCamera.position.clone().sub(object.group.position).normalize();
         cameraControls.minDistance = distance;
         cameraControls.maxDistance = distance;
         cameraControls.enableZoom = false;
     } else {
+        if(!object.group.visible) object.group.visible = true;
         distance = object.cameraRadius * 10;
         direction = defaultCamera.position.clone().sub(object.group.position).normalize();
         cameraControls.minDistance = object.cameraRadius * 1.05;
