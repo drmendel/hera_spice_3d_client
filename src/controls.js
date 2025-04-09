@@ -14,7 +14,7 @@ export let lightTimeAdjustment = false;
 export let firstPersonView = false;
 export let labelDisplay = false;
 export let telemetryDisplay = false;
-export let starFieldDisplay = false;
+export let starFieldDisplay = true;
 export let helpDisplay = false;
 
 export const speedValues = [
@@ -38,6 +38,7 @@ setParamsFromURL();
 updatePlaybackButton();
 updatePlaceholder();
 updateSpeed();
+updateStarFieldVisibilityButton();
 
 // ###################### LISTENERS ######################
 
