@@ -34,14 +34,19 @@ export let objects = new Map([
  * Mapping of HERA spacecraft camera identifiers to their names.
  * These represent different camera systems on the HERA spacecraft.
  */
+const hshAspect = 2018 / 1088;
+const afcAspect = 1024 / 1024;
+const jncAspect = 2048 / 1536;
+const mncAspect = 2048 / 1536;
 export const cameras = new Map([
-    [-91500, "SMC"],    // Spacecraft Monitoring Camera
-    [-91400, "HSH"],    // HyperScout Hyperspectral
-    [-91120, "AFC2"],   // Asteriod Framing Camera 2
-    [-91110, "AFC1"],   // Asteroid Framing Camera 1
-    [-15513310, "JNC"], // Juventas Navigation Camera
-    [-91002310, "MNC"]  // Milani Navigation Camera
+    [0, { name: "DEFAULT", camera: new THREE.PerspectiveCamera(45, 1, 1E-6, 1E12) }],
+    [-91400, { name: "HSH", aspect: hshAspect, camera: new THREE.PerspectiveCamera(9.9, hshAspect, 1E-6, 1E12)}],    // HyperScout Hyperspectral
+    [-91120, { name: "AFC2", aspect: afcAspect, camera: new THREE.PerspectiveCamera(5.5, afcAspect, 1E-6, 1E12)}],   // Asteroid Framing Camera 2
+    [-91110, { name: "AFC1", aspect: afcAspect, camera: new THREE.PerspectiveCamera(5.5, afcAspect, 1E-6, 1E12)}],   // Asteroid Framing Camera 1
+    [-15513310, { name: "JNC", aspect: jncAspect, camera: new THREE.PerspectiveCamera(28.5, jncAspect, 1E-6, 1E12)}], // Juventas Navigation Camera
+    [-91002310, { name: "MNC", aspect: mncAspect, camera: new THREE.PerspectiveCamera(16, mncAspect, 1E-6, 1E12)}]  // Milani Navigation Camera
 ]);
+
 /* 
     HERA_SPACECRAFT (-91000)*    HERA_LGA+X (-91071)*
     HERA_SA+Y (-91011)*          HERA_LGA-X (-91072)*

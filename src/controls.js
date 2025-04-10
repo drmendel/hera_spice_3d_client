@@ -50,7 +50,15 @@ document.getElementById('increment-button').addEventListener('mousedown', () => 
 document.getElementById('decrement-button').addEventListener('mousedown', () => crementSpeed(false));
 document.getElementById('observer-dropdown').addEventListener('change', event => {
   observerId = Number(event.target.value);
-  engine.gsapCameraTo(observerId);
+  if(observerId === -91400 || observerId === -91120 || observerId === -91110 || observerId === -15513310 || observerId === -91002310) {
+    engine.changeCamera(observerId);
+    document.getElementById('camera-box').style.display = 'block';
+  }
+  else {
+    engine.changeCamera(0); // Default camera
+    engine.gsapCameraTo(observerId);
+    document.getElementById('camera-box').style.display = 'none';
+  }
 });
 
 document.getElementById('menu-button').addEventListener('mousedown', toggleMenu);

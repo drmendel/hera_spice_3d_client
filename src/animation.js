@@ -12,6 +12,7 @@ import { max } from 'three/tsl';
 let canvas;
 let scene;
 let currentCamera;
+let currentCameraId;
 let defaultCamera;
 let cameraControls;
 let renderer;
@@ -27,6 +28,7 @@ function init() {
     scene = new THREE.Scene();
     
     defaultCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1E-6, 1E12);
+    cameras.get(0).camera = defaultCamera;
     // const aspect = window.innerWidth / window.innerHeight; const frustumSize = 1000; defaultCamera = new THREE.OrthographicCamera(-frustumSize * aspect / 2, frustumSize * aspect / 2, frustumSize / 2, -frustumSize / 2, 0.01, 5000000000);
     defaultCamera.position.set(0, 0, 1000); // Set an initial position for the defaultCamera
     
@@ -65,21 +67,63 @@ function init() {
     objLoader = new OBJLoader(loadingManager);
 
     window.addEventListener('resize', () => {
-        const canvas = document.querySelector('canvas');
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-      
-        // Update canvas size
-        canvas.width = width;
-        canvas.height = height;
-      
-        // Update renderer size
-        renderer.setSize(width, height);
-      
-        // Update defaultCamera aspect ratio and projection matrix
-        defaultCamera.aspect = width / height;
-        defaultCamera.updateProjectionMatrix();
-    });  
+        resizeCameraAspect();
+        resizeCameraBox();
+    });
+}
+
+function resizeCameraAspect() {
+    const canvas = document.querySelector('canvas');
+    
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    canvas.width = windowWidth;
+    canvas.height = windowHeight;
+    
+    renderer.setSize(windowWidth, windowHeight);
+    
+    currentCamera.aspect = windowWidth / windowHeight;
+    currentCamera.updateProjectionMatrix();
+}
+
+function resizeCameraBox() {
+    const box = document.getElementById('camera-box');
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+
+    if(currentCamera != defaultCamera) box.style.display = 'block';
+    else box.style.display = 'none';
+    
+    let width, height;
+    const margin = 6;
+
+    // Screen is wider than camera aspect → pillarbox
+    if (windowWidth / windowHeight > cameras.get(currentCameraId).aspect) {
+        height = windowHeight - margin;
+        width = windowHeight * cameras.get(currentCameraId).aspect - margin;
+    }
+    // Screen is taller than camera aspect → letterbox  
+    else {
+        width = windowWidth - margin;
+        height = windowWidth / cameras.get(currentCameraId).aspect - margin;
+    }
+
+    box.style.width = `${width}px`;
+    box.style.height = `${height}px`;
+}
+
+export function changeCamera(cameraId) {
+    if(cameraId === 0) {
+        currentCameraId = 0;
+        currentCamera = defaultCamera;
+    }
+    else {
+        currentCameraId = cameraId;
+        currentCamera = cameras.get(cameraId).camera;
+        resizeCameraAspect();
+        resizeCameraBox();
+    }
 }
 
 let starFieldTexture;
@@ -270,21 +314,6 @@ function loadSurfaces() {
     marsSurface = new THREE.Mesh(marsGeometry, marsMaterial);
     marsSurface.castShadow = true;
     marsSurface.receiveShadow = true;
-}
-
-// let SMC;
-let HSH;
-let AFC1;
-let AFC2;
-let JNC;
-let MNC;
-
-export function createCameras() {
-    HSH = new THREE.PerspectiveCamera(9.9, 1, 1E-6, 1E12);
-    AFC1 = new THREE.PerspectiveCamera(5.5, 1, 1E-6, 1E12);
-    AFC2 = new THREE.PerspectiveCamera(5.5, 1, 1E-6, 1E12);
-    JNC = new THREE.PerspectiveCamera(5.5, window.innerWidth / window.innerHeight, 1E-6, 5000000000);
-    MNC = new THREE.PerspectiveCamera(5.5, window.innerWidth / window.innerHeight, 1E-6, 5000000000);
 }
 
 export function loadObjects() {
