@@ -411,7 +411,7 @@ export function loadScene() {
     scene.add(objects.get(401).group);
 
     // DEIMOS
-    objects.get(402).group.position.set(150000, 0, -20000);
+    objects.get(402).group.position.set(150000, 0, 300-20000);
     scene.add(objects.get(402).group);
 
     // DIDYMOS
@@ -423,15 +423,15 @@ export function loadScene() {
     scene.add(objects.get(-658031).group);
 
     // HERA
-    objects.get(-91000).group.position.set(150000, 0, 249.750-20000);
+    objects.get(-91000).group.position.set(150000, 0, -20000);
     scene.add(objects.get(-91000).group);
 
     // JUVENTAS
-    objects.get(-15513000).group.position.set(150000+0.005, 0, 249.750-20000);
+    objects.get(-15513000).group.position.set(150000+0.005, 0, -20000);
     scene.add(objects.get(-15513000).group);
 
     // MILANI
-    objects.get(-9102000).group.position.set(150000-0.005, 0.001, 249.750-20000);
+    objects.get(-9102000).group.position.set(150000-0.005, 0.001, -20000);
     scene.add(objects.get(-9102000).group);
 }
 
