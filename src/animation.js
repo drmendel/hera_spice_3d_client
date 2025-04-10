@@ -2,12 +2,12 @@ import * as THREE from 'three';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 import { gsap } from 'gsap';
 
-import { canvasName, load } from './config';
+import { canvasName } from './config';
 import { objects, cameras } from './spice';
 import * as ctrl from './controls';
-import { max } from 'three/tsl';
 
 let canvas;
 let scene;
@@ -35,7 +35,7 @@ function init() {
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, logarithmicDepthBuffer: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    cameraControls = new OrbitControls(defaultCamera, renderer.domElement);
+    cameraControls = new TrackballControls(defaultCamera, renderer.domElement);
     cameraControls.enableDamping = true;
     cameraControls.dampingFactor = 0.03;
     cameraControls.enableZoom = true;
