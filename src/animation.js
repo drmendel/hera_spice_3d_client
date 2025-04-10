@@ -574,7 +574,7 @@ export function animate() {
     requestAnimationFrame(animate);
     if(ctrl.simulationRunning) {
         const pos = objects.get(199).group.position;
-        pos.x += 100;
+        pos.x += 100 * ctrl.speedValues[ctrl.speedLevel];
         const vec = defaultCamera.position.clone();
         objects.get(199).group.position.copy(pos);
     }
