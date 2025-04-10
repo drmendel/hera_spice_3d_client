@@ -199,6 +199,7 @@ async function loadModels() {
         dimorphosModel = tmpDimorphos;
 
         tmpHera.scene.scale.setScalar(0.001);
+        tmpHera.scene.rotateX(Math.PI / 2);
         heraModel = tmpHera.scene;
         
         tmpJuventas.scene.scale.setScalar(0.001);
