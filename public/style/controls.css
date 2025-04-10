@@ -98,7 +98,7 @@ button, select {
 }
 
 @media (pointer: fine) {
-    button:hover, select:hover {
+    button:hover {
         outline: none;
         transform: scale(0.9);
     }
