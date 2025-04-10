@@ -7,6 +7,7 @@ import { gsap } from 'gsap';
 import { canvasName, load } from './config';
 import { objects, cameras } from './spice';
 import * as ctrl from './controls';
+import { max } from 'three/tsl';
 
 let canvas;
 let scene;
@@ -19,11 +20,13 @@ let objLoader;
 let gltfLoader;
 let loadingManager;
 
+let maxProgress = 0;
+
 function init() {
     canvas = document.getElementById(canvasName);
     scene = new THREE.Scene();
     
-    defaultCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1E-6, 5000000000);
+    defaultCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1E-6, 1E12);
     // const aspect = window.innerWidth / window.innerHeight; const frustumSize = 1000; defaultCamera = new THREE.OrthographicCamera(-frustumSize * aspect / 2, frustumSize * aspect / 2, frustumSize / 2, -frustumSize / 2, 0.01, 5000000000);
     defaultCamera.position.set(0, 0, 1000); // Set an initial position for the defaultCamera
     
@@ -46,17 +49,20 @@ function init() {
     };
     
     loadingManager.onProgress = function (item, loaded, total) {
-        progressBar.style.width = String(Math.max((loaded / total) * 110, 100)) + '%';
-        console.log(progressBar.style.width);
+        const progress = (loaded / total) * 110;
+        if(maxProgress < progress) maxProgress = progress;
+        const bar = maxProgress < 100 ? String(maxProgress) : String(100);
+        progressBar.style.width = bar + '%';
+        console.log(item);
     };
 
     loadingManager.onLoad = function () {
         progressBarContainer.style.display = 'none';
     };
 
-    textureLoader = new THREE.TextureLoader();
+    textureLoader = new THREE.TextureLoader(loadingManager);
     gltfLoader = new GLTFLoader(loadingManager);
-    objLoader = new OBJLoader();
+    objLoader = new OBJLoader(loadingManager);
 
     window.addEventListener('resize', () => {
         const canvas = document.querySelector('canvas');
@@ -274,7 +280,11 @@ let JNC;
 let MNC;
 
 export function createCameras() {
-    HSH = new THREE.PerspectiveCamera(5.5, window.innerWidth / window.innerHeight, 1E-6, 5000000000);
+    HSH = new THREE.PerspectiveCamera(9.9, 1, 1E-6, 1E12);
+    AFC1 = new THREE.PerspectiveCamera(5.5, 1, 1E-6, 1E12);
+    AFC2 = new THREE.PerspectiveCamera(5.5, 1, 1E-6, 1E12);
+    JNC = new THREE.PerspectiveCamera(5.5, window.innerWidth / window.innerHeight, 1E-6, 5000000000);
+    MNC = new THREE.PerspectiveCamera(5.5, window.innerWidth / window.innerHeight, 1E-6, 5000000000);
 }
 
 export function loadObjects() {
@@ -314,6 +324,7 @@ export function loadObjects() {
     objects.get(-658031).group.add(dimorphosModel);
 
     objects.get(-91000).group = new THREE.Group();
+    heraModel.rotateY(Math.PI);
     objects.get(-91000).group.add(heraModel);
 
     objects.get(-15513000).group = new THREE.Group();
