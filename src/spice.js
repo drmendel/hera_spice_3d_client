@@ -40,10 +40,10 @@ const jncAspect = 2048 / 1536;
 const mncAspect = 2048 / 1536;
 export const cameras = new Map([
     [0, { name: "DEFAULT", camera: new THREE.PerspectiveCamera(45, 1, 1E-6, 1E12) }],
-    [-91400, { name: "HSH", aspect: hshAspect, camera: new THREE.PerspectiveCamera(9.9, hshAspect, 1E-6, 1E12)}],    // HyperScout Hyperspectral
-    [-91120, { name: "AFC2", aspect: afcAspect, camera: new THREE.PerspectiveCamera(5.5, afcAspect, 1E-6, 1E12)}],   // Asteroid Framing Camera 2
-    [-91110, { name: "AFC1", aspect: afcAspect, camera: new THREE.PerspectiveCamera(5.5, afcAspect, 1E-6, 1E12)}],   // Asteroid Framing Camera 1
-    [-15513310, { name: "JNC", aspect: jncAspect, camera: new THREE.PerspectiveCamera(28.5, jncAspect, 1E-6, 1E12)}], // Juventas Navigation Camera
+    [-91400, { name: "HSH", aspect: hshAspect, camera: new THREE.PerspectiveCamera(9.9, hshAspect, 1E-3, 1E12)}],    // HyperScout Hyperspectral
+    [-91120, { name: "AFC2", aspect: afcAspect, camera: new THREE.PerspectiveCamera(5.5, afcAspect, 1E-3, 1E12)}],   // Asteroid Framing Camera 2
+    [-91110, { name: "AFC1", aspect: afcAspect, camera: new THREE.PerspectiveCamera(5.5, afcAspect, 1E-3, 1E12)}],   // Asteroid Framing Camera 1
+    [-15513310, { name: "JNC", aspect: jncAspect, camera: new THREE.PerspectiveCamera(28.5, jncAspect, 1E-3, 1E12)}], // Juventas Navigation Camera
     [-9102310, { name: "MNC", aspect: mncAspect, camera: new THREE.PerspectiveCamera(16, mncAspect, 1E-3, 1E12)}]  // Milani Navigation Camera
 ]);
 
