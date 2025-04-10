@@ -45,6 +45,7 @@ canvas {
 }
 
 .progress-bar-container {
+    z-index: 20;
     position: absolute;
     left: 50%;
     top: 50%;
