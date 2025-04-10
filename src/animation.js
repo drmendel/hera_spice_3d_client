@@ -409,6 +409,8 @@ export function getCameraId(cameraName) {
 let lastObjectId = -91000;  // Default Hera
 
 export function gsapCameraTo() {
+    objects.get(lastObjectId).group.visible = true;
+    lastObjectId = ctrl.observerId;
     const object = objects.get(ctrl.observerId);
 
     cameraControls.enabled = false;
@@ -490,6 +492,10 @@ export function gsapCameraFPV() {
             if(ctrl.firstPersonView) {
                 cameraControls.enableZoom = false;
                 hide(ctrl.observerId);
+                if(ctrl.observerId != lastObjectId) {
+                    objects.get(lastObjectId).group.visible = true;
+                    lastObjectId = ctrl.observerId;
+                }
             }
         }
     });
