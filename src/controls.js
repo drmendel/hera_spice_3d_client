@@ -51,7 +51,7 @@ document.getElementById('decrement-button').addEventListener('mousedown', () => 
 document.getElementById('observer-dropdown').addEventListener('change', event => {
   if(firstPersonView) toggleFirstPersonView();
   observerId = Number(event.target.value);
-  if(observerId === -91400 || observerId === -91120 || observerId === -91110 || observerId === -15513310 || observerId === -91002310) {
+  if(observerId === -91400 || observerId === -91120 || observerId === -91110 || observerId === -15513310 || observerId === -9102310) {
     engine.changeCamera(observerId);
     document.getElementById('camera-box').style.display = 'block';
   }
