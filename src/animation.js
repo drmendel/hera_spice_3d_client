@@ -4,7 +4,7 @@ import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { gsap } from 'gsap';
 
-import { canvasName } from './config';
+import { canvasName, load } from './config';
 import { objects, cameras } from './spice';
 import * as ctrl from './controls';
 
@@ -17,6 +17,7 @@ let renderer;
 let textureLoader;
 let objLoader;
 let gltfLoader;
+let loadingManager;
 
 function init() {
     canvas = document.getElementById(canvasName);
@@ -34,8 +35,27 @@ function init() {
     cameraControls.dampingFactor = 0.03;
     cameraControls.enableZoom = true;
     
+    const progressBarContainer = document.querySelector('.progress-bar-container');
+    const progressBar = document.getElementById('progress-bar');
+    const threeCanvas = document.getElementById('three-canvas');
+    const uiElements = document.getElementById('ui-elements');
+
+    loadingManager = new THREE.LoadingManager();
+
+    loadingManager.onStart = function (url, itemsLoaded, itemsTotal) {
+    };
+    
+    loadingManager.onProgress = function (item, loaded, total) {
+        progressBar.style.width = String(Math.max((loaded / total) * 110, 100)) + '%';
+        console.log(progressBar.style.width);
+    };
+
+    loadingManager.onLoad = function () {
+        progressBarContainer.style.display = 'none';
+    };
+
     textureLoader = new THREE.TextureLoader();
-    gltfLoader = new GLTFLoader();
+    gltfLoader = new GLTFLoader(loadingManager);
     objLoader = new OBJLoader();
 
     window.addEventListener('resize', () => {
