@@ -49,6 +49,7 @@ document.getElementById('playback-speed-input').addEventListener('change', setSp
 document.getElementById('increment-button').addEventListener('mousedown', () => crementSpeed(true));
 document.getElementById('decrement-button').addEventListener('mousedown', () => crementSpeed(false));
 document.getElementById('observer-dropdown').addEventListener('change', event => {
+  if(firstPersonView) toggleFirstPersonView();
   observerId = Number(event.target.value);
   if(observerId === -91400 || observerId === -91120 || observerId === -91110 || observerId === -15513310 || observerId === -91002310) {
     engine.changeCamera(observerId);
@@ -194,6 +195,7 @@ function updatePlaceholder() {
  * If `simulationRunning` is false, it sets it to true, indicating the simulation is running.
  */
 function toggleSimulationRunning() {
+  if(firstPersonView) toggleFirstPersonView();
   simulationRunning = simulationRunning ? false : true;
   updatePlaybackButton();
 }
