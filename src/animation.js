@@ -126,6 +126,14 @@ export function changeCamera(cameraId) {
     }
 }
 
+function setCameraOrientations() {
+    cameras.get(-91400).camera.rotateX(Math.PI);
+    cameras.get(-91120).camera.rotateX(Math.PI);
+    cameras.get(-91110).camera.rotateX(Math.PI);
+    cameras.get(-15513310).camera.rotateX(Math.PI);
+    cameras.get(-9102310).camera.rotateX(Math.PI);
+}
+
 let starFieldTexture;
 
 let sunTexture;
@@ -354,14 +362,18 @@ export function loadObjects() {
     objects.get(-658031).group.add(dimorphosModel);
 
     objects.get(-91000).group = new THREE.Group();
-    heraModel.rotateY(Math.PI);
     objects.get(-91000).group.add(heraModel);
+    objects.get(-91000).group.add(cameras.get(-91400).camera);
+    objects.get(-91000).group.add(cameras.get(-91110).camera);
+    objects.get(-91000).group.add(cameras.get(-91120).camera);
 
     objects.get(-15513000).group = new THREE.Group();
     objects.get(-15513000).group.add(juventasModel);
+    objects.get(-15513000).group.add(cameras.get(-15513310).camera);
 
     objects.get(-9102000).group = new THREE.Group();
     objects.get(-9102000).group.add(milaniModel);
+    objects.get(-9102000).group.add(cameras.get(-9102310).camera);
 }
 
 export function loadScene() {
@@ -429,6 +441,7 @@ export async function loadThreeJSEngine() {
     loadMaterials();
     loadGeometry();
     loadSurfaces();
+    setCameraOrientations();
     await loadModels();
     loadObjects();
     loadScene();
