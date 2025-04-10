@@ -60,6 +60,8 @@ document.getElementById('observer-dropdown').addEventListener('change', event =>
     engine.gsapCameraTo(observerId);
     document.getElementById('camera-box').style.display = 'none';
   }
+  console.log(`Observer ID: ${observerId}`);
+  console.log(`Camera: ${engine.cameraId}`);
 });
 
 document.getElementById('menu-button').addEventListener('mousedown', toggleMenu);
@@ -332,6 +334,7 @@ function updateLighTimeAdjustmentButton() {
  * - Calls `updateFirstPersonViewButton` to update the button's appearance.
  */
 function toggleFirstPersonView() {
+  if(observerId === -91400 || observerId === -91110 || observerId === -91120 || observerId === -15513310 || observerId === -9102310) return;
   if(simulationRunning) return;
   firstPersonView = !firstPersonView;
   updateFirstPersonViewButton();
