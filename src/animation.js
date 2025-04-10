@@ -371,7 +371,7 @@ export function loadScene() {
     scene.add(objects.get(0).group);
 
     // SUN
-    objects.get(10).group.position.set(-10000000, 0, 0);
+    objects.get(10).group.position.set(10000000, 0, 0);
     scene.add(objects.get(10).group);
 
     // MERCURY
