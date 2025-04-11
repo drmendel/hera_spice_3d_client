@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
+import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { gsap } from 'gsap';
 
 import { canvasName } from './config';
@@ -16,6 +17,7 @@ let currentCameraId;
 let defaultCamera;
 let cameraControls;
 let renderer;
+let labelRenderer;
 let textureLoader;
 let objLoader;
 let gltfLoader;
@@ -28,6 +30,7 @@ function init() {
     scene = new THREE.Scene();
     
     defaultCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1E-6, 1E12);
+    defaultCamera.layers.enableAll();
     cameras.get(0).camera = defaultCamera;
     // const aspect = window.innerWidth / window.innerHeight; const frustumSize = 1000; defaultCamera = new THREE.OrthographicCamera(-frustumSize * aspect / 2, frustumSize * aspect / 2, frustumSize / 2, -frustumSize / 2, 0.01, 5000000000);
     defaultCamera.position.set(0, 0, 1000); // Set an initial position for the defaultCamera
@@ -35,7 +38,13 @@ function init() {
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, logarithmicDepthBuffer: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    cameraControls = new TrackballControls(defaultCamera, renderer.domElement);
+    labelRenderer = new CSS2DRenderer();
+    labelRenderer.setSize(window.innerWidth, window.innerHeight);
+    labelRenderer.domElement.style.position = 'absolute';
+    labelRenderer.domElement.style.top = '0px';
+    document.body.appendChild(labelRenderer.domElement);
+
+    cameraControls = new TrackballControls(defaultCamera, labelRenderer.domElement);
     cameraControls.enableDamping = true;
     cameraControls.dampingFactor = 0.03;
     cameraControls.enableZoom = true;
@@ -82,6 +91,7 @@ function resizeCameraAspect() {
     canvas.height = windowHeight;
     
     renderer.setSize(windowWidth, windowHeight);
+    labelRenderer.setSize(windowWidth, windowHeight);
     
     currentCamera.aspect = windowWidth / windowHeight;
     currentCamera.updateProjectionMatrix();
@@ -126,12 +136,25 @@ export function changeCamera(cameraId) {
     }
 }
 
+function initCameras() {
+    setCameraOrientations();
+    setCameraLayers();
+}
+
 function setCameraOrientations() {
     cameras.get(-91400).camera.rotateX(Math.PI);
     cameras.get(-91120).camera.rotateX(Math.PI);
     cameras.get(-91110).camera.rotateX(Math.PI);
     cameras.get(-15513310).camera.rotateX(Math.PI);
     cameras.get(-9102310).camera.rotateX(Math.PI);
+}
+
+function setCameraLayers() {
+    cameras.forEach((cameraObject) => {
+        cameraObject.camera.layers.enableAll();
+        cameraObject.camera.layers.disable(1);
+        cameraObject.camera.layers.disable(2);
+    });
 }
 
 let starFieldTexture;
@@ -325,6 +348,174 @@ function loadSurfaces() {
     marsSurface.receiveShadow = true;
 }
 
+let sunLabel;
+let mercuryLabel;
+let venusLabel;
+let earthLabel;
+let moonLabel;
+let marsLabel;
+let phobosLabel;
+let deimosLabel;
+let didymosLabel;
+let dimorphosLabel;
+let heraLabel;
+let juventasLabel;
+let milaniLabel;
+
+export function loadLabels() {
+    const distanceRatio = 1.2;
+
+    const sunDiv = document.createElement('div');
+    sunDiv.className = 'label';
+    sunDiv.textContent = 'Sun';
+    sunLabel = new CSS2DObject(sunDiv);
+    sunLabel.center.set(0.5, 0.5);
+    sunLabel.layers.set(1);
+    sunLabel.position.set(
+        0,
+        Math.SQRT2 * objects.get(10).cameraRadius * distanceRatio,
+        Math.SQRT2 * objects.get(10).cameraRadius * distanceRatio
+    );
+
+    const mercuryDiv = document.createElement('div');
+    mercuryDiv.className = 'label';
+    mercuryDiv.textContent = 'Mercury';
+    mercuryLabel = new CSS2DObject(mercuryDiv);
+    mercuryLabel.layers.set(1);
+    mercuryLabel.position.set(
+        0,
+        Math.SQRT2 * objects.get(199).cameraRadius * distanceRatio,
+        Math.SQRT2 * objects.get(199).cameraRadius * distanceRatio
+    );
+
+    const venusDiv = document.createElement('div');
+    venusDiv.className = 'label';
+    venusDiv.textContent = 'Venus';
+    venusLabel = new CSS2DObject(venusDiv);
+    venusLabel.layers.set(1);
+    venusLabel.position.set(
+        0,
+        Math.SQRT2 * objects.get(299).cameraRadius * distanceRatio,
+        Math.SQRT2 * objects.get(299).cameraRadius * distanceRatio
+    );
+
+    const earthDiv = document.createElement('div');
+    earthDiv.className = 'label';
+    earthDiv.textContent = 'Earth';
+    earthLabel = new CSS2DObject(earthDiv);
+    earthLabel.layers.set(1);
+    earthLabel.position.set(
+        0,
+        Math.SQRT2 * objects.get(399).cameraRadius * distanceRatio,
+        Math.SQRT2 * objects.get(399).cameraRadius * distanceRatio
+    );
+
+    const moonDiv = document.createElement('div');
+    moonDiv.className = 'label';
+    moonDiv.textContent = 'Moon';
+    moonLabel = new CSS2DObject(moonDiv);
+    moonLabel.layers.set(1);
+    moonLabel.position.set(
+        0,
+        Math.SQRT2 * objects.get(301).cameraRadius * distanceRatio,
+        Math.SQRT2 * objects.get(301).cameraRadius * distanceRatio
+    );
+
+    const marsDiv = document.createElement('div');
+    marsDiv.className = 'label';
+    marsDiv.textContent = 'Mars';
+    marsLabel = new CSS2DObject(marsDiv);
+    marsLabel.layers.set(1);
+    marsLabel.position.set(
+        0,
+        Math.SQRT2 * objects.get(499).cameraRadius * distanceRatio,
+        Math.SQRT2 * objects.get(499).cameraRadius * distanceRatio
+    );
+
+    const phobosDiv = document.createElement('div');
+    phobosDiv.className = 'label';
+    phobosDiv.textContent = 'Phobos';
+    phobosLabel = new CSS2DObject(phobosDiv);
+    phobosLabel.layers.set(1);
+    phobosLabel.position.set(
+        0,
+        Math.SQRT2 * objects.get(401).cameraRadius * distanceRatio,
+        Math.SQRT2 * objects.get(401).cameraRadius * distanceRatio
+    );
+
+    const deimosDiv = document.createElement('div');
+    deimosDiv.className = 'label';
+    deimosDiv.textContent = 'Deimos';
+    deimosLabel = new CSS2DObject(deimosDiv);
+    deimosLabel.layers.set(1);
+    deimosLabel.position.set(
+        0,
+        Math.SQRT2 * objects.get(402).cameraRadius * distanceRatio,
+        Math.SQRT2 * objects.get(402).cameraRadius * distanceRatio
+    );
+
+    const didymosDiv = document.createElement('div');
+    didymosDiv.className = 'label';
+    didymosDiv.textContent = 'Didymos';
+    didymosLabel = new CSS2DObject(didymosDiv);
+    didymosLabel.layers.set(1);
+    didymosLabel.position.set(
+        0,
+        Math.SQRT2 * objects.get(-658030).cameraRadius * distanceRatio,
+        Math.SQRT2 * objects.get(-658030).cameraRadius * distanceRatio
+    );
+
+    const dimorphosDiv = document.createElement('div');
+    dimorphosDiv.className = 'label';
+    dimorphosDiv.textContent = 'Dimorphos';
+    dimorphosLabel = new CSS2DObject(dimorphosDiv);
+    dimorphosLabel.layers.set(1);
+    dimorphosLabel.position.set(
+        0,
+        Math.SQRT2 * objects.get(-658031).cameraRadius * distanceRatio,
+        Math.SQRT2 * objects.get(-658031).cameraRadius * distanceRatio
+    );
+
+    const heraDiv = document.createElement('div');
+    heraDiv.className = 'label';
+    heraDiv.textContent = 'Hera';
+    heraLabel = new CSS2DObject(heraDiv);
+    heraLabel.layers.set(1);
+    heraLabel.position.set(
+        0,
+        objects.get(-91000).cameraRadius / 5,
+        0.002 + objects.get(-91000).cameraRadius / 5
+    );
+
+    const juventasDiv = document.createElement('div');
+    juventasDiv.className = 'label';
+    juventasDiv.textContent = 'Juventas';
+    juventasLabel = new CSS2DObject(juventasDiv);
+    juventasLabel.layers.set(1);
+    juventasLabel.position.set(
+        0,
+        Math.SQRT2 * objects.get(-15513000).cameraRadius * distanceRatio,
+        Math.SQRT2 * objects.get(-15513000).cameraRadius * distanceRatio
+    );
+
+    const milaniDiv = document.createElement('div');
+    milaniDiv.className = 'label';
+    milaniDiv.textContent = 'Milani';
+    milaniLabel = new CSS2DObject(milaniDiv);
+    milaniLabel.layers.set(1);
+    milaniLabel.position.set(
+        0,
+        Math.SQRT2 * objects.get(-15513000).cameraRadius * distanceRatio,
+        Math.SQRT2 * objects.get(-15513000).cameraRadius * distanceRatio
+    );
+}
+
+export function toggleLabels() {
+    cameras.forEach((cameraObject) => {
+        cameraObject.camera.layers.toggle(1);
+    });
+}
+
 export function loadObjects() {
     objects.get(0).group = new THREE.Group();
     objects.get(0).group.add(starFieldSurface);
@@ -333,47 +524,60 @@ export function loadObjects() {
     objects.get(10).group = new THREE.Group();
     objects.get(10).group.add(sunSurface);
     objects.get(10).group.add(sunLight);
+    objects.get(10).group.add(sunLabel);
 
     objects.get(199).group = new THREE.Group();
     objects.get(199).group.add(mercurySurface);
+    objects.get(199).group.add(mercuryLabel);
 
     objects.get(299).group = new THREE.Group();
     objects.get(299).group.add(venusSurface);
+    objects.get(299).group.add(venusLabel);
 
     objects.get(399).group = new THREE.Group();
     objects.get(399).group.add(earthSurface);
+    objects.get(399).group.add(earthLabel);
 
     objects.get(301).group = new THREE.Group();
     objects.get(301).group.add(moonSurface);
+    objects.get(301).group.add(moonLabel);
 
     objects.get(499).group = new THREE.Group();
     objects.get(499).group.add(marsSurface);
+    objects.get(499).group.add(marsLabel);
 
     objects.get(401).group = new THREE.Group();
     objects.get(401).group.add(phobosModel);
+    objects.get(401).group.add(phobosLabel);
     
     objects.get(402).group = new THREE.Group();
     objects.get(402).group.add(deimosModel);
+    objects.get(402).group.add(deimosLabel);
 
     objects.get(-658030).group = new THREE.Group();
     objects.get(-658030).group.add(didymosModel);
+    objects.get(-658030).group.add(didymosLabel);
 
     objects.get(-658031).group = new THREE.Group();
     objects.get(-658031).group.add(dimorphosModel);
+    objects.get(-658031).group.add(dimorphosLabel);
 
     objects.get(-91000).group = new THREE.Group();
     objects.get(-91000).group.add(heraModel);
     objects.get(-91000).group.add(cameras.get(-91400).camera);
     objects.get(-91000).group.add(cameras.get(-91110).camera);
     objects.get(-91000).group.add(cameras.get(-91120).camera);
+    objects.get(-91000).group.add(heraLabel);
 
     objects.get(-15513000).group = new THREE.Group();
     objects.get(-15513000).group.add(juventasModel);
     objects.get(-15513000).group.add(cameras.get(-15513310).camera);
+    objects.get(-15513000).group.add(juventasLabel);
 
     objects.get(-9102000).group = new THREE.Group();
     objects.get(-9102000).group.add(milaniModel);
     objects.get(-9102000).group.add(cameras.get(-9102310).camera);
+    objects.get(-9102000).group.add(milaniLabel);
 }
 
 export function loadScene() {
@@ -441,13 +645,14 @@ export async function loadThreeJSEngine() {
     loadMaterials();
     loadGeometry();
     loadSurfaces();
-    setCameraOrientations();
     await loadModels();
+    loadLabels();
     loadObjects();
     loadScene();
     currentCamera = defaultCamera;
     const axisHelper = new THREE.AxesHelper(1E6);
     scene.add(axisHelper);
+    initCameras();
     animate();
 }
 
@@ -596,4 +801,5 @@ export function animate() {
     }
     cameraControls.update();
     renderer.render(scene, currentCamera);
+    labelRenderer.render(scene, currentCamera);
 }

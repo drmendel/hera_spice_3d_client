@@ -60,8 +60,6 @@ document.getElementById('observer-dropdown').addEventListener('change', event =>
     engine.gsapCameraTo(observerId);
     document.getElementById('camera-box').style.display = 'none';
   }
-  console.log(`Observer ID: ${observerId}`);
-  console.log(`Camera: ${engine.cameraId}`);
 });
 
 document.getElementById('menu-button').addEventListener('mousedown', toggleMenu);
@@ -362,6 +360,7 @@ function updateFirstPersonViewButton() {
  */
 function toggleLabelVisibility() {
   labelDisplay = !labelDisplay;
+  engine.toggleLabels();
   updateLabelVisibilityButton();
 }
 
