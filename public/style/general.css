@@ -170,7 +170,10 @@ canvas {
   }
 
   #help-box::-webkit-scrollbar-track {
+    width: 6px;
     background-color: #333; /* Dark background for the track */
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
   }
 
   #help-box::-webkit-scrollbar-thumb {
