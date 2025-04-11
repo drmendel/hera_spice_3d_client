@@ -77,6 +77,71 @@
         <button class="toggle-button" id="help-button">HELP</button>
       </div>
     </div>
+
+    <div class="hidden" id="help-box">
+      <h2 class="centered" id="help">HELP</h2>
+      <h3 class="left">MENU</h3>
+      <p><strong>FSCR</strong> Toggle fullscreen mode.</p>
+      <p><strong>LTA</strong> Enable or disable light time delay calculations.</p>
+      <p><strong>FPV</strong> Switch to a first-person perspective.
+        <br><em>Note: Only available while the simulation is paused.</em></br>
+      </p>
+      <p><strong>LBL</strong> Show or hide object labels.</p>
+      <p><strong>TLM</strong> Display telemetry data overlay.</p>
+      <p><strong>SFD:</strong> Toggle the background starfield visibility.</p>
+    
+      <h3 class="left">PLAYBACK</h3>
+      <p><strong>TIME INPUT:</strong> Enter a time using this format:</p>
+      <p class="centered"><code>YYYY-MM-DDTHH:mm:ss.sss</code>
+        <p><em>Note: The input is restricted between a minimum and maximum date.</em></p>
+      </p>
+        
+      
+      <p><strong>PLAY/PAUSE BUTTON:</strong> Start or pause the simulation.</p>
+      <p><strong>SPEED LEVEL:</strong> Simulated time advanced per real second:</p>
+      <ul>
+        <li>1 - 1 second (real time)</li>
+        <li>2 - 2 seconds</li>
+        <li>3 - 30 seconds</li>
+        <li>4 - 1 minute</li>
+        <li>5 - 30 minutes</li>
+        <li>6 - 1 hour</li>
+        <li>7 - 6 hours</li>
+        <li>8 - 1 day</li>
+        <li>9 - 1 week</li>
+        <li>10 - 1 month</li>
+      </ul>
+      <p><strong>OBSERVER SELECTION:</strong></p>
+      <ul>
+        <li><strong>SUN:</strong> Central star of our solar system, source of light and energy.</li>
+        <li><strong>MERCURY:</strong> Smallest planet, closest to the Sun.</li>
+        <li><strong>VENUS:</strong> Second planet, thick atmosphere, extreme surface temperatures.</li>
+        <li><strong>EARTH:</strong> Third planet, home to life.</li>
+        <li><strong>MOON:</strong> Earth’s only natural orbiter.</li>
+        <li><strong>MARS:</strong> The fourth planet from the Sun, known for its striking red surface due to iron oxide (rust) that covers much of its terrain.</li>
+        <li><strong>PHOBOS:</strong> Largest moon of Mars, orbits very close.</li>
+        <li><strong>DEIMOS:</strong> Smaller moon of Mars, orbits farther than Phobos.</li>
+        <li><strong>DIDYMOS:</strong> Secondary target of the HERA mission.</li>
+        <li><strong>DIMORPHOS:</strong> Primary mission target.</li>
+        <li><strong>HERA:</strong> Main spacecraft.
+          <ul>
+            <li>HSH – Hyperscout Hyperspectral Camera</li>
+            <li>AFC1 – Asteroid Framing Camera 1</li>
+            <li>AFC2 – Asteroid Framing Camera 2</li>
+          </ul>
+        </li>
+        <li><strong>JUVENTAS:</strong> CubeSat deployed by HERA.</li>
+        <ul>
+          <li>JNC – Navigation Camera</li>
+        </ul>
+        <li><strong>MILANI:</strong> CubeSat deployed by HERA.</li>
+        <ul>
+          <li>MNC – Navigation Camera</li>
+        </ul></li>
+      </ul>
+    </div>
+
+
     <script type="module" src="/src/controls.js"></script>
     <script type="module" src="/src/main.js"></script>
     <script type="module" src="/src/websocket.js"></script>

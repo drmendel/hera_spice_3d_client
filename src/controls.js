@@ -429,6 +429,7 @@ function updateStarFieldVisibilityButton() {
 function toggleHelpDisplay() {
   helpDisplay = !helpDisplay;
   updateHelpButton();
+  updateHelpDisplay();
 }
 
 /**
@@ -441,4 +442,9 @@ function updateHelpButton() {
   const color = helpDisplay ? conf.lightColor : conf.darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
+}
+
+function updateHelpDisplay() {
+  if(helpDisplay) document.getElementById('help-box').classList.remove('hidden');
+  else document.getElementById('help-box').classList.add('hidden');
 }
