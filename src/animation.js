@@ -19,7 +19,6 @@ let cameraControls;
 let renderer;
 let labelRenderer;
 let textureLoader;
-let objLoader;
 let gltfLoader;
 let loadingManager;
 
@@ -73,7 +72,6 @@ function init() {
 
     textureLoader = new THREE.TextureLoader(loadingManager);
     gltfLoader = new GLTFLoader(loadingManager);
-    objLoader = new OBJLoader(loadingManager);
 
     window.addEventListener('resize', () => {
         resizeCameraAspect();
@@ -165,10 +163,6 @@ let venusTexture;
 let earthTexture;
 let moonTexture;
 let marsTexture;
-// let phobosTexture;   // not needed, glb already has texture
-// let deimosTexture;   // not needed, glb already has texture
-
-let didymosTexture;
 
 function loadTextures() {
     starFieldTexture = textureLoader.load('/images/stars/8k_stars.jpg');
@@ -181,10 +175,6 @@ function loadTextures() {
     moonTexture = textureLoader.load('/images/moon/2k_moon.jpg');
     
     marsTexture = textureLoader.load('/images/mars/2k_mars.jpg');
-    // phobosTexture = textureLoader.load('/images/phobos/mar1kuu2.jpg');   // not needed, glb already has texture
-    // deimosTexture = textureLoader.load('/images/deimos/mar2kuu2.jpg');   // not needed, glb already has texture
-
-    didymosTexture = textureLoader.load('/images/didymos/didymos.jpg');
 }
 
 let phobosModel;
@@ -211,9 +201,9 @@ async function loadModels() {
     try {
         const promises = [
             loadModel(gltfLoader, '/models/phobos/24878_Phobos_1_1000.glb'),
-            loadModel(gltfLoader, '/models/deimos/24879_Deimos_1_1000.glb'),
-            loadModel(objLoader, '/models/didymos/g_50677mm_rad_obj_didy_0000n00000_v001.obj'),
-            loadModel(objLoader, '/models/dimorphos/g_08438mm_lgt_obj_dimo_0000n00000_v002.obj'),
+            loadModel(gltfLoader, '/models/deimos/24879_Deimos_1_1000.glb'),    // ok
+            loadModel(gltfLoader, '/models/didymos/didymos.glb'),               
+            loadModel(gltfLoader, '/models/dimorphos/dimorphos.glb'),
             loadModel(gltfLoader, '/models/hera/hera_deployed.glb'),
             loadModel(gltfLoader, '/models/juventas/juventas_deployed.glb'),
             loadModel(gltfLoader, '/models/milani/milani_deployed.glb')
@@ -222,12 +212,12 @@ async function loadModels() {
         
         tmpPhobos.scene.scale.set(1, 1, 1);
         phobosModel = tmpPhobos.scene;
-        
+        console.log(phobosModel);
         tmpDeimos.scene.scale.set(1, 1, 1);
         deimosModel = tmpDeimos.scene;
 
-        didymosModel = tmpDidymos;
-        dimorphosModel = tmpDimorphos;
+        didymosModel = tmpDidymos.scene;
+        dimorphosModel = tmpDimorphos.scene;
 
         tmpHera.scene.scale.setScalar(0.001);
         tmpHera.scene.rotateX(Math.PI / 2);
@@ -252,7 +242,6 @@ let venusMaterial;
 let earthMaterial;
 let moonMaterial;
 let marsMaterial;
-let didymosMaterial;
 
 const scMaterials = [
     new THREE.MeshStandardMaterial({ color: 0xcccccc, emissive: 0xffffff, emissiveIntensity: 2 }), // +X (right) — green
@@ -282,8 +271,6 @@ function loadMaterials() {
     earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
     moonMaterial = new THREE.MeshStandardMaterial({ map: moonTexture });
     marsMaterial = new THREE.MeshStandardMaterial({ map: marsTexture });
-
-    didymosMaterial = new THREE.MeshStandardMaterial({ map: didymosTexture });
 }
 
 let starFieldGeometry;
