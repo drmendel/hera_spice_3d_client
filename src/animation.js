@@ -34,6 +34,9 @@ function init() {
     // const aspect = window.innerWidth / window.innerHeight; const frustumSize = 1000; defaultCamera = new THREE.OrthographicCamera(-frustumSize * aspect / 2, frustumSize * aspect / 2, frustumSize / 2, -frustumSize / 2, 0.01, 5000000000);
     defaultCamera.position.set(0, 0, 1000); // Set an initial position for the defaultCamera
     
+    currentCamera = defaultCamera;
+    currentCameraId = 0;
+
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, logarithmicDepthBuffer: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
