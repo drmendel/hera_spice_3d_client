@@ -8,7 +8,7 @@
 import * as THREE from "three";
 
 /**
- * Mapping of Spice Objects to their respective identifiers.
+ * Mapping of three.js groups to their respective spice identifiers.
  * These represent celestial bodies and spacecraft in the CSPICE system.
  */
 export let objects = new Map([
@@ -30,14 +30,17 @@ export let objects = new Map([
     [-9102000, { name: "MILANI SPACECRAFT", cameraRadius: 0.002, group: new THREE.Group() }]
 ]);
 
-/**
- * Mapping of HERA spacecraft camera identifiers to their names.
- * These represent different camera systems on the HERA spacecraft.
- */
 const hshAspect = 2018 / 1088;
 const afcAspect = 1024 / 1024;
 const jncAspect = 2048 / 1536;
 const mncAspect = 2048 / 1536;
+
+/**
+ * Mapping of HERA spacecraft camera identifiers to their names.
+ * These represent the available cameras in the simulation:
+ *  - one general camera called DEFAULT
+ *  - different camera systems on the HERA spacecraft
+ */
 export const cameras = new Map([
     [0, { name: "DEFAULT", aspect: 1, camera: new THREE.PerspectiveCamera(45, 1, 1E-6, 1E12) }],
     [-91400, { name: "HSH", aspect: hshAspect, camera: new THREE.PerspectiveCamera(9.9, hshAspect, 2.5E-3, 1E12)}],    // HyperScout Hyperspectral
