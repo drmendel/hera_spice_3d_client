@@ -314,9 +314,11 @@ let marsSurface;
 
 function loadSurfaces() {
     starFieldSurface = new THREE.Mesh(starFieldGeometry, starFieldMaterial);
+    starFieldSurface.rotateX(Math.PI / 2);
     starFieldLight = new THREE.AmbientLight(0xffffff, 0.015);
 
     sunSurface = new THREE.Mesh(sunGeometry, sunMaterial);
+    sunSurface.rotateX(Math.PI / 2);
     sunLight = new THREE.PointLight(0xffffff, 2, 0, 3);
     sunLight.decay = 0;
     sunLight.castShadow = true;
@@ -324,22 +326,27 @@ function loadSurfaces() {
     mercurySurface = new THREE.Mesh(mercuryGeometry, mercuryMaterial);
     mercurySurface.castShadow = true;
     mercurySurface.receiveShadow = true;
+    mercurySurface.rotateX(Math.PI / 2);
     
     venusSurface = new THREE.Mesh(venusGeometry, venusMaterial);
     venusSurface.castShadow = true;
     venusSurface.receiveShadow = true;
+    venusSurface.rotateX(Math.PI / 2);
     
     earthSurface = new THREE.Mesh(earthGeometry, earthMaterial);
     earthSurface.castShadow = true;
     earthSurface.receiveShadow = true;
+    earthSurface.rotateX(Math.PI / 2);
     
     moonSurface = new THREE.Mesh(moonGeometry, moonMaterial);
     moonSurface.castShadow = true;
     moonSurface.receiveShadow = true;
+    moonSurface.rotateX(Math.PI / 2);
     
     marsSurface = new THREE.Mesh(marsGeometry, marsMaterial);
     marsSurface.castShadow = true;
     marsSurface.receiveShadow = true;
+    marsSurface.rotateX(Math.PI / 2);
 }
 
 let sunLabel;
