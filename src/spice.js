@@ -78,3 +78,65 @@ export const cameras = new Map([
     MILANI_ASPECT_SWIR (-9102140)*  MILANI_ILS-X (-9102712)*
     MILANI_VISTA (-9102210)*
 */
+
+export class ObjectData {
+    constructor(position, velocity, quaternion, angularVelocity) {
+        this.position = new THREE.Vector3(position.x, position.y, position.z); 
+        this.velocity = new THREE.Vector3(velocity.x, velocity.y, velocity.z);
+        this.quaternion = new THREE.Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+        this.angularVelocity = new THREE.Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z);
+    }
+}
+
+export class TimestampData {
+    constructor(date) {
+        this.Date = date;
+        this.objects = new Map();
+    }
+    addObjectData(id, position, velocity, quaternion, angularVelocity) {
+        this.objects.set(id, new ObjectData(position, velocity, quaternion, angularVelocity));
+    }
+}
+
+export class TelemetryData {
+    constructor() {
+        this.size = 0;
+        this.maxSize = 200;
+        this.requestedSize = 0;
+        this.array = [];
+    }
+    pushBackTimestampData(timeStampData) {
+        for (let i = 0; i < this.array.length; i++) {
+            if (this.array[i].Date > timeStampData.Date) {
+                this.array.splice(i, 0, timeStampData);
+                this.size++;
+                return;
+            }
+        }
+        this.array.push(timeStampData);
+        this.size++;
+    }
+    popFrontTimestampData() {
+        if (this.array.length > 0) {
+            this.array.shift();
+            this.size--;
+            this.removeRequest(1);
+        }
+    }
+    addRequest(requestNumber) {
+        this.requestedSize += requestNumber;
+    }
+    removeRequest(requestNumber) {
+        this.requestedSize -= requestNumber;
+    }
+    getRequestedSize() {
+        return this.requestedSize;
+    }
+    reset() {
+        this.array.length = 0;
+        this.size = 0;
+        this.requestedSize = 0;
+    }
+}
+
+export let telemetryData = new TelemetryData();
