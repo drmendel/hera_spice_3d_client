@@ -94,7 +94,7 @@ export class TimestampData {
 export class TelemetryData {
     constructor() {
         this.size = 0;
-        this.maxSize = 200;
+        this.maxSize = 2;
         this.requestedSize = 0;
         this.array = [];
     }
@@ -113,7 +113,6 @@ export class TelemetryData {
         if (this.array.length > 0) {
             this.array.shift();
             this.size--;
-            this.removeRequest(1);
         }
     }
     addRequest(requestNumber) {
@@ -132,4 +131,7 @@ export class TelemetryData {
     }
 }
 
-export let telemetryData = new TelemetryData();
+export let instantaneousTelemetryData = new TelemetryData();
+export let instantaneousTelemetryDataBuffer = new TelemetryData();
+export let lightTimeAdjustedTelemetryDataBuffer = new TelemetryData();
+export let lightTimeAdjustedTelemetryData = new TelemetryData();
