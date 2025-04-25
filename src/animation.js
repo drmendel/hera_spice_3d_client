@@ -780,15 +780,6 @@ export function show(id) {
 
 export function animate() {
     requestAnimationFrame(animate);
-    if(ctrl.simulationRunning) {
-        const pos = objects.get(199).group.position;
-        pos.x += 100 * ctrl.speedValues[ctrl.speedLevel];
-        const vec = defaultCamera.position.clone();
-        objects.get(199).group.position.copy(pos);
-
-        const rotationSpeed = 0.00005; // Adjust this value for faster/slower rotation
-        objects.get(499).group.rotateOnAxis(new THREE.Vector3(0, 1, 0), rotationSpeed);
-    }
     cameraControls.update();
     renderer.render(scene, currentCamera);
     labelRenderer.render(scene, currentCamera);
