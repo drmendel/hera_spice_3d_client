@@ -7,7 +7,7 @@ import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRe
 import { gsap } from 'gsap';
 
 import { canvasName } from './config';
-import { objects, cameras } from './spice';
+import { objects, cameras } from './data';
 import * as ctrl from './controls';
 
 let canvas;
