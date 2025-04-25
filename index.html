@@ -21,6 +21,10 @@
       </div>
     </div>
 
+    <div  class="loading-spinner" id="loading-spinner">
+      <span class="loader"></span>
+    </div>
+
     <div id="camera-box"></div>
 
     <div id="ui-elements">
@@ -30,7 +34,9 @@
           <button id="playback-button">Play</button>
         </div>
         <div class="controls row" id="playback-2nd-row">
-          <label class="playback-speed" id="playback-speed-label">Speed Level</label>
+          <label class="playback-speed" id="playback-speed-label">Speed Level
+            <input class="playback-speed hidden" type="text" id="playback-speed-display" readonly>
+          </label>
           <input class="playback-speed" type="text" id="playback-speed-input" min="1" max="10" value="1" step="1">
           <button class="crement-button" id="increment-button">+</button>
           <button class="crement-button" id="decrement-button">-</button>

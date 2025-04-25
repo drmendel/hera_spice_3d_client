@@ -57,7 +57,7 @@ canvas {
 }
 
 .progress-bar-container {
-    z-index: 6;
+    z-index: 8;
     position: absolute;
     left: 50%;
     top: 50%;
@@ -115,7 +115,7 @@ canvas {
 */
 
 #help-box {
-    z-index: 6;
+    z-index: 7;
     position: fixed;
     bottom: 10px;
     left: 10px;

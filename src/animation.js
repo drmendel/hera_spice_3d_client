@@ -9,6 +9,8 @@ import { gsap } from 'gsap';
 import { canvasName } from './config';
 import { objects, cameras } from './spice';
 import * as ctrl from './controls';
+import * as ws from './websocket';
+import * as Data from './spice';
 
 let canvas;
 let scene;
@@ -144,10 +146,14 @@ function initCameras() {
 
 function setCameraOrientations() {
     cameras.get(-91400).camera.rotateX(Math.PI);
+    cameras.get(-91400).camera.rotateZ(Math.PI);
     cameras.get(-91120).camera.rotateX(Math.PI);
     cameras.get(-91110).camera.rotateX(Math.PI);
+    cameras.get(-91110).camera.rotateZ(Math.PI);
     cameras.get(-15513310).camera.rotateX(Math.PI);
+    cameras.get(-15513310).camera.rotateZ(Math.PI);
     cameras.get(-9102310).camera.rotateX(Math.PI);
+    cameras.get(-9102310).camera.rotateZ(Math.PI);
 }
 
 function setCameraLayers() {
@@ -215,7 +221,6 @@ async function loadModels() {
         
         tmpPhobos.scene.scale.set(1, 1, 1);
         phobosModel = tmpPhobos.scene;
-        console.log(phobosModel);
         tmpDeimos.scene.scale.set(1, 1, 1);
         deimosModel = tmpDeimos.scene;
 
@@ -310,7 +315,7 @@ let marsSurface;
 
 function loadSurfaces() {
     starFieldSurface = new THREE.Mesh(starFieldGeometry, starFieldMaterial);
-    starFieldLight = new THREE.AmbientLight(0xffffff, 0.015);
+    starFieldLight = new THREE.AmbientLight(0xffffff, 1);//0.015);
 
     sunSurface = new THREE.Mesh(sunGeometry, sunMaterial);
     sunLight = new THREE.PointLight(0xffffff, 2, 0, 3);
@@ -508,31 +513,38 @@ export function toggleLabels() {
 
 export function loadObjects() {
     objects.get(0).group = new THREE.Group();
+    starFieldSurface.rotation.set(Math.PI / 2, 0, 0);
     objects.get(0).group.add(starFieldSurface);
     objects.get(0).group.add(starFieldLight);
 
     objects.get(10).group = new THREE.Group();
+    sunSurface.rotation.set(Math.PI / 2, 0, 0);
     objects.get(10).group.add(sunSurface);
     objects.get(10).group.add(sunLight);
     objects.get(10).group.add(sunLabel);
 
     objects.get(199).group = new THREE.Group();
+    mercurySurface.rotation.set(Math.PI / 2, 0, 0);
     objects.get(199).group.add(mercurySurface);
     objects.get(199).group.add(mercuryLabel);
 
     objects.get(299).group = new THREE.Group();
+    venusSurface.rotation.set(Math.PI / 2, 0, 0);
     objects.get(299).group.add(venusSurface);
     objects.get(299).group.add(venusLabel);
 
     objects.get(399).group = new THREE.Group();
+    earthSurface.rotation.set(Math.PI / 2, 0, 0);
     objects.get(399).group.add(earthSurface);
     objects.get(399).group.add(earthLabel);
 
     objects.get(301).group = new THREE.Group();
+    moonSurface.rotation.set(Math.PI / 2, 0, 0);
     objects.get(301).group.add(moonSurface);
     objects.get(301).group.add(moonLabel);
 
     objects.get(499).group = new THREE.Group();
+    marsSurface.rotation.set(Math.PI / 2, 0, 0);
     objects.get(499).group.add(marsSurface);
     objects.get(499).group.add(marsLabel);
 
@@ -577,7 +589,7 @@ export function loadScene() {
     scene.add(objects.get(0).group);
 
     // SUN
-    objects.get(10).group.position.set(10000000, 0, 0);
+    objects.get(10).group.position.set(1.9187E+08, -1.4118E+08,  -6.9923E+07);
     scene.add(objects.get(10).group);
 
     // MERCURY
@@ -589,16 +601,43 @@ export function loadScene() {
     scene.add(objects.get(299).group);
 
     // EARTH
-    objects.get(399).group.position.set(100000, 0, 0);
+    objects.get(399).group.add(new THREE.AxesHelper(6E4));
+    objects.get(399).group.position.set(4.4632E+07, -1.2156E+08,  -6.1420E+07);
+    objects.get(399).group.rotation.setFromQuaternion(new THREE.Quaternion( -4.9788E-04, 1.1188E-03, -4.0914E-01, 9.1247E-01));
     scene.add(objects.get(399).group);
+
+    /**
+  4.4632E+07   AC AE 15 73  44 48 85 41  
+ -1.2156E+08   C6 EE 97 28  81 FB 9C C1  
+ -6.1420E+07   6A FE 94 F6  91 49 8D C1  
+
+ -4.9788E-04   D2 8F A7 17  7D 50 40 BF  
+  1.1188E-03   D1 E9 29 09  9F 54 52 3F  
+ -4.0914E-01   A1 A8 02 49  59 2F DA BF  
+  9.1247E-01   FB 77 17 05  F6 32 ED 3F  
+
+     */
 
     // MOON
     objects.get(301).group.position.set(100000, 0, 20000);
     scene.add(objects.get(301).group);
 
     // MARS
-    objects.get(499).group.position.set(150000, 0, 0);
+    objects.get(499).group.position.set(-7.7896E+04, 6.6413E+04, 3.6204E+04);
+    objects.get(499).group.rotation.setFromQuaternion(new THREE.Quaternion( -5.5099E-02, 3.1357E-01, -7.5018E-01, 5.7955E-01));
+    objects.get(499).group.add(new THREE.AxesHelper(6E3));
     scene.add(objects.get(499).group);
+
+    /**
+        -7.7896E+04   00 30 F6 A0  7C 04 F3 C0  
+        6.6413E+04   00 C8 A0 B9  CF 36 F0 40  
+        3.6204E+04   00 78 04 ED  7B AD E1 40  
+
+        -5.5099E-02   74 51 19 E2  F3 35 AC BF  
+        3.1357E-01   6F 3A 4C 73  81 11 D4 3F  
+        -7.5018E-01   14 A6 62 A0  72 01 E8 BF  
+        5.7955E-01   D2 F5 D2 71  A4 8B E2 3F
+     */
 
     // PHOBOS
     objects.get(401).group.position.set(150000, 0, 20000);
@@ -617,7 +656,18 @@ export function loadScene() {
     scene.add(objects.get(-658031).group);
 
     // HERA
-    objects.get(-91000).group.position.set(150000, 0, -20000);
+    objects.get(-91000).group.position.set(0, 0, 0);
+    objects.get(-91000).group.rotation.setFromQuaternion(new THREE.Quaternion(-4.1667E-1, -3.9962E-1, 8.1776E-2, 8.1240E-1));
+    const ax = new THREE.AxesHelper(1E2);
+    ax.position.set(0, 0, 100);
+    objects.get(-91000).group.add(ax);
+    /**
+ -4.1667E-01   3E F7 DB 7E  BC AA DA BF  
+ -3.9962E-01   EF 47 B6 A4  6C 93 D9 BF  
+  8.1776E-02   16 3D F7 B2  4A EF B4 3F  
+  8.1240E-01   1F 29 4F 8B  35 FF E9 3F
+     */
+
     scene.add(objects.get(-91000).group);
 
     // JUVENTAS
@@ -657,7 +707,17 @@ export function getCameraId(cameraName) {
 
 let lastObjectId = -91000;  // Default Hera
 
-export function gsapCameraTo() {
+export async function gsapCameraTo() {
+    await new Promise((resolve) => {
+        const interval = setInterval(() => {
+        if (Data.telemetryData.size >= Data.telemetryData.maxSize / 10) {
+            clearInterval(interval);
+            resolve();
+        }
+        }, 10); // checks every 10ms
+    });
+
+
     objects.get(lastObjectId).group.visible = true;
     lastObjectId = ctrl.observerId;
     const object = objects.get(ctrl.observerId);
@@ -771,25 +831,90 @@ export function cameraSetTo(cameraId) {
 }
 
 export function hide(id) {
-    objects.get(id).group.visible = false;
+    if(objects.get(id).group.visible) objects.get(id).group.visible = false;
 }
 
 export function show(id) {
-    objects.get(id).group.visible = true;
+    if(!objects.get(id).group.visible) objects.get(id).group.visible = true;
 }
 
 export function animate() {
     requestAnimationFrame(animate);
-    if(ctrl.simulationRunning) {
-        const pos = objects.get(199).group.position;
-        pos.x += 100 * ctrl.speedValues[ctrl.speedLevel];
-        const vec = defaultCamera.position.clone();
-        objects.get(199).group.position.copy(pos);
-
-        const rotationSpeed = 0.00005; // Adjust this value for faster/slower rotation
-        objects.get(499).group.rotateOnAxis(new THREE.Vector3(0, 1, 0), rotationSpeed);
-    }
+    setPositionsFromDataBuffer();
     cameraControls.update();
     renderer.render(scene, currentCamera);
     labelRenderer.render(scene, currentCamera);
+}
+
+function clearOutdatedData() {
+    while (Data.telemetryData.size >= 2 && Data.telemetryData.array[1].Date.getTime() < ctrl.simulationTime.getTime()) {
+        Data.telemetryData.popFrontTimestampData();
+    }
+}
+
+function setPositionsFromDataBuffer() {
+    ctrl.updatePlaceholder();
+    //console.log('[setPositionsFromDtaBuffer] Called at', ctrl.simulationTime.toISOString());
+
+    if (Data.telemetryData.size < 2) {
+        //console.warn('[setPositionsFromDtaBuffer] Not enough data. Size:', Data.telemetryData.size);
+        return;
+    }
+    //console.log('[setPositionsFromDtaBuffer] Data size OK:', Data.telemetryData.size);
+
+    clearOutdatedData();
+
+    for (let [id, object] of objects) {
+        // if(id === 0) continue;    // startfield is just a design element, it has no data
+
+        const objT0 = Data.telemetryData.array[0].objects.get(id);
+        const objT1 = Data.telemetryData.array[1].objects.get(id);
+
+        if (!objT0 || !objT1) {
+            if(id !== 0) hide(id);
+            // console.warn(`[setPositionsFromDtaBuffer] Missing object data for ${id}. Hiding.`);
+            continue;
+        }
+
+        if(id !== 0) show(id);
+
+        const position = hermitePosition(
+            Data.telemetryData.array[0].Date, objT0.position, objT0.velocity,
+            Data.telemetryData.array[1].Date, objT1.position, objT1.velocity,
+            ctrl.simulationTime
+        );
+
+        const quat = new THREE.Quaternion(
+            objT0.quaternion.x,
+            objT0.quaternion.y,
+            objT0.quaternion.z,
+            objT0.quaternion.w
+        );
+
+        //console.log(`[setPositionsFromDtaBuffer] ${id} ->`, position);
+        object.group.position.copy(position);
+        if(id !== 10) object.group.rotation.setFromQuaternion(quat);
+        //console.log('[setPositionsFromDtaBuffer] Object', id, 'position:', quat, object.group.rotation);
+    }
+}
+
+
+
+function hermitePosition(date0, position0, velocity0, date1, position1, velocity1, simulationTime) {
+    const t0 = date0.getTime();
+    const t1 = date1.getTime();
+    const ts = simulationTime.getTime();
+    const duration = (t1 - t0) / 1000;
+    const t = (ts - t0) / (t1 - t0);
+
+    const h00 = 2 * t ** 3 - 3 * t ** 2 + 1;
+    const h10 = t ** 3 - 2 * t ** 2 + t;
+    const h01 = -2 * t ** 3 + 3 * t ** 2;
+    const h11 = t ** 3 - t ** 2;
+
+    return new THREE.Vector3(
+        h00 * position0.x + h10 * velocity0.x * duration + h01 * position1.x + h11 * velocity1.x * duration,
+        h00 * position0.y + h10 * velocity0.y * duration + h01 * position1.y + h11 * velocity1.y * duration,
+        h00 * position0.z + h10 * velocity0.z * duration + h01 * position1.z + h11 * velocity1.z * duration
+    );
 }

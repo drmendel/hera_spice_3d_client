@@ -2,12 +2,14 @@
 
 import * as engine from "./animation";
 import * as conf from "./config";
+import * as data from "./spice";
 
 export let observerId = -91000;             // default observer id: Hera
 export let simulationBaseTime = new Date(); // local time
 
 export let realBaseTime = new Date();       // local time
 export let speedLevel = 1;
+export let simulationTime = new Date();    // simulation time
 
 export let simulationRunning = true;
 export let lightTimeAdjustment = false;
@@ -42,7 +44,7 @@ updateStarFieldVisibilityButton();
 
 // ###################### LISTENERS ######################
 
-setInterval(updatePlaceholder, 7);
+//setInterval(updatePlaceholder, 7);
 timeInputElement.addEventListener('change', () => setSimulationTime(String(timeInputElement.value)));
 document.getElementById('playback-button').addEventListener('mousedown', toggleSimulationRunning);
 document.getElementById('playback-speed-input').addEventListener('change', setSpeed);
@@ -50,7 +52,30 @@ document.getElementById('increment-button').addEventListener('mousedown', () => 
 document.getElementById('decrement-button').addEventListener('mousedown', () => crementSpeed(false));
 document.getElementById('observer-dropdown').addEventListener('change', event => {
   if(firstPersonView) toggleFirstPersonView();
-  observerId = Number(event.target.value);
+  const tmpId = Number(event.target.value);
+
+  if(isSameGroup(observerId, tmpId)) {
+    observerId = tmpId;
+    changeObserver();
+  }
+  else {
+    observerId = tmpId;
+    oldRequestBlocker = true;
+    toggleLoading();
+    /*setTimeout(() => {
+      data.telemetryData.reset();
+      oldRequestBlocker = false;
+    }, 1000);
+    setTimeout(() => {
+      changeObserver();
+    }, 1000);
+    setTimeout(() => {
+      toggleLoading();
+    }, 1500); */
+  }
+});
+
+export function changeObserver() {
   if(observerId === -91400 || observerId === -91120 || observerId === -91110 || observerId === -15513310 || observerId === -9102310) {
     engine.changeCamera(observerId);
     document.getElementById('camera-box').style.display = 'block';
@@ -60,7 +85,8 @@ document.getElementById('observer-dropdown').addEventListener('change', event =>
     engine.gsapCameraTo(observerId);
     document.getElementById('camera-box').style.display = 'none';
   }
-});
+}
+
 
 document.getElementById('menu-button').addEventListener('mousedown', toggleMenu);
 
@@ -97,7 +123,7 @@ export function getSimulationTime() {
 
 
 
-function getTimeString(time) {
+export function getTimeString(time) {
   const year = time.getFullYear();  // Use getFullYear() to get the full year
   const month = String(time.getMonth() + 1).padStart(2, '0'); // Ensure two digits
   const day = String(time.getDate()).padStart(2, '0');
@@ -140,6 +166,8 @@ function setSimulationTime(dateString) {
   setRealBaseTime();
   timeInputElement.value = "";
   timeInputElement.blur();
+
+  data.telemetryData.reset(); // reset cached telemetry data
 }
 
 /**
@@ -160,7 +188,7 @@ function setParamsFromURL() {
   simulationBaseTime = timestampParam ? new Date(timestampParam) : new Date();
   setRealBaseTime();
   observerId = observerIdParam ? parseInt(observerIdParam, 10) : -91000;
-  if(timestampParam && observerIdParam) simulationRunning = false;  // stop the simulation in that point
+  if(timestampParam || observerIdParam) simulationRunning = false;  // stop the simulation in that point
 
   const url = new URL(window.location);
   url.search = ''; // Clear all query parameters
@@ -183,9 +211,10 @@ function setRealBaseTime(date) {
 // ###################### UI FUNCTIONS ######################
 
 // Function to update the placeholder with the simulation time
-function updatePlaceholder() {
+export function updatePlaceholder() {
   if (simulationRunning) {
-    timeInputElement.placeholder = getTimeString(getSimulationTime());  // Pass the timestamp to getTimeString
+    simulationTime = getSimulationTime();  // Get the current simulation time
+    timeInputElement.placeholder = getTimeString(simulationTime);  // Pass the current simulation time to getTimeString
   }
 }
 
@@ -223,6 +252,8 @@ function setSpeed() {
   simulationBaseTime = new Date(getSimulationTime().getTime());
   setRealBaseTime();
   speedLevel = speed;
+
+  data.telemetryData.reset();
 }
 
 
@@ -245,10 +276,38 @@ function crementSpeed(increment) {
   speedLevel = Number(psi.value);
   simulationBaseTime = new Date(elapsedSimTime.getTime());  // Preserve the current simulation time
   realBaseTime = new Date();  // Use Date object for consistency
+
+  if(!increment) {
+    toggleLoading();
+    oldRequestBlocker = true;
+    /*setTimeout(() => {
+      changeObserver();
+    }, 1000);
+    setTimeout(() => {
+      toggleLoading();
+    }, 1500);*/ 
+  }
 }
 
 
 
+const idGroups = [
+  new Set([-91000, -91400, -91120, -91110]),
+  new Set([-9102000, -9102310]),
+  new Set([-15513000, -15513310])
+];
+
+function isSameGroup(a, b) {
+  for (const group of idGroups) {
+    if (group.has(a) && group.has(b)) return true;
+  }
+  return false;
+}
+
+export let oldRequestBlocker = false;
+export function oldRequestBlockerStore(bool) {
+  oldRequestBlocker = bool;
+}
 
 
 
@@ -285,7 +344,7 @@ function toggleFullscreen() {
   } else {
     document.documentElement.requestFullscreen();
   }
-
+  console.log(data.telemetryData);
   updateFullScreenButton(!isFullscreen);
 }
 /**
@@ -399,7 +458,7 @@ function updateTelemetryVisibilityButton() {
 }
 
 /**
- * Toggles the start field visibility setting.
+ * Toggles the starfield visibility setting.
  * - Flips the `starFieldDisplay` boolean between true and false.
  * - Calls `updateStarFieldVisibilityButton` to update the button's appearance.
  */
@@ -447,4 +506,9 @@ function updateHelpButton() {
 function updateHelpDisplay() {
   if(helpDisplay) document.getElementById('help-box').classList.remove('hidden');
   else document.getElementById('help-box').classList.add('hidden');
+}
+
+export function toggleLoading() {
+  const spinner = document.getElementById("loading-spinner");
+  spinner.style.display = spinner.style.display === "flex" ? "none" : "flex";
 }

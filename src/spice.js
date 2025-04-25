@@ -78,3 +78,88 @@ export const cameras = new Map([
     MILANI_ASPECT_SWIR (-9102140)*  MILANI_ILS-X (-9102712)*
     MILANI_VISTA (-9102210)*
 */
+
+export class Vector {
+    constructor(x, y, z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+    toThreeVector() {
+        return new THREE.Vector3(this.x, this.y, this.z);
+    }
+}
+
+export class Quaternion {
+    constructor(w, x, y, z) {
+        this.w = w;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+    toThreeQuaternion() {
+        return new THREE.Quaternion(this.x, this.y, this.z, this.w);
+    }
+}
+
+export class ObjectData {
+    constructor(position, velocity, quaternion, angularVelocity) {
+        this.position = new Vector(position.x, position.y, position.z);
+        this.velocity = new Vector(velocity.x, velocity.y, velocity.z);
+        this.quaternion = new Quaternion(quaternion.w, quaternion.x, quaternion.y, quaternion.z);
+        this.angularVelocity = new Vector(angularVelocity.x, angularVelocity.y, angularVelocity.z);
+    }
+}
+
+export class TimestampData {
+    constructor(date) {
+        this.Date = date;
+        this.objects = new Map();
+    }
+    addObjectData(id, position, velocity, quaternion, angularVelocity) {
+        this.objects.set(id, new ObjectData(position, velocity, quaternion, angularVelocity));
+    }
+}
+
+export class TelemetryData {
+    constructor() {
+        this.size = 0;
+        this.maxSize = 200;
+        this.requestedSize = 0;
+        this.array = [];
+    }
+    pushBackTimestampData(timeStampData) {
+        for (let i = 0; i < this.array.length; i++) {
+            if (this.array[i].Date > timeStampData.Date) {
+                this.array.splice(i, 0, timeStampData);
+                this.size++;
+                return;
+            }
+        }
+        this.array.push(timeStampData);
+        this.size++;
+    }
+    popFrontTimestampData() {
+        if (this.array.length > 0) {
+            this.array.shift();
+            this.size--;
+            this.removeRequest(1);
+        }
+    }
+    addRequest(requestNumber) {
+        this.requestedSize += requestNumber;
+    }
+    removeRequest(requestNumber) {
+        this.requestedSize -= requestNumber;
+    }
+    getRequestedSize() {
+        return this.requestedSize;
+    }
+    reset() {
+        this.array.length = 0;
+        this.size = 0;
+        this.requestedSize = 0;
+    }
+}
+
+export let telemetryData = new TelemetryData();
