@@ -96,7 +96,7 @@ export class TimestampData {
 
 export class TelemetryData {
     constructor() {
-        this.maxSize = 100;
+        this.maxSize = 3;
         this.requestedSize = 0;
         this.array = [];
     }
