@@ -110,7 +110,7 @@ function getTimeString(time) {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
 }
 
-function setSimulationTime(dateString) {
+export function setSimulationTime(dateString) {
   if (!dateString) {
     simulationBaseTime = new Date(conf.minDate);
   } else {
@@ -139,6 +139,11 @@ function setSimulationTime(dateString) {
   setRealBaseTime();
   timeInputElement.value = "";
   timeInputElement.blur();
+  updatePlaceholder();
+}
+
+export function simulationRunningStore(bool) {
+  simulationRunning = bool;
 }
 
 /**
