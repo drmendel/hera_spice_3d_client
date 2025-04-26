@@ -1,6 +1,6 @@
 import * as data from "./data"
 //import { webSocketUrl } from "./config";
-let webSocketUrl = "ws://localhost:8080";
+let webSocketUrl = "ws://localhost:8081";
 
 let webSocket = null;
 let shouldwebSocketBeAvailable = true;
@@ -21,14 +21,12 @@ export function openWebSocket() {
                 resolve(webSocket); // Resolves the promise once the socket is open
             };
             webSocket.onerror = (err) => {
-                console.error('WebSocket error:', err);
-                reject(new Error('WebSocket failed to open'));
+                reject();
             };
 
             webSocket.onmessage = wsOnMessage;
             webSocket.onclose = wsOnClose;
         } else {
-            console.log('webSocket is already open or in the process of opening.');
             resolve(webSocket); // If already open, resolve immediately
         }
     });
@@ -63,14 +61,12 @@ export function closewebSocket() {
 
 function wsOnClose() {
     webSocket = null;
-    console.log('WebSocket connection closed');
     if(shouldwebSocketBeAvailable) wsReconnection();
 }
 
-function wsReconnection() {
+export function wsReconnection() {
     setTimeout(() => {
         openWebSocket()
-            .then(() => console.log('Reconnected!'))
             .catch(() => {
                 console.log('Reconnect failed, trying again...');
                 wsReconnection(); // Retry recursively
