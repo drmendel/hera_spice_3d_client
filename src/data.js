@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import * as ctrl from "./control.js";
+import * as anim from "./animation.js";
 
 /**
  * Mapping of three.js groups to their respective spice identifiers.
@@ -83,7 +85,7 @@ export class ObjectData {
 
 export class TimestampData {
     constructor(date) {
-        this.Date = date;
+        this.date = date;
         this.objects = new Map();
     }
     addObjectData(id, position, velocity, quaternion, angularVelocity) {
@@ -94,13 +96,13 @@ export class TimestampData {
 export class TelemetryData {
     constructor() {
         this.size = 0;
-        this.maxSize = 2;
+        this.maxSize = 3;
         this.requestedSize = 0;
         this.array = [];
     }
     pushBackTimestampData(timeStampData) {
         for (let i = 0; i < this.array.length; i++) {
-            if (this.array[i].Date > timeStampData.Date) {
+            if (this.array[i].date > timeStampData.date) {
                 this.array.splice(i, 0, timeStampData);
                 this.size++;
                 return;
@@ -135,3 +137,84 @@ export let instantaneousTelemetryData = new TelemetryData();
 export let instantaneousTelemetryDataBuffer = new TelemetryData();
 export let lightTimeAdjustedTelemetryDataBuffer = new TelemetryData();
 export let lightTimeAdjustedTelemetryData = new TelemetryData();
+
+function removeOutDatedData() {
+    while (lightTimeAdjustedTelemetryData.array.length > 1 && lightTimeAdjustedTelemetryData.array[1].date.getTime() < simulationTime.getTime()) {
+        lightTimeAdjustedTelemetryData.popFrontTimestampData();
+    }
+    while (instantaneousTelemetryData.array.length > 1 && instantaneousTelemetryData.array[1].date.getTime() < simulationTime.getTime()) {
+        instantaneousTelemetryData.popFrontTimestampData();
+    }
+}
+export function updateObjectStates() {
+    removeOutDatedData();
+
+    const telemetryData = ctrl.lightTimeAdjustment ? lightTimeAdjustedTelemetryDataBuffer : instantaneousTelemetryDataBuffer;
+    if(telemetryData.array.length < 2) return;
+
+    const data0 = telemetryData.array[0];
+    const data1 = telemetryData.array[1];
+
+    for (const [id, object] of objects) {
+        const obj0 = data0.objects.get(id);
+        const obj1 = data1.objects.get(id);
+
+        if (!obj0 || !obj1) {
+            anim.hide(id);
+            continue;
+        }
+
+        object.group.position.copy(hermitePosition(
+            data0.date, obj0.position, obj0.velocity,
+            data1.date, obj1.position, obj1.velocity,
+            simulationTime
+        ));
+
+        object.group.quaternion.copy(slerpRotation(
+            data0.date, obj0.quaternion,
+            data1.date, obj1.quaternion,
+            simulationTime
+        ));
+
+        anim.show(id);
+    }
+}
+
+function hermitePosition(time0, position0, velocity0, time1, position1, velocity1, simulationTime) {
+    const t0 = time0.getTime();
+    const t1 = time1.getTime();
+    const ts = simulationTime.getTime();
+    const duration = (t1 - t0) / 1000;
+    const t = (ts - t0) / (t1 - t0);
+
+    const h00 = 2 * t ** 3 - 3 * t ** 2 + 1;
+    const h10 = t ** 3 - 2 * t ** 2 + t;
+    const h01 = -2 * t ** 3 + 3 * t ** 2;
+    const h11 = t ** 3 - t ** 2;
+
+    return new THREE.Vector3(
+        h00 * position0.x + h10 * velocity0.x * duration + h01 * position1.x + h11 * velocity1.x * duration,
+        h00 * position0.y + h10 * velocity0.y * duration + h01 * position1.y + h11 * velocity1.y * duration,
+        h00 * position0.z + h10 * velocity0.z * duration + h01 * position1.z + h11 * velocity1.z * duration
+    );
+}
+
+function slerpRotation(time0, quaternion0, time1, quaternion1, simulationTime) {
+    const t0 = time0.getTime();
+    const t1 = time1.getTime();
+    const ts = simulationTime.getTime();
+    const t = (ts - t0) / (t1 - t0);
+
+    const q0 = new THREE.Quaternion(quaternion0.x, quaternion0.y, quaternion0.z, quaternion0.w);
+    const q1 = new THREE.Quaternion(quaternion1.x, quaternion1.y, quaternion1.z, quaternion1.w);
+
+    const slerpT = t;
+    const slerpQ = new THREE.Quaternion().slerpQuaternions(q0, q1, slerpT).normalize();
+
+    return new THREE.Quaternion(
+        slerpQ.x,
+        slerpQ.y,
+        slerpQ.z,
+        slerpQ.w
+    );
+}
