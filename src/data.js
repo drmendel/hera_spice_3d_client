@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import * as ctrl from "./control.js";
+import * as ctrl from "./controls.js";
 import * as anim from "./animation.js";
 
 /**

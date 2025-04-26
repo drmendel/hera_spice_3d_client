@@ -5,7 +5,7 @@ import * as conf from "./config";
 
 export let observerId = -91000;             // default observer id: Hera
 export let simulationBaseTime = new Date(); // local time
-
+export let simulationTime = new Date();
 export let realBaseTime = new Date();       // local time
 export let speedLevel = 1;
 
@@ -36,13 +36,12 @@ const timeInputElement = document.getElementById('time-input');
 
 setParamsFromURL();
 updatePlaybackButton();
-updatePlaceholder();
 updateSpeed();
 updateStarFieldVisibilityButton();
 
 // ###################### LISTENERS ######################
 
-setInterval(updatePlaceholder, 7);
+setInterval(() => { if(simulationRunning) updatePlaceholder(); }, 7);
 timeInputElement.addEventListener('change', () => setSimulationTime(String(timeInputElement.value)));
 document.getElementById('playback-button').addEventListener('mousedown', toggleSimulationRunning);
 document.getElementById('playback-speed-input').addEventListener('change', setSpeed);
@@ -87,11 +86,11 @@ export function getSimulationTime() {
   const elapsedTime = new Date() - realBaseTime;  // Elapsed time in milliseconds
   const scaledTime = elapsedTime * speedValues[speedLevel - 1];  // Scaled elapsed time
 
-  const simulationTime = simulationBaseTime.getTime() + scaledTime;
+  simulationTime = new Date(simulationBaseTime.getTime() + scaledTime);
 
   // Stop simulation if the computed time exceeds conf.maxDate
-  if (simulationTime > conf.maxDate.getTime()) setSimulationTime();
-  return new Date(simulationTime);  // Return the computed simulation time as a Date object
+  if (simulationTime.getTime() > conf.maxDate.getTime()) setSimulationTime();
+  return simulationTime;  // Return the computed simulation time as a Date object
 }
 
 
@@ -183,10 +182,8 @@ function setRealBaseTime(date) {
 // ###################### UI FUNCTIONS ######################
 
 // Function to update the placeholder with the simulation time
-function updatePlaceholder() {
-  if (simulationRunning) {
-    timeInputElement.placeholder = getTimeString(getSimulationTime());  // Pass the timestamp to getTimeString
-  }
+export function updatePlaceholder() {
+  timeInputElement.placeholder = getTimeString(getSimulationTime());  // Pass the timestamp to getTimeString
 }
 
 /**
@@ -196,8 +193,15 @@ function updatePlaceholder() {
  */
 function toggleSimulationRunning() {
   if(firstPersonView) toggleFirstPersonView();
-  simulationRunning = simulationRunning ? false : true;
   updatePlaybackButton();
+  if(simulationRunning) {
+    simulationBaseTime = simulationTime;
+    simulationRunning = false;
+  }
+  else {
+    setRealBaseTime();
+    simulationRunning = true;
+  }
 }
 /**
  * Updates the text content of the playback button based on the `simulationRunning` state.
