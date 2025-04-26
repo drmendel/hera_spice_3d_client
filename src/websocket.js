@@ -1,101 +1,147 @@
-import { websocketUrl } from "./config";
+import * as data from "./data"
+//import { webSocketUrl } from "./config";
+let webSocketUrl = "ws://localhost:8080";
 
-export let websocket = null;
-export let shouldWebSocketBeAvailable = true;
-export let websocketError = false;
-let disconnectionTime = 0;
+let webSocket = null;
+let shouldwebSocketBeAvailable = true;
 
 /**
- * Opens a WebSocket connection if it's closed and should be available.
+ * Opens a webSocket connection if it's closed and should be available.
  */
 export function openWebSocket() {
-    if (!websocket || websocket.readyState === WebSocket.CLOSED) {
-        shouldWebSocketBeAvailable = true;
-        websocket = new WebSocket(websocketUrl);
-
-        websocket.onopen = () => {
-            console.log(`Connected to ${websocketUrl}`);
-        };
-
-        websocket.onmessage = async (event) => {
-            if (event.data instanceof Blob) {
-                const buffer = await event.data.arrayBuffer(); // Convert Blob to ArrayBuffer
-                console.log('Received binary data:\n', new Uint8Array(buffer));
-            } else {
-                console.log('Received message:', event.data);
-            }
-        };
-
-        websocket.onerror = (error) => {
-            console.error('WebSocket error:', error);
-            websocketError = true;
-        };
-
-        websocket.onclose = (event) => {
-            disconnectionTime = Date.now();
-            console.log('WebSocket connection closed', event);
-            if (shouldWebSocketBeAvailable) handleDisconnection();
-        };
-    } else {
-        console.log('WebSocket is already open or in the process of opening.');
-    }
-}
-
-/**
- * Sends a message through WebSocket and waits for a response.
- * @param {string} message - Message to send.
- * @returns {Promise<string>} - Resolves with the server response.
- */
-export function sendMessage(message) {
     return new Promise((resolve, reject) => {
-        if (websocket && websocket.readyState === WebSocket.OPEN) {
-            websocket.openWebSocket();
-            while (!websocket) {
-                sleep(100);                
-            }
-            websocket.send(message);
-            console.log('Message sent:', message);
+        if (!webSocket || webSocket.readyState === webSocket.CLOSED) {
+            shouldwebSocketBeAvailable = true;
 
-            const messageHandler = (event) => {
-                resolve(event.data);
-                websocket.removeEventListener("message", messageHandler); // Remove listener after first response
+            webSocket = new WebSocket(webSocketUrl);
+            webSocket.binaryType = 'arraybuffer';
+
+            webSocket.onopen = () => {
+                console.log('WebSocket connected');
+                resolve(webSocket); // Resolves the promise once the socket is open
+            };
+            webSocket.onerror = (err) => {
+                console.error('WebSocket error:', err);
+                reject(new Error('WebSocket failed to open'));
             };
 
-            websocket.addEventListener("message", messageHandler);
+            webSocket.onmessage = wsOnMessage;
+            webSocket.onclose = wsOnClose;
         } else {
-            reject('WebSocket is not open');
+            console.log('webSocket is already open or in the process of opening.');
+            resolve(webSocket); // If already open, resolve immediately
         }
     });
 }
 
-/**
- * Closes the WebSocket connection manually.
- */
-export function closeWebSocket() {
-    if (websocket) {
-        websocket.close();
-        console.log('WebSocket connection closed manually');
-    } else {
-        console.log('WebSocket is not open, cannot close');
+export function sendMessage(utcTimestamp, mode, observerId) {
+    if(!webSocket || webSocket.readyState !== webSocket.OPEN) {
+        console.error('webSocket is not open. Cannot send message.');
+        return;
     }
+    webSocket.send(createMessage(utcTimestamp, mode, observerId));
 }
 
-/**
- * Handles WebSocket disconnection and attempts to reconnect.
- * If disconnected for too long, logs an error and stops reconnect attempts.
- */
-function handleDisconnection() {
-    const timeSinceDisconnection = Date.now() - disconnectionTime;
+function createMessage(utcTimestamp, mode, observerId) {
+    const message = new ArrayBuffer(13);
+    const view = new DataView(message);
 
-    if (timeSinceDisconnection > 5000) { // 5 seconds threshold
-        console.error('WebSocket server is not available. Connection lost for too long.');
-        shouldWebSocketBeAvailable = false;
-    } else {
-        console.log('Reconnecting WebSocket...');
-        reconnectTimeout = setTimeout(() => {
-            if (!websocket || websocket.readyState === WebSocket.CLOSED) {
-                openWebSocket(); // Try to reconnect after a delay
-            }
-        }, 1000); // Retry after 1 second
+    view.setFloat64(0, utcTimestamp, true); // 8 bytes for the date
+    view.setUint8(8, mode.charCodeAt(0)); // 1 byte for the mode
+    view.setUint32(9, observerId, true); // 4 bytes for the observerId
+    
+    return message;
+}
+
+export function closewebSocket() {
+    if (webSocket) {
+        shouldwebSocketBeAvailable = false;
+        webSocket.close();
+    }
+    else console.log('webSocket is not open, cannot close');
+}
+
+function wsOnClose() {
+    webSocket = null;
+    console.log('WebSocket connection closed');
+    if(shouldwebSocketBeAvailable) wsReconnection();
+}
+
+function wsReconnection() {
+    setTimeout(() => {
+        openWebSocket()
+            .then(() => console.log('Reconnected!'))
+            .catch(() => {
+                console.log('Reconnect failed, trying again...');
+                wsReconnection(); // Retry recursively
+            });
+    }, 1000); // Wait 1 second before retrying
+}
+
+function wsOnMessage(event) {
+    const view = new DataView(event.data);
+    
+    const timestamp = view.getFloat64(0, true); // 8 bytes for the date
+    const date = new Date(timestamp * 1000); // 8 bytes for the date
+    const mode = view.getUint8(8); // 1 byte for the mode
+    
+    const timestampData = new data.TimestampData(date);
+    
+    let offset = 9;
+
+    while (offset < event.data.byteLength) {
+        // Read object ID (Int32 = 4 bytes)
+        const id = view.getInt32(offset, true);
+        offset += 4;
+
+        // Read Position (3 x Float64 = 24 bytes)
+        const position = new data.Vector(
+            view.getFloat64(offset, true),
+            view.getFloat64(offset + 8, true),
+            view.getFloat64(offset + 16, true)
+        );
+        offset += 24;
+
+        // Read Velocity (3 x Float64 = 24 bytes)
+        const velocity = new data.Vector(
+            view.getFloat64(offset, true),
+            view.getFloat64(offset + 8, true),
+            view.getFloat64(offset + 16, true)
+        );
+        offset += 24;
+
+        // Read Quaternion (4 x Float64 = 32 bytes)
+        const quaternion = new data.Quaternion(
+            view.getFloat64(offset, true),
+            view.getFloat64(offset + 8, true),
+            view.getFloat64(offset + 16, true),
+            view.getFloat64(offset + 24, true)
+        );
+        offset += 32;
+
+        // Read Angular Velocity (3 x Float64 = 24 bytes)
+        const angularVelocity = new data.Vector(
+            view.getFloat64(offset, true),
+            view.getFloat64(offset + 8, true),
+            view.getFloat64(offset + 16, true)
+        );
+        offset += 24;
+
+        timestampData.addObjectData(id, position, velocity, quaternion, angularVelocity);
+    }
+
+    switch (mode) {
+        case 105: // 'i' character as a numeric value
+            data.instantaneousTelemetryData.pushBackTimestampData(timestampData);
+            break;
+        case 108: // 'l' character as a numeric value
+            data.lightTimeAdjustedTelemetryData.pushBackTimestampData(timestampData);
+            break;
+        case 101: // 'e' character as a numeric value
+            console.error('Server has no data for timestamp:', date);
+            break;
+        default:
+            console.error('Unknown mode:', mode);
+            break;
     }
 }
