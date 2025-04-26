@@ -6,15 +6,13 @@ import * as ws from './websocket';
 
 ctrl.setup();
 
-conf.load().then(
-    ws.openWebSocket().catch(async () => {
-        ctrl.simulationRunningStore(false);
-        ctrl.setSimulationTime(String("2025-03-12T09:27:00.000"));
-        ctrl.updatePlaceholder();
-        alert("Server unreachable. Attempting reconnection...");
-        ws.wsReconnection();
-    })
-);
+ws.openWebSocket().catch(async () => {
+    ctrl.simulationRunningStore(false);
+    ctrl.setSimulationTime(String("2025-03-12T09:27:00.000"));
+    ctrl.updatePlaceholder();
+    alert("Server unreachable. Attempting reconnection...");
+    ws.wsReconnection();
+});
 
 anim.loadThreeJSEngine().then( async () => {
     anim.gsapCameraTo(ctrl.observerId);
