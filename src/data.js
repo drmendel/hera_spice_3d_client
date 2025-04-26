@@ -194,7 +194,6 @@ export function updateObjectStates() {
 }
 
 const tmpVector = new THREE.Vector3();
-const tmpQuaternion = new THREE.Quaternion();
 
 function hermitePosition(time0, position0, velocity0, time1, position1, velocity1, simulationTime) {
     const t0 = time0.getTime();
@@ -221,16 +220,5 @@ function slerpRotation(time0, quaternion0, time1, quaternion1, simulationTime) {
     const ts = simulationTime.getTime();
     const t = (ts - t0) / (t1 - t0);
 
-    const q0 = new THREE.Quaternion(quaternion0.x, quaternion0.y, quaternion0.z, quaternion0.w);
-    const q1 = new THREE.Quaternion(quaternion1.x, quaternion1.y, quaternion1.z, quaternion1.w);
-
-    const slerpT = t;
-    const slerpQ = new THREE.Quaternion().slerpQuaternions(q0, q1, slerpT);
-
-    return tmpQuaternion.set(
-        slerpQ.x,
-        slerpQ.y,
-        slerpQ.z,
-        slerpQ.w
-    );
+    return new THREE.Quaternion().slerpQuaternions(quaternion0, quaternion1, t); // use `t` here
 }
