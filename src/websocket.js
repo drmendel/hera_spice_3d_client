@@ -1,4 +1,5 @@
-import * as data from "./data"
+import * as THREE from "three";
+import * as data from "./data";
 import { webSocketUrl } from "./config";
 
 let webSocket = null;
@@ -90,7 +91,7 @@ function wsOnMessage(event) {
         offset += 4;
 
         // Read Position (3 x Float64 = 24 bytes)
-        const position = new data.Vector(
+        const position = new THREE.Vector3(
             view.getFloat64(offset, true),
             view.getFloat64(offset + 8, true),
             view.getFloat64(offset + 16, true)
@@ -98,7 +99,7 @@ function wsOnMessage(event) {
         offset += 24;
 
         // Read Velocity (3 x Float64 = 24 bytes)
-        const velocity = new data.Vector(
+        const velocity = new THREE.Vector3(
             view.getFloat64(offset, true),
             view.getFloat64(offset + 8, true),
             view.getFloat64(offset + 16, true)
@@ -106,7 +107,7 @@ function wsOnMessage(event) {
         offset += 24;
 
         // Read Quaternion (4 x Float64 = 32 bytes)
-        const quaternion = new data.Quaternion(
+        const quaternion = new THREE.Quaternion(
             view.getFloat64(offset, true),
             view.getFloat64(offset + 8, true),
             view.getFloat64(offset + 16, true),
@@ -115,7 +116,7 @@ function wsOnMessage(event) {
         offset += 32;
 
         // Read Angular Velocity (3 x Float64 = 24 bytes)
-        const angularVelocity = new data.Vector(
+        const angularVelocity = new THREE.Vector3(
             view.getFloat64(offset, true),
             view.getFloat64(offset + 8, true),
             view.getFloat64(offset + 16, true)
