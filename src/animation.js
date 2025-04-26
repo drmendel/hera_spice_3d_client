@@ -219,7 +219,6 @@ async function loadModels() {
         
         tmpPhobos.scene.scale.set(1, 1, 1);
         phobosModel = tmpPhobos.scene;
-        console.log(phobosModel);
         tmpDeimos.scene.scale.set(1, 1, 1);
         deimosModel = tmpDeimos.scene;
 
@@ -1099,7 +1098,7 @@ export function cameraSetTo(cameraId) {
         case -91002310:
             break;
         default:
-            console.log('Camera not found!');
+            console.warn('Camera not found!');
             break;
     }
 }
