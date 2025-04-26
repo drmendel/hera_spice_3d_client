@@ -1105,11 +1105,11 @@ export function cameraSetTo(cameraId) {
 }
 
 export function hide(id) {
-    objects.get(id).group.visible = false;
+    if(objects.get(id).group.visible) objects.get(id).group.visible = false;
 }
 
 export function show(id) {
-    objects.get(id).group.visible = true;
+    if(!objects.get(id).group.visible) objects.get(id).group.visible = true;
 }
 
 export function animate() {
