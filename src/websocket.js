@@ -1,6 +1,5 @@
 import * as data from "./data"
-//import { webSocketUrl } from "./config";
-let webSocketUrl = "ws://localhost:8081";
+import { webSocketUrl } from "./config";
 
 let webSocket = null;
 let shouldwebSocketBeAvailable = true;

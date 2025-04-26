@@ -1,6 +1,6 @@
 // ###################### GLOBAL VARIABLES ######################
 
-export let websocketUrl;
+export let webSocketUrl;
 export const requestPerSec = 10;     // req/sec
 export const canvasName = 'threeCanvas';
 export const lightColor = 'rgb(175,175,175)';
@@ -13,5 +13,5 @@ export const maxDate = new Date("2029-01-01T00:00:00.000"); // Maximum allowed d
 export async function load() {
     const response = await fetch('config.json');
     const configData = await response.json();
-    websocketUrl = `ws://${configData.wsDomain}:${configData.wsPort}`;
+    webSocketUrl = `ws://${configData.wsDomain}:${configData.wsPort}`;
 }
