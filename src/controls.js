@@ -156,6 +156,8 @@ function setParamsFromURL() {
   const timestampParam = urlParams.get('timestamp');
   const observerIdParam = urlParams.get('observerId');
 
+  if(!observerIdParam || !timestampParam) return;
+
   simulationBaseTime = timestampParam ? new Date(timestampParam) : new Date();
   setRealBaseTime();
   observerId = observerIdParam ? parseInt(observerIdParam, 10) : -91000;
