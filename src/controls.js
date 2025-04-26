@@ -178,11 +178,11 @@ function setParamsFromURL() {
   observerId = observerIdParam ? parseInt(observerIdParam, 10) : -91000;
   if(timestampParam && observerIdParam) simulationRunning = false;  // stop the simulation in that point
 
-  const url = new URL(window.location);
-  url.search = ''; // Clear all query parameters
+  //const url = new URL(window.location);
+  //url.search = ''; // Clear all query parameters
 
   // Update the browser's URL to the new one without query parameters
-  window.history.replaceState({}, '', url);
+  //window.history.replaceState({}, '', url);
 }
 
 /**
