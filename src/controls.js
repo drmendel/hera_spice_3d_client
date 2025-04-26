@@ -30,46 +30,56 @@ export const speedValues = [
   2629800   //  1 [month]
 ];
 
+
+
+// ##################### SETUP ##########################
+
 const timeInputElement = document.getElementById('time-input');
 
-// ###################### SETUP ######################
+export function setup() {
 
-setParamsFromURL();
-updatePlaybackButton();
-updateSpeed();
-updateStarFieldVisibilityButton();
+  // General
+  
+  setParamsFromURL();
+  updatePlaybackButton();
+  updateSpeed();
+  updateStarFieldVisibilityButton();
 
-// ###################### LISTENERS ######################
+  // Listeners 
 
-setInterval(() => { if(simulationRunning) updatePlaceholder(); }, 7);
-timeInputElement.addEventListener('change', () => setSimulationTime(String(timeInputElement.value)));
-document.getElementById('playback-button').addEventListener('mousedown', toggleSimulationRunning);
-document.getElementById('playback-speed-input').addEventListener('change', setSpeed);
-document.getElementById('increment-button').addEventListener('mousedown', () => crementSpeed(true));
-document.getElementById('decrement-button').addEventListener('mousedown', () => crementSpeed(false));
-document.getElementById('observer-dropdown').addEventListener('change', event => {
-  if(firstPersonView) toggleFirstPersonView();
-  observerId = Number(event.target.value);
-  if(observerId === -91400 || observerId === -91120 || observerId === -91110 || observerId === -15513310 || observerId === -9102310) {
-    engine.changeCamera(observerId);
-    document.getElementById('camera-box').style.display = 'block';
-  }
-  else {
-    engine.changeCamera(0); // Default camera
-    engine.gsapCameraTo(observerId);
-    document.getElementById('camera-box').style.display = 'none';
-  }
-});
+  setInterval(() => { if(simulationRunning) updatePlaceholder(); }, 7);
 
-document.getElementById('menu-button').addEventListener('mousedown', toggleMenu);
+  timeInputElement.addEventListener('change', () => setSimulationTime(String(timeInputElement.value)));
+  document.getElementById('playback-button').addEventListener('mousedown', toggleSimulationRunning);
+  document.getElementById('playback-speed-input').addEventListener('change', setSpeed);
+  document.getElementById('increment-button').addEventListener('mousedown', () => crementSpeed(true));
+  document.getElementById('decrement-button').addEventListener('mousedown', () => crementSpeed(false));
+  document.getElementById('observer-dropdown').addEventListener('change', event => {
+    if(firstPersonView) toggleFirstPersonView();
+    observerId = Number(event.target.value);
+    if(observerId === -91400 || observerId === -91120 || observerId === -91110 || observerId === -15513310 || observerId === -9102310) {
+      engine.changeCamera(observerId);
+      document.getElementById('camera-box').style.display = 'block';
+    }
+    else {
+      engine.changeCamera(0); // Default camera
+      engine.gsapCameraTo(observerId);
+      document.getElementById('camera-box').style.display = 'none';
+    }
+  });
 
-document.getElementById('full-screen-button').addEventListener('mousedown', toggleFullscreen);
-document.getElementById('light-time-adjustment-button').addEventListener('mousedown', toggleLightTimeAdjustment);
-document.getElementById('first-person-view-button').addEventListener('mousedown', toggleFirstPersonView);
-document.getElementById('label-visibility-button').addEventListener('mousedown', toggleLabelVisibility);
-document.getElementById('data-visibility-button').addEventListener('mousedown', toggleTelemetryVisibility);
-document.getElementById('starfield-visibility-button').addEventListener('mousedown', toggleStarFieldVisibility);
-document.getElementById('help-button').addEventListener('mousedown', toggleHelpDisplay);
+  document.getElementById('menu-button').addEventListener('mousedown', toggleMenu);
+
+  document.getElementById('full-screen-button').addEventListener('mousedown', toggleFullscreen);
+  document.getElementById('light-time-adjustment-button').addEventListener('mousedown', toggleLightTimeAdjustment);
+  document.getElementById('first-person-view-button').addEventListener('mousedown', toggleFirstPersonView);
+  document.getElementById('label-visibility-button').addEventListener('mousedown', toggleLabelVisibility);
+  document.getElementById('data-visibility-button').addEventListener('mousedown', toggleTelemetryVisibility);
+  document.getElementById('starfield-visibility-button').addEventListener('mousedown', toggleStarFieldVisibility);
+  document.getElementById('help-button').addEventListener('mousedown', toggleHelpDisplay);
+}
+
+
 
 // ###################### DATA FUNCTIONS ######################
 
@@ -424,7 +434,7 @@ function toggleStarFieldVisibility() {
  * Updates the appearance of the start field visibility button.
  * - Changes the button's border and text color based on `starFieldDisplay` state.
  */
-function updateStarFieldVisibilityButton() {
+export function updateStarFieldVisibilityButton() {
   const btn = document.getElementById('starfield-visibility-button');
   if (!btn) return;
   const color = starFieldDisplay ? conf.lightColor : conf.darkColor;
