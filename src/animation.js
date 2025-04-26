@@ -9,6 +9,7 @@ import { gsap } from 'gsap';
 import { canvasName } from './config';
 import { objects, cameras } from './data';
 import * as ctrl from './controls';
+import * as data from './data';
 
 let canvas;
 let scene;
@@ -1112,8 +1113,15 @@ export function show(id) {
 }
 
 export function animate() {
-    requestAnimationFrame(animate);
+    if(ctrl.simulationRunning) {
+        data.removeOutDatedTelemetryData();
+        data.requestTelemetryData();
+        data.updateObjectStates();
+        console.log(data.objects.get(-91000).group.position);
+    }
+
     cameraControls.update();
     renderer.render(scene, currentCamera);
     labelRenderer.render(scene, currentCamera);
+    requestAnimationFrame(animate);
 }
