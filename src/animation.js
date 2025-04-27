@@ -1128,8 +1128,8 @@ export function animate() {
         data.removeOutDatedTelemetryData();
         data.requestTelemetryData();
         data.updateObjectStates();
+        ctrl.updateSimulationTime();
     }
-
     cameraControls.update();
     renderer.render(scene, currentCamera);
     labelRenderer.render(scene, currentCamera);

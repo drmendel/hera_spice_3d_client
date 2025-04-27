@@ -48,7 +48,7 @@ export function setup() {
 
   // Listeners 
 
-  setInterval(() => { if(simulationRunning) updatePlaceholder(); }, 7);
+  setInterval(updatePlaceholder, 7);
 
   timeInputElement.addEventListener('change', () => setSimulationTime(String(timeInputElement.value)));
   document.getElementById('playback-button').addEventListener('mousedown', toggleSimulationRunning);
@@ -150,6 +150,7 @@ export function setSimulationTime(dateString) {
   setRealBaseTime();
   timeInputElement.value = "";
   timeInputElement.blur();
+  updateSimulationTime();
   updatePlaceholder();
 }
 
@@ -176,8 +177,9 @@ function setParamsFromURL() {
 
   simulationBaseTime = timestampParam ? new Date(timestampParam) : new Date();
   setRealBaseTime();
+  simulationTime = simulationBaseTime;
   observerId = observerIdParam ? parseInt(observerIdParam, 10) : -91000;
-  if(timestampParam && observerIdParam) simulationRunning = false;  // stop the simulation in that point
+  if(timestampParam && observerIdParam) toggleSimulationRunning();
 
   //const url = new URL(window.location);
   //url.search = ''; // Clear all query parameters
@@ -201,7 +203,11 @@ function setRealBaseTime(date) {
 
 // Function to update the placeholder with the simulation time
 export function updatePlaceholder() {
-  timeInputElement.placeholder = getTimeString(getSimulationTime());  // Pass the timestamp to getTimeString
+  timeInputElement.placeholder = getTimeString(simulationTime);  // Pass the timestamp to getTimeString
+}
+
+export function updateSimulationTime() {
+  simulationTime = getSimulationTime();
 }
 
 /**
@@ -213,7 +219,17 @@ async function toggleSimulationRunning() {
   if(firstPersonView) toggleFirstPersonView();
   updatePlaybackButton();
   if(simulationRunning) {
-    simulationRunning = false;
+    await setSimulationDateTo(simulationTime, false);
+  }
+  else {
+    setRealBaseTime();
+    simulationRunning = true;
+  }
+}
+
+export async function setSimulationDateTo(date, run) {
+    simulationRunning = run;
+    simulationTime = date;
     simulationBaseTime = simulationTime;
     await waitForMessages(() => data.instantaneousTelemetryData.requestedSize, () => data.lightTimeAdjustedTelemetryData.requestedSize);
     data.instantaneousTelemetryData.reset();
@@ -221,11 +237,7 @@ async function toggleSimulationRunning() {
     data.requestTelemetryData();
     await waitForMessages(() => data.instantaneousTelemetryData.requestedSize, () => data.lightTimeAdjustedTelemetryData.requestedSize);
     data.updateObjectStates();
-  }
-  else {
-    setRealBaseTime();
-    simulationRunning = true;
-  }
+    updatePlaceholder();
 }
 
 async function waitForMessages(getA, getB) {
@@ -279,12 +291,9 @@ async function crementSpeed(increment) {
   // Update speed level
   psi.value = Math.min(10, Math.max(1, Number(psi.value) + (increment ? 1 : -1)));
 
-  // Preserve the correct simulation time before updating speed
-  const elapsedSimTime = getSimulationTime(); // This returns a Date object
-
   // Update speed and timing references
   speedLevel = Number(psi.value);
-  simulationBaseTime = new Date(elapsedSimTime.getTime());  // Preserve the current simulation time
+  simulationBaseTime = new Date(simulationTime.getTime());  // Preserve the current simulation time
   realBaseTime = new Date();  // Use Date object for consistency
 }
 
