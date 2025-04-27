@@ -149,7 +149,7 @@ export function requestTelemetryData() {
     const sendRequests = (data, mode) => {
         const missing = data.maxSize - (data.array.length + data.requestedSize);
         for (let i = 0; i < missing; i++) {
-            const time = ctrl.simulationTime.getTime() / 1000 + (data.array.length + i) * speed * deltaT;
+            const time = ctrl.simulationTime.getTime() / 1000 + (data.array.length + i) * speed;
             ws.sendMessage(time, mode, ctrl.observerId);
             data.requestedSize++;
         }
