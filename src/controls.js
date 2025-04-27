@@ -469,3 +469,8 @@ function updateHelpDisplay() {
   if(helpDisplay) document.getElementById('help-box').classList.remove('hidden');
   else document.getElementById('help-box').classList.add('hidden');
 }
+
+export function toggleLoading() {
+  const spinner = document.getElementById("loading-spinner");
+  spinner.style.display = spinner.style.display === "flex" ? "none" : "flex";
+}
