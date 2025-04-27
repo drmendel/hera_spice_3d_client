@@ -40,7 +40,7 @@ canvas {
 
 #ui-elements {
     position: fixed;
-    z-index: 4;
+    z-index: 5;
     top: 0;
     left: 0;
     width: 100%;
@@ -115,7 +115,7 @@ canvas {
 */
 
 #help-box {
-    z-index: 6;
+    z-index: 5;
     position: fixed;
     bottom: 10px;
     left: 10px;
