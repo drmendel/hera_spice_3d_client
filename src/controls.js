@@ -64,7 +64,7 @@ export function setup() {
     }
     else {
       engine.changeCamera(0); // Default camera
-      engine.gsapCameraTo(observerId);
+      engine.gsapCamera();
       document.getElementById('camera-box').style.display = 'none';
     }
   });

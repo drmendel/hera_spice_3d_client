@@ -991,9 +991,20 @@ export function getCameraId(cameraName) {
 
 let lastObjectId = -91000;  // Default Hera
 
-export function gsapCameraTo() {
+export async function gsapCamera() {
     objects.get(lastObjectId).group.visible = true;
     lastObjectId = ctrl.observerId;
+    ctrl.toggleLoading();
+    ctrl.setSimulationDateTo(ctrl.simulationTime, ctrl.simulationRunning);
+
+    const startTime = Date.now();
+    while (objects.get(lastObjectId).group.position.x !== 0 && Date.now() - startTime < 1000) {
+        await new Promise(resolve => requestAnimationFrame(resolve));
+    }
+
+    moveCamera();
+}
+function moveCamera() {
     const object = objects.get(ctrl.observerId);
 
     cameraControls.enabled = false;
@@ -1017,13 +1028,13 @@ export function gsapCameraTo() {
     }
 
     const newPosition = object.group.position.clone().add(direction.multiplyScalar(distance));
-
+    setTimeout(ctrl.toggleLoading, 500);
     gsap.to(defaultCamera.position,
     {
         x: newPosition.x,
         y: newPosition.y,
         z: newPosition.z,
-        duration: 0.5,
+        duration: 1,
         onUpdate: function () {
             defaultCamera.lookAt(object.group.position);
             cameraControls.update();
