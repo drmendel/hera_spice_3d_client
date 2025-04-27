@@ -354,7 +354,6 @@ function updateLighTimeAdjustmentButton() {
  */
 function toggleFirstPersonView() {
   if(observerId === -91400 || observerId === -91110 || observerId === -91120 || observerId === -15513310 || observerId === -9102310) return;
-  if(simulationRunning) return;
   firstPersonView = !firstPersonView;
   updateFirstPersonViewButton();
   engine.gsapCameraFPV();

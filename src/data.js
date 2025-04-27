@@ -173,7 +173,7 @@ export function updateObjectStates() {
         const obj1 = data1.objects.get(id);
 
         if (!obj0 || !obj1) {
-            if(id !== 0) anim.hide(id);
+            if(id !== 0) anim.hide(id);     // skip starField (SOLAR_SYSTEM_BARYCENTER)
             continue;
         }
 
@@ -189,7 +189,8 @@ export function updateObjectStates() {
             ctrl.simulationTime
         ));
 
-        if(id!==0) anim.show(id);
+        if(ctrl.firstPersonView && id === ctrl.observerId) continue;    // if we are in FPV, skip the current observer 
+        if(id!==0) anim.show(id);   // skip starField (SOLAR_SYSTEM_BARYCENTER)
     }
 }
 
