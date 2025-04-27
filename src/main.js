@@ -4,8 +4,6 @@ import * as anim from './animation';
 import * as conf from './config';
 import * as ws from './websocket';
 
-ctrl.setup();
-
 ws.openWebSocket().catch(async () => {
     ctrl.simulationRunningStore(false);
     ctrl.setSimulationTime(String("2025-03-12T09:27:00.000"));
@@ -15,6 +13,7 @@ ws.openWebSocket().catch(async () => {
 });
 
 anim.loadThreeJSEngine().then( async () => {
-    anim.gsapCameraTo(ctrl.observerId);
+    ctrl.setup();
+    anim.gsapCamera();
     anim.animate();
 });
