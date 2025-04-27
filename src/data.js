@@ -145,23 +145,54 @@ export function removeOutDatedTelemetryData() {
 }
 
 export function requestTelemetryData() {
-    const speed = ctrl.speedValues[ctrl.speedLevel - 1] * deltaT;
-    const sendRequests = (data, mode) => {
-        const missing = data.maxSize - (data.array.length + data.requestedSize);
-        for (let i = 0; i < missing; i++) {
-            const time = ctrl.simulationTime.getTime() / 1000 + (data.array.length + i) * speed;
-            ws.sendMessage(time, mode, ctrl.observerId);
-            data.requestedSize++;
-        }
-    };
-    sendRequests(instantaneousTelemetryData, 'i');
-    sendRequests(lightTimeAdjustedTelemetryData, 'l');
+    if(!ctrl.simulationRunning) {
+        const sendRequest = (data, mode) => {
+                const time = ctrl.simulationTime.getTime() / 1000;
+                ws.sendMessage(time, mode, ctrl.observerId);
+                data.requestedSize++;
+        };
+        sendRequest(instantaneousTelemetryData, 'i');
+        sendRequest(lightTimeAdjustedTelemetryData, 'l');
+    }
+    else {
+        const speed = ctrl.speedValues[ctrl.speedLevel - 1] * deltaT;
+        const sendRequests = (data, mode) => {
+            const missing = data.maxSize - (data.array.length + data.requestedSize);
+            for (let i = 0; i < missing; i++) {
+                const time = ctrl.simulationTime.getTime() / 1000 + (data.array.length + i) * speed;
+                ws.sendMessage(time, mode, ctrl.observerId);
+                data.requestedSize++;
+            }
+        };
+        sendRequests(instantaneousTelemetryData, 'i');
+        sendRequests(lightTimeAdjustedTelemetryData, 'l');
+    }
 }
 
 
 export function updateObjectStates() {
     const telemetryData = ctrl.lightTimeAdjustment ? lightTimeAdjustedTelemetryData : instantaneousTelemetryData;
-    if(telemetryData.array.length < 2) return;
+    
+    if(telemetryData.array.length < 1) return;
+    
+    if(telemetryData.array.length === 1) {
+        const data = telemetryData.array[0];
+        for (const [id, object] of objects) {
+            const obj = data.objects.get(id);
+            if (!obj) {
+                if(id !== 0) anim.hide(id);     // skip starField (SOLAR_SYSTEM_BARYCENTER)
+                continue;
+            }
+
+            object.group.position.copy(obj.position);
+            object.group.quaternion.copy(obj.quaternion);
+
+            if(ctrl.firstPersonView && id === ctrl.observerId) continue;    // if we are in FPV, skip the current observer 
+            if(id!==0) anim.show(id);   // skip starField (SOLAR_SYSTEM_BARYCENTER)
+        }
+
+        return;
+    }
 
     console.log(telemetryData);
 

@@ -2,6 +2,7 @@
 
 import * as engine from "./animation";
 import * as conf from "./config";
+import * as data from './data';
 
 export let observerId = -91000;             // default observer id: Hera
 export let simulationBaseTime = new Date(); // local time
@@ -208,18 +209,31 @@ export function updatePlaceholder() {
  * If `simulationRunning` is true, it sets it to false, indicating the simulation is stopped.
  * If `simulationRunning` is false, it sets it to true, indicating the simulation is running.
  */
-function toggleSimulationRunning() {
+async function toggleSimulationRunning() {
   if(firstPersonView) toggleFirstPersonView();
   updatePlaybackButton();
   if(simulationRunning) {
-    simulationBaseTime = simulationTime;
     simulationRunning = false;
+    simulationBaseTime = simulationTime;
+    await waitForMessages(() => data.instantaneousTelemetryData.requestedSize, () => data.lightTimeAdjustedTelemetryData.requestedSize);
+    data.instantaneousTelemetryData.reset();
+    data.lightTimeAdjustedTelemetryData.reset();
+    data.requestTelemetryData();
+    await waitForMessages(() => data.instantaneousTelemetryData.requestedSize, () => data.lightTimeAdjustedTelemetryData.requestedSize);
+    data.updateObjectStates();
   }
   else {
     setRealBaseTime();
     simulationRunning = true;
   }
 }
+
+async function waitForMessages(getA, getB) {
+  while (getA() !== 0 || getB() !== 0) {
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+}
+
 /**
  * Updates the text content of the playback button based on the `simulationRunning` state.
  * If the simulation is running, the button text will show "Pause".
@@ -252,9 +266,15 @@ function setSpeed() {
  * - `increment` (boolean): If true, increases speed; otherwise, decreases it.
  * - Ensures the speed stays within the range (1 to 10).
  */
-function crementSpeed(increment) {
+async function crementSpeed(increment) {
   const psi = document.getElementById('playback-speed-input');
   if (!psi) return;
+
+  if(!increment) {
+    await waitForMessages(() => data.instantaneousTelemetryData.requestedSize, () => data.lightTimeAdjustedTelemetryData.requestedSize);
+    data.instantaneousTelemetryData.reset();
+    data.lightTimeAdjustedTelemetryData.reset();
+  }
 
   // Update speed level
   psi.value = Math.min(10, Math.max(1, Number(psi.value) + (increment ? 1 : -1)));
