@@ -1117,7 +1117,6 @@ export function animate() {
         data.removeOutDatedTelemetryData();
         data.requestTelemetryData();
         data.updateObjectStates();
-        console.log(data.objects.get(-91000).group.position);
     }
 
     cameraControls.update();
