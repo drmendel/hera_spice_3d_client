@@ -43,10 +43,22 @@ export function sendMessage(utcTimestamp, mode, observerId) {
 
 function createMessage(utcTimestamp, mode, observerId) {
     let id;
-    if(observerId === -91400 || observerId === -91120 || observerId === -91110) id = -91000;
-    else if(observerId === -15513310) id = -15513000;
-    else if(observerId === -9102310) id = -9102000;
-    else id = observerId;
+    switch(observerId) {
+        case -91400:
+        case -91120:
+        case -91110:
+            id = -91000;
+            break;
+        case -15513310:
+            id = -15513000;
+            break;
+        case -9102310:
+            id = -9102000;
+            break;
+        default:
+            id = observerId;
+            break; 
+    }
 
     const message = new ArrayBuffer(13);
     const view = new DataView(message);
@@ -54,7 +66,7 @@ function createMessage(utcTimestamp, mode, observerId) {
     view.setFloat64(0, utcTimestamp, true); // 8 bytes for the date
     view.setUint8(8, mode.charCodeAt(0)); // 1 byte for the mode
     view.setUint32(9, id, true); // 4 bytes for the observerId
-    
+    console.log(id);
     return message;
 }
 
@@ -141,9 +153,10 @@ function wsOnMessage(event) {
             data.lightTimeAdjustedTelemetryData.pushBackTimestampData(timestampData);
             break;
         case 101: // 'e' character as a numeric value
-            const observer = data.objects.get(ctrl.observerId);
+            const obsId = ctrl.getObjectId(ctrl.observerId);
+            const observer = data.objects.get(obsId);
             const observerName = observer ? observer.name : 'UNKNOWN';
-            alert(`Insufficient ephemeris data has been loaded to compute the state of objects relative to ${observerName} (${ctrl.observerId}) at the ephemeris epoch ${ctrl.simulationTime}`);            
+            alert(`Insufficient ephemeris data has been loaded to compute the state of objects relative to ${observerName} (${obsId}) at the ephemeris epoch ${ctrl.simulationTime}`);            
             break;
         default:
             console.error('Unknown mode:', mode);
