@@ -50,6 +50,7 @@ export function setup() {
   // Listeners 
 
   setInterval(updatePlaceholder, 7);
+  setInterval(hideUnavailableOptions, data.deltaT);
 
   timeInputElement.addEventListener('change', () => setSimulationTime(String(timeInputElement.value)));
   document.getElementById('playback-button').addEventListener('mousedown', toggleSimulationRunning);
@@ -523,18 +524,15 @@ export function toggleLoading() {
   spinner.style.display = spinner.style.display === "flex" ? "none" : "flex";
 }
 
-export function getObjectId() {
-  switch(observerId) {
+export function getObjectId(id) {
+  const tmpId = id || observerId;
+  switch (tmpId) {
     case -91400:
     case -91120:
-    case -91110:
-      return -91000;
-    case -15513310:
-      return -15513000;
-    case -9102310:
-      return -9102000;
-    default:
-      return observerId;
+    case -91110: return -91000;
+    case -15513310: return -15513000;
+    case -9102310: return -9102000;
+    default: return tmpId;
   }
 }
 
