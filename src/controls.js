@@ -122,9 +122,11 @@ function getTimeString(time) {
 }
 
 export function setSimulationTime(dateString) {
-  if (!dateString) {
-    simulationBaseTime = new Date(conf.minDate);
-  } else {
+  timeInputElement.value = "";
+  timeInputElement.blur();
+  
+  if (!dateString) setSimulationDateTo(new Date(conf.minDate.getTime(), simulationRunning));
+  else {
     const defaultParts = ["0000", "01", "01", "00", "00", "00", "000"];
     const parts = dateString.split(/[-T:.]/);
 
@@ -144,14 +146,8 @@ export function setSimulationTime(dateString) {
     }
 
     // Ensure the date is within the allowed range
-    simulationBaseTime = new Date(Math.max(conf.minDate.getTime(), Math.min(parsedDate.getTime(), conf.maxDate.getTime())));
+    setSimulationDateTo(new Date(Math.max(conf.minDate.getTime(), Math.min(parsedDate.getTime(), conf.maxDate.getTime()))), simulationRunning);
   }
-
-  setRealBaseTime();
-  timeInputElement.value = "";
-  timeInputElement.blur();
-  updateSimulationTime();
-  updatePlaceholder();
 }
 
 export function simulationRunningStore(bool) {
