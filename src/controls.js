@@ -300,7 +300,6 @@ async function crementSpeed(increment) {
   const psi = document.getElementById('playback-speed-input');
   if (!psi) return;
   psi.value = Math.min(10, Math.max(1, Number(psi.value) + (increment ? 1 : -1)));
-  speedLevel = Number(psi.value);
 
   if(!increment) {
     await waitForMessages(() => data.instantaneousTelemetryData.requestedSize, () => data.lightTimeAdjustedTelemetryData.requestedSize);
@@ -311,6 +310,7 @@ async function crementSpeed(increment) {
   // Update speed and timing references
   simulationBaseTime = new Date(simulationTime.getTime());  // Preserve the current simulation time
   realBaseTime = new Date();  // Use Date object for consistency
+  speedLevel = Number(psi.value);
 }
 
 
