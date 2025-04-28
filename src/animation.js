@@ -132,6 +132,7 @@ export function changeCamera(cameraId) {
     if(cameraId === 0) {
         currentCameraId = 0;
         currentCamera = defaultCamera;
+        resizeCameraAspect();
     }
     else {
         currentCameraId = cameraId;
