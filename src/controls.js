@@ -313,6 +313,7 @@ async function crementSpeed(increment) {
  */
 function toggleMenu() {
   document.querySelectorAll('.controls *').forEach(el => el.classList.toggle('hidden'));
+  if(helpDisplay) document.getElementById('help-box').classList.toggle('hidden');
 }
 
 
