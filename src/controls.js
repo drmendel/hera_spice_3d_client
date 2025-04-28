@@ -3,6 +3,7 @@
 import * as engine from "./animation";
 import * as conf from "./config";
 import * as data from './data';
+import * as ws from './websocket';
 
 export let observerId = -91000;             // default observer id: Hera
 export let simulationBaseTime = new Date(); // local time
@@ -234,6 +235,9 @@ export function updateSimulationTime() {
  * If `simulationRunning` is false, it sets it to true, indicating the simulation is running.
  */
 async function toggleSimulationRunning() {
+  if(ws.webSocket === null) return; 
+  if (ws.webSocket.readyState !== WebSocket.OPEN) return;
+
   if(simulationRunning) {
     await setSimulationDateTo(simulationTime, false);
   }
@@ -298,6 +302,8 @@ function setSpeed() {
 async function crementSpeed(increment) {
   const psi = document.getElementById('playback-speed-input');
   if (!psi) return;
+  psi.value = Math.min(10, Math.max(1, Number(psi.value) + (increment ? 1 : -1)));
+  speedLevel = Number(psi.value);
 
   if(!increment) {
     await waitForMessages(() => data.instantaneousTelemetryData.requestedSize, () => data.lightTimeAdjustedTelemetryData.requestedSize);
@@ -305,11 +311,7 @@ async function crementSpeed(increment) {
     data.lightTimeAdjustedTelemetryData.reset();
   }
 
-  // Update speed level
-  psi.value = Math.min(10, Math.max(1, Number(psi.value) + (increment ? 1 : -1)));
-
   // Update speed and timing references
-  speedLevel = Number(psi.value);
   simulationBaseTime = new Date(simulationTime.getTime());  // Preserve the current simulation time
   realBaseTime = new Date();  // Use Date object for consistency
 }

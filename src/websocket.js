@@ -3,7 +3,7 @@ import * as data from "./data";
 import * as ctrl from "./controls";
 import { webSocketUrl } from "./config";
 
-let webSocket = null;
+export let webSocket = null;
 let shouldWebSocketBeAvailable = true;
 
 /**
