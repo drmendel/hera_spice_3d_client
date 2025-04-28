@@ -56,19 +56,7 @@ export function setup() {
   document.getElementById('playback-speed-input').addEventListener('change', setSpeed);
   document.getElementById('increment-button').addEventListener('mousedown', () => crementSpeed(true));
   document.getElementById('decrement-button').addEventListener('mousedown', () => crementSpeed(false));
-  document.getElementById('observer-dropdown').addEventListener('change', event => {
-    if(firstPersonView) toggleFirstPersonView();
-    observerId = Number(event.target.value);
-    if(observerId === -91400 || observerId === -91120 || observerId === -91110 || observerId === -15513310 || observerId === -9102310) {
-      engine.changeCamera(observerId);
-      document.getElementById('camera-box').style.display = 'block';
-    }
-    else {
-      engine.changeCamera(0); // Default camera
-      engine.gsapCamera();
-      document.getElementById('camera-box').style.display = 'none';
-    }
-  });
+  document.getElementById('observer-dropdown').addEventListener('change', event => {changeObserver(event.target.value)});
 
   document.getElementById('menu-button').addEventListener('mousedown', toggleMenu);
 
@@ -322,6 +310,21 @@ async function crementSpeed(increment) {
 /**
  * Spice Observer List
 */
+function changeObserver(eventTargetValue) {
+  observerId = Number(eventTargetValue);
+
+  if(firstPersonView) toggleFirstPersonView();
+  
+  if(observerId === -91400 || observerId === -91120 || observerId === -91110 || observerId === -15513310 || observerId === -9102310) {
+    engine.changeCamera(observerId);
+    document.getElementById('camera-box').style.display = 'block';
+  }
+  else {
+    engine.changeCamera(0); // Default camera
+    engine.gsapCamera();
+    document.getElementById('camera-box').style.display = 'none';
+  }
+}
 
 
 
