@@ -1066,7 +1066,7 @@ export function gsapCameraFPV() {
         distance = object.cameraRadius * 10;
         direction = defaultCamera.position.clone().sub(object.group.position).normalize();
         cameraControls.minDistance = object.cameraRadius * 1.05;
-        cameraControls.maxDistance = object.cameraRadius * 500;
+        cameraControls.maxDistance = objects.get(10).cameraRadius * 2500;
         cameraControls.enableZoom = true;
         show(ctrl.observerId);
     }
