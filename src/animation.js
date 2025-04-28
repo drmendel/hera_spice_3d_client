@@ -994,7 +994,7 @@ let lastObjectId = -91000;  // Default Hera
 export async function gsapCamera() {
     objects.get(lastObjectId).group.visible = true;
     lastObjectId = ctrl.observerId;
-    ctrl.toggleLoading();
+
     ctrl.setSimulationDateTo(ctrl.simulationTime, ctrl.simulationRunning);
 
     const startTime = Date.now();
@@ -1028,13 +1028,13 @@ function moveCamera() {
     }
 
     const newPosition = object.group.position.clone().add(direction.multiplyScalar(distance));
-    setTimeout(ctrl.toggleLoading, 500);
+
     gsap.to(defaultCamera.position,
     {
         x: newPosition.x,
         y: newPosition.y,
         z: newPosition.z,
-        duration: 1,
+        duration: 0.5,
         onUpdate: function () {
             defaultCamera.lookAt(object.group.position);
             cameraControls.update();
