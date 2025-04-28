@@ -194,7 +194,8 @@ export function updateObjectStates() {
         return;
     }
 
-    console.log(telemetryData);
+    //console.log(instantaneousTelemetryData);
+    //console.log(lightTimeAdjustedTelemetryData);
 
     const data0 = telemetryData.array[0];
     const data1 = telemetryData.array[1];
