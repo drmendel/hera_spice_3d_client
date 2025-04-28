@@ -1010,7 +1010,7 @@ function moveCamera() {
     cameraControls.enabled = false;
     cameraControls.target = object.group.position;
     cameraControls.minDistance = object.cameraRadius * 1.05;
-    cameraControls.maxDistance = object.cameraRadius * 500;
+    cameraControls.maxDistance = objects.get(10).cameraRadius * 2500;
     cameraControls.update();
 
     let distance;
