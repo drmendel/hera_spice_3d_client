@@ -212,7 +212,6 @@ export function updateSimulationTime() {
  * If `simulationRunning` is false, it sets it to true, indicating the simulation is running.
  */
 async function toggleSimulationRunning() {
-  updatePlaybackButton();
   if(simulationRunning) {
     await setSimulationDateTo(simulationTime, false);
   }
@@ -220,6 +219,7 @@ async function toggleSimulationRunning() {
     setRealBaseTime();
     simulationRunning = true;
   }
+  updatePlaybackButton();
 }
 
 export async function setSimulationDateTo(date, run) {
