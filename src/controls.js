@@ -212,7 +212,6 @@ export function updateSimulationTime() {
  * If `simulationRunning` is false, it sets it to true, indicating the simulation is running.
  */
 async function toggleSimulationRunning() {
-  if(firstPersonView) toggleFirstPersonView();
   updatePlaybackButton();
   if(simulationRunning) {
     await setSimulationDateTo(simulationTime, false);
