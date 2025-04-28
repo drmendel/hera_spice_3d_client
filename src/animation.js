@@ -7,7 +7,7 @@ import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRe
 import { gsap } from 'gsap';
 
 import { canvasName } from './config';
-import { objects, cameras } from './data';
+import { objects, cameras, cameraFOVs } from './data';
 import * as ctrl from './controls';
 import * as data from './data';
 
@@ -123,6 +123,9 @@ function resizeCameraBox() {
 
     box.style.width = `${width}px`;
     box.style.height = `${height}px`;
+
+    currentCamera.fov = (windowHeight - margin) / height * cameraFOVs.get(currentCameraId);
+    currentCamera.updateProjectionMatrix();
 }
 
 export function changeCamera(cameraId) {

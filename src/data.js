@@ -31,6 +31,15 @@ const afcAspect = 1024 / 1024;
 const jncAspect = 2048 / 1536;
 const mncAspect = 2048 / 1536;
 
+export const cameraFOVs = new Map([
+    [0, 45],
+    [-91400, 9.9],
+    [-91120, 5.5],
+    [-91110, 5.5],
+    [-15513310, 28.5],
+    [-9102310, 16]
+]);
+
 /**
  * Mapping of HERA spacecraft camera identifiers to their names.
  * These represent the available cameras in the simulation:
