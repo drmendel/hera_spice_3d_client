@@ -1087,7 +1087,7 @@ export function gsapCameraFPV() {
                 cameraControls.enableZoom = false;
                 hide(ctrl.observerId);
                 if(ctrl.observerId != lastObjectId) {
-                    objects.get(lastObjectId).group.visible = true;
+                    show(lastObjectId);
                     lastObjectId = ctrl.observerId;
                 }
             }
