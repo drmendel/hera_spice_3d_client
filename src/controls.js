@@ -171,11 +171,12 @@ function setParamsFromURL() {
   const cameraParam = urlParams.get('camera');
 
   if(!cameraParam || !timestampParam) return;
-
+  toggleSimulationRunning();
   const tmpSimulationBaseTime = new Date(timestampParam);
   simulationBaseTime = isNaN(tmpSimulationBaseTime.getTime()) ? new Date() : tmpSimulationBaseTime;
   setRealBaseTime();
   simulationTime = simulationBaseTime;
+  updatePlaceholder();
 
   switch(cameraParam) {
     case "HSH":
@@ -198,13 +199,8 @@ function setParamsFromURL() {
       break;
   }
 
-  engine.changeCamera(observerId);
-
-  toggleSimulationRunning();
-
-  //const url = new URL(window.location);
-  //url.search = '';
-  //window.history.replaceState({}, '', url);
+  if(observerId !== -91000) engine.changeCamera(observerId);
+  document.getElementById('observer-dropdown').value = observerId;
 }
 
 /**
@@ -252,6 +248,7 @@ export async function setSimulationDateTo(date, run) {
     simulationRunning = run;
     simulationTime = date;
     simulationBaseTime = simulationTime;
+    setRealBaseTime();
     await waitForMessages(() => data.instantaneousTelemetryData.requestedSize, () => data.lightTimeAdjustedTelemetryData.requestedSize);
     data.instantaneousTelemetryData.reset();
     data.lightTimeAdjustedTelemetryData.reset();
