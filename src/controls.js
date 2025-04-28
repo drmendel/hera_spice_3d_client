@@ -167,20 +167,42 @@ function setParamsFromURL() {
   const urlParams = new URLSearchParams(window.location.search);
   
   const timestampParam = urlParams.get('timestamp');
-  const observerIdParam = urlParams.get('observerId');
+  const cameraParam = urlParams.get('camera');
 
-  if(!observerIdParam || !timestampParam) return;
+  if(!cameraParam || !timestampParam) return;
 
-  simulationBaseTime = timestampParam ? new Date(timestampParam) : new Date();
+  const tmpSimulationBaseTime = new Date(timestampParam);
+  simulationBaseTime = isNaN(tmpSimulationBaseTime.getTime()) ? new Date() : tmpSimulationBaseTime;
   setRealBaseTime();
   simulationTime = simulationBaseTime;
-  observerId = observerIdParam ? parseInt(observerIdParam, 10) : -91000;
-  if(timestampParam && observerIdParam) toggleSimulationRunning();
+
+  switch(cameraParam) {
+    case "HSH":
+      observerId = -91400;
+      break;
+    case "AFC2":
+      observerId = -91120;
+      break;
+    case "AFC1":
+      observerId = -91110;
+      break;
+    case "JNC":
+      observerId = -15513310;
+      break;
+    case "MNC":
+      observerId = -9102310;
+      break;
+    default:
+      observerId = -91000;  //Default to Hera
+      break;
+  }
+
+  engine.changeCamera(observerId);
+
+  toggleSimulationRunning();
 
   //const url = new URL(window.location);
-  //url.search = ''; // Clear all query parameters
-
-  // Update the browser's URL to the new one without query parameters
+  //url.search = '';
   //window.history.replaceState({}, '', url);
 }
 
@@ -497,4 +519,19 @@ function updateHelpDisplay() {
 export function toggleLoading() {
   const spinner = document.getElementById("loading-spinner");
   spinner.style.display = spinner.style.display === "flex" ? "none" : "flex";
+}
+
+export function getObjectId() {
+  switch(observerId) {
+    case -91400:
+    case -91120:
+    case -91110:
+      return -91000;
+    case -15513310:
+      return -15513000;
+    case -9102310:
+      return -9102000;
+    default:
+      return observerId;
+  }
 }

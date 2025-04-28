@@ -993,19 +993,20 @@ let lastObjectId = -91000;  // Default Hera
 
 export async function gsapCamera() {
     objects.get(lastObjectId).group.visible = true;
-    lastObjectId = ctrl.observerId;
+    lastObjectId = ctrl.getObjectId();
 
     ctrl.setSimulationDateTo(ctrl.simulationTime, ctrl.simulationRunning);
 
     const startTime = Date.now();
-    while (objects.get(lastObjectId).group.position.x !== 0 && Date.now() - startTime < 1000) {
+
+    while (objects.get(ctrl.getObjectId()).group.position.x !== 0 && Date.now() - startTime < 1000) {
         await new Promise(resolve => requestAnimationFrame(resolve));
     }
 
     moveCamera();
 }
 function moveCamera() {
-    const object = objects.get(ctrl.observerId);
+    const object = objects.get(ctrl.getObjectId());
 
     cameraControls.enabled = false;
     cameraControls.target = object.group.position;
