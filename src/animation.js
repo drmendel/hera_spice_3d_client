@@ -131,7 +131,7 @@ function resizeCameraBox() {
 export function changeCamera(cameraId) {
     if(cameraId === 0) {
         currentCameraId = 0;
-        currentCamera = defaultCamera;
+        currentCamera = cameras.get(0).camera;
         resizeCameraAspect();
     }
     else {
