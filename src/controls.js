@@ -537,3 +537,17 @@ export function getObjectId() {
       return observerId;
   }
 }
+
+export function hideUnavailableOptions() {
+  document.querySelectorAll('option').forEach(opt => {
+    const id = getObjectId(+opt.value);
+
+    const g = (a, i) => data[a].array[i]?.objects.get(id)?.position;
+    
+    const show = simulationRunning
+    ? (g('instantaneousTelemetryData',0) && g('lightTimeAdjustedTelemetryData',0) && g('instantaneousTelemetryData',1) && g('lightTimeAdjustedTelemetryData',1))
+    : (g('instantaneousTelemetryData',0) && g('lightTimeAdjustedTelemetryData',0));
+    
+    opt.classList.toggle('hidden', !show);
+  });
+}
