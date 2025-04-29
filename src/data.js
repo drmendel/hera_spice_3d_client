@@ -153,28 +153,42 @@ export function removeOutDatedTelemetryData() {
     }
 }
 
+function sendRequest(data, mode) {
+    if(data.requestedSize === 0 && data.array.length === 0) {
+        const time = ctrl.simulationTime.getTime() / 1000;
+        ws.sendMessage(time, mode, ctrl.observerId);
+        data.requestedSize++;
+    }
+}
+
+function sendRequests(data, mode) {
+    const speed = ctrl.speedValues[ctrl.speedLevel - 1] * deltaT;
+    const missing = data.maxSize - (data.array.length + data.requestedSize);
+    for (let i = 0; i < missing; i++) {
+        const time = ctrl.simulationTime.getTime() / 1000 + (data.array.length + i) * speed;
+        ws.sendMessage(time, mode, ctrl.observerId);
+        data.requestedSize++;
+    }
+};
+
+async function waitForMessages() {
+  while (instantaneousTelemetryData.requestedSize !== 0 || lightTimeAdjustedTelemetryData.requestedSize !== 0) {
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+}
+
 export function requestTelemetryData() {
     if(!ctrl.simulationRunning) {
-        const sendRequest = (data, mode) => {
-                const time = ctrl.simulationTime.getTime() / 1000;
-                ws.sendMessage(time, mode, ctrl.observerId);
-                data.requestedSize++;
-        };
-        sendRequest(instantaneousTelemetryData, 'i');
-        sendRequest(lightTimeAdjustedTelemetryData, 'l');
+        waitForMessages().then(() => {
+            sendRequest(instantaneousTelemetryData, 'i');
+            sendRequest(lightTimeAdjustedTelemetryData, 'l');
+        });
     }
     else {
-        const speed = ctrl.speedValues[ctrl.speedLevel - 1] * deltaT;
-        const sendRequests = (data, mode) => {
-            const missing = data.maxSize - (data.array.length + data.requestedSize);
-            for (let i = 0; i < missing; i++) {
-                const time = ctrl.simulationTime.getTime() / 1000 + (data.array.length + i) * speed;
-                ws.sendMessage(time, mode, ctrl.observerId);
-                data.requestedSize++;
-            }
-        };
-        sendRequests(instantaneousTelemetryData, 'i');
-        sendRequests(lightTimeAdjustedTelemetryData, 'l');
+        waitForMessages().then(() => {
+            sendRequests(instantaneousTelemetryData, 'i');
+            sendRequests(lightTimeAdjustedTelemetryData, 'l');
+        });
     }
 }
 
