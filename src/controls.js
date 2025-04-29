@@ -219,7 +219,7 @@ export function updateSimulationTime() {
  * If `simulationRunning` is true, it sets it to false, indicating the simulation is stopped.
  * If `simulationRunning` is false, it sets it to true, indicating the simulation is running.
  */
-async function toggleSimulationRunning() {
+export async function toggleSimulationRunning() {
   if(ws.webSocket === null) return; 
   if (ws.webSocket.readyState !== WebSocket.OPEN) return;
 
@@ -247,7 +247,7 @@ export async function setSimulationDateTo(date, run) {
     updatePlaceholder();
 }
 
-async function waitForMessages(getA, getB) {
+export async function waitForMessages(getA, getB) {
   while (getA() !== 0 || getB() !== 0) {
     await new Promise(resolve => setTimeout(resolve, 50));
   }
@@ -258,7 +258,7 @@ async function waitForMessages(getA, getB) {
  * If the simulation is running, the button text will show "Pause".
  * If the simulation is stopped, the button text will show "Play".
  */
-function updatePlaybackButton() {
+export function updatePlaybackButton() {
   document.getElementById('playback-button').textContent = simulationRunning ? "Pause" : "Play";
 }
 
