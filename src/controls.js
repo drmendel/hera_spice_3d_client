@@ -245,6 +245,7 @@ export async function setSimulationDateTo(date, run) {
     await waitForMessages(() => data.instantaneousTelemetryData.requestedSize, () => data.lightTimeAdjustedTelemetryData.requestedSize);
     data.updateObjectStates();
     updatePlaceholder();
+    if(ws.fallbackToMinDate) ws.setFallBackToMinDate(false);
 }
 
 export async function waitForMessages(getA, getB) {
