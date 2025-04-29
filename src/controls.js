@@ -311,8 +311,13 @@ async function crementSpeed(increment) {
 /**
  * Spice Observer List
 */
-function changeObserver(eventTargetValue) {
+export function changeObserver(eventTargetValue) {
   observerId = Number(eventTargetValue);
+  
+  const dropdown = document.getElementById('observer-dropdown');
+  if (dropdown.value !== String(observerId)) {
+    dropdown.value = observerId;
+  }
 
   if(firstPersonView) toggleFirstPersonView();
   
