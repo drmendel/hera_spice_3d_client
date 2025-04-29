@@ -5,6 +5,7 @@ import { webSocketUrl, minDate } from "./config";
 
 export let webSocket = null;
 let shouldWebSocketBeAvailable = true;
+let userAlerted = false;
 
 /**
  * Opens a webSocket connection if it's closed and should be available.
@@ -19,6 +20,7 @@ export function openWebSocket() {
 
             webSocket.onopen = () => {
                 console.log('WebSocket connected');
+                userAlerted = false;
                 resolve(webSocket); // Resolves the promise once the socket is open
             };
             webSocket.onerror = (err) => {
@@ -81,7 +83,8 @@ export function closeWebSocket() {
 function wsOnClose() {
     webSocket = null;
     if(shouldWebSocketBeAvailable) {
-        console.log('Trying again...');
+        if(!userAlerted) alert("Websocket server unreachable. Attempting reconnection...");
+        console.log('Connection to server interrupted. Attempting reconnection...');
         setTimeout(wsReconnection, 5000);
     }
 }
