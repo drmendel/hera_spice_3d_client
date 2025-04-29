@@ -153,13 +153,14 @@ export function simulationRunningStore(bool) {
  * 
  * This function helps initialize the simulation state based on URL parameters.
  */
-function setParamsFromURL() {
+export function setParamsFromURL() {
   const urlParams = new URLSearchParams(window.location.search);
   
   const timestampParam = urlParams.get('timestamp');
   const cameraParam = urlParams.get('camera');
 
   if(!cameraParam || !timestampParam) return;
+  simulationRunning = true;
   toggleSimulationRunning();
   const tmpSimulationBaseTime = new Date(timestampParam);
   simulationBaseTime = isNaN(tmpSimulationBaseTime.getTime()) ? new Date() : tmpSimulationBaseTime;
@@ -188,8 +189,7 @@ function setParamsFromURL() {
       break;
   }
 
-  if(observerId !== -91000) engine.changeCamera(observerId);
-  document.getElementById('observer-dropdown').value = observerId;
+  changeObserver(observerId);
 }
 
 /**
