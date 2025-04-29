@@ -1131,10 +1131,11 @@ export function show(id) {
 export function animate() {
     if(ctrl.simulationRunning) {
         data.removeOutDatedTelemetryData();
-        data.requestTelemetryData();
-        data.updateObjectStates();
         ctrl.updateSimulationTime();
     }
+    ctrl.updatePlaybackButton();
+    data.requestTelemetryData();
+    data.updateObjectStates();
     cameraControls.update();
     renderer.render(scene, currentCamera);
     labelRenderer.render(scene, currentCamera);
