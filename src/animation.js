@@ -140,6 +140,8 @@ export function changeCamera(cameraId) {
         resizeCameraAspect();
         resizeCameraBox();
     }
+    currentCamera.updateMatrix();
+    currentCamera.updateMatrixWorld();
 }
 
 function initCameras() {
@@ -1002,13 +1004,15 @@ export async function gsapCamera() {
     ctrl.setSimulationDateTo(ctrl.simulationTime, ctrl.simulationRunning);
 
     const startTime = Date.now();
+    const maxWaitTime = 1000;
 
-    while (objects.get(ctrl.getObjectId()).group.position.x !== 0 && Date.now() - startTime < 1000) {
+    while (objects.get(ctrl.getObjectId()).group.position.x !== 0 && Date.now() - startTime < maxWaitTime) {
         await new Promise(resolve => requestAnimationFrame(resolve));
     }
 
     moveCamera();
 }
+
 function moveCamera() {
     const object = objects.get(ctrl.getObjectId());
 
@@ -1042,7 +1046,8 @@ function moveCamera() {
         duration: 0.5,
         onUpdate: function () {
             defaultCamera.lookAt(object.group.position);
-            cameraControls.update();
+            defaultCamera.updateMatrix();
+            defaultCamera.updateMatrixWorld();
         }
     });
 
@@ -1085,6 +1090,8 @@ export function gsapCameraFPV() {
         duration: 0.25,
         onUpdate: () => {
             cameraControls.update();
+            defaultCamera.updateMatrix();
+            defaultCamera.updateMatrixWorld();
         },
         onComplete: () => {
             cameraControls.enabled = true; // Re-enable user control
