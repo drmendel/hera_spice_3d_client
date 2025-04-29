@@ -162,6 +162,7 @@ async function wsOnMessage(event) {
             data.instantaneousTelemetryData.requestedSize--;
             if(!fallbackToMinDate) {
                 fallbackToMinDate = true;
+                ctrl.changeObserver(-91000);
                 ctrl.simulationRunningStore(false);
                 await ctrl.setSimulationDateTo(minDate);
                 ctrl.updatePlaceholder();
@@ -171,6 +172,7 @@ async function wsOnMessage(event) {
             data.lightTimeAdjustedTelemetryData.requestedSize--;
             if(!fallbackToMinDate) {
                 fallbackToMinDate = true;
+                ctrl.changeObserver(-91000);
                 ctrl.simulationRunningStore(false);
                 await ctrl.setSimulationDateTo(minDate);
                 ctrl.updatePlaceholder();
