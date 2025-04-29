@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import * as data from "./data";
 import * as ctrl from "./controls";
-import { webSocketUrl } from "./config";
+import { webSocketUrl, minDate } from "./config";
 
 export let webSocket = null;
 let shouldWebSocketBeAvailable = true;
@@ -66,7 +66,7 @@ function createMessage(utcTimestamp, mode, observerId) {
     view.setFloat64(0, utcTimestamp, true); // 8 bytes for the date
     view.setUint8(8, mode.charCodeAt(0)); // 1 byte for the mode
     view.setUint32(9, id, true); // 4 bytes for the observerId
-    console.log(id);
+
     return message;
 }
 
@@ -80,20 +80,24 @@ export function closeWebSocket() {
 
 function wsOnClose() {
     webSocket = null;
-    if(shouldWebSocketBeAvailable) wsReconnection();
+    if(shouldWebSocketBeAvailable) {
+        console.log('Trying again...');
+        setTimeout(wsReconnection, 5000);
+    }
 }
 
-export function wsReconnection() {
-    setTimeout(() => {
-        openWebSocket()
-            .catch(() => {
-                console.log('Reconnect failed, trying again...');
-                wsReconnection(); // Retry recursively
-            });
-    }, 1000); // Wait 1 second before retrying
+function wsReconnection() {
+    openWebSocket().then(() => {
+        if(webSocket?.readyState === WebSocket.OPEN) {
+            ctrl.simulationRunningStore(true);
+            ctrl.toggleSimulationRunning();
+        }
+    }).catch(() => {
+        // Do nothing
+    });
 }
 
-function wsOnMessage(event) {
+async function wsOnMessage(event) {
     const view = new DataView(event.data);
     
     const timestamp = view.getFloat64(0, true); // 8 bytes for the date
@@ -153,10 +157,24 @@ function wsOnMessage(event) {
             data.lightTimeAdjustedTelemetryData.pushBackTimestampData(timestampData);
             break;
         case 101: // 'e' character as a numeric value
-            const obsId = ctrl.getObjectId(ctrl.observerId);
-            const observer = data.objects.get(obsId);
-            const observerName = observer ? observer.name : 'UNKNOWN';
-            alert(`Insufficient ephemeris data has been loaded to compute the state of objects relative to ${observerName} (${obsId}) at the ephemeris epoch ${ctrl.simulationTime}`);            
+            break;
+        case 102: // 'f' char instantError
+            data.instantaneousTelemetryData.requestedSize--;
+            if(!fallbackToMinDate) {
+                fallbackToMinDate = true;
+                ctrl.simulationRunningStore(false);
+                await ctrl.setSimulationDateTo(minDate);
+                ctrl.updatePlaceholder();
+            }
+            break;
+        case 103: // 'g' char lightError
+            data.lightTimeAdjustedTelemetryData.requestedSize--;
+            if(!fallbackToMinDate) {
+                fallbackToMinDate = true;
+                ctrl.simulationRunningStore(false);
+                await ctrl.setSimulationDateTo(minDate);
+                ctrl.updatePlaceholder();
+            } 
             break;
         default:
             console.error('Unknown mode:', mode);
@@ -164,4 +182,28 @@ function wsOnMessage(event) {
             if(data.lightTimeAdjustedTelemetryData.requestedSize !== 0) data.instantaneousTelemetryData.requestedSize--;
             break;
     }
+}
+
+export function waitForOpen() {
+  return new Promise((resolve, reject) => {
+    const maxWait = 30*60*1000; // ms
+    const start = Date.now();
+
+    const check = () => {
+      if (webSocket?.readyState === WebSocket.OPEN) {
+        resolve();
+      } else if (Date.now() - start > maxWait) {
+        reject(new Error("WebSocket did not open in time"));
+      } else {
+        setTimeout(check, 1000);
+      }
+    };
+
+    check();
+  });
+}
+
+export let fallbackToMinDate = false;
+export function setFallBackToMinDate(bool) {
+    fallbackToMinDate = bool;
 }
