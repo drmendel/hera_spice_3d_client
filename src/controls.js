@@ -295,11 +295,12 @@ async function crementSpeed(increment) {
   psi.value = Math.min(10, Math.max(1, Number(psi.value) + (increment ? 1 : -1)));
 
   if(!increment) {
+    const simulationState = simulationRunning;
     simulationRunning = false;
     await waitForMessages(() => data.instantaneousTelemetryData.requestedSize, () => data.lightTimeAdjustedTelemetryData.requestedSize);
     data.instantaneousTelemetryData.reset();
     data.lightTimeAdjustedTelemetryData.reset();
-    simulationRunning = true;
+    simulationRunning = simulationState;
   }
 
   // Update speed and timing references
