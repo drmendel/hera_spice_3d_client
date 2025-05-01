@@ -214,8 +214,8 @@ function loadModel(loader, url) {
 async function loadModels() {
     try {
         const promises = [
-            loadModel(gltfLoader, '/models/phobos/24878_Phobos_1_1000.glb'),
-            loadModel(gltfLoader, '/models/deimos/24879_Deimos_1_1000.glb'),    // ok
+            loadModel(gltfLoader, '/models/phobos/phobos_spice_frame.glb'),
+            loadModel(gltfLoader, '/models/deimos/deimos_spice_frame.glb'),
             loadModel(gltfLoader, '/models/didymos/didymos.glb'),               
             loadModel(gltfLoader, '/models/dimorphos/dimorphos.glb'),
             loadModel(gltfLoader, '/models/hera/hera_deployed.glb'),
