@@ -980,8 +980,6 @@ export async function loadThreeJSEngine() {
     loadObjects();
     loadScene();
     currentCamera = defaultCamera;
-    const axisHelper = new THREE.AxesHelper(1E6);
-    scene.add(axisHelper);
     initCameras();
     animate();
 }
