@@ -18,6 +18,7 @@ export let labelDisplay = false;
 export let telemetryDisplay = false;
 export let starFieldDisplay = true;
 export let helpDisplay = false;
+export let framesVisible = false;
 
 export const speedValues = [
   1,        //  1 [second]
@@ -62,11 +63,13 @@ export function setup() {
   document.getElementById('menu-button').addEventListener('mousedown', toggleMenu);
 
   document.getElementById('full-screen-button').addEventListener('mousedown', toggleFullscreen);
-  document.getElementById('light-time-adjustment-button').addEventListener('mousedown', toggleLightTimeAdjustment);
   document.getElementById('first-person-view-button').addEventListener('mousedown', toggleFirstPersonView);
-  document.getElementById('label-visibility-button').addEventListener('mousedown', toggleLabelVisibility);
-  document.getElementById('data-visibility-button').addEventListener('mousedown', toggleTelemetryVisibility);
+  document.getElementById('ambient-light-button').addEventListener('mousedown', toggleAmbientLight);
   document.getElementById('starfield-visibility-button').addEventListener('mousedown', toggleStarFieldVisibility);
+  document.getElementById('label-visibility-button').addEventListener('mousedown', toggleLabelVisibility);
+  document.getElementById('frame-visibility-button').addEventListener('mousedown', toggleFrameVisibility);
+  document.getElementById('light-time-adjustment-button').addEventListener('mousedown', toggleLightTimeAdjustment);
+  document.getElementById('data-visibility-button').addEventListener('mousedown', toggleTelemetryVisibility);
   document.getElementById('help-button').addEventListener('mousedown', toggleHelpDisplay);
 }
 
@@ -558,4 +561,37 @@ export function hideUnavailableOptions() {
       opt.classList.toggle('hidden', !show);
     });
   }
+}
+
+function toggleFrameVisibility() {
+  framesVisible = !framesVisible;
+  engine.frames.forEach((frame) => {
+    frame.visible = !frame.visible;
+  });
+  updateFrameVisibilityButton();
+}
+
+function updateFrameVisibilityButton() {
+  const btn = document.getElementById('frame-visibility-button');
+
+  if (!btn) return; // Avoid errors if button is missing
+
+  const color = framesVisible ? conf.lightColor : conf.darkColor;
+  btn.style.borderColor = color;
+  btn.style.color = color;
+}
+
+function toggleAmbientLight() {
+  engine.ambientLight.visible = !engine.ambientLight.visible;
+  updateAmbientLightButton();
+}
+
+function updateAmbientLightButton() {
+  const btn = document.getElementById('ambient-light-button');
+
+  if (!btn) return; // Avoid errors if button is missing
+
+  const color = engine.ambientLight.visible ? conf.lightColor : conf.darkColor;
+  btn.style.borderColor = color;
+  btn.style.color = color;
 }

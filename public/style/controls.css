@@ -75,8 +75,8 @@ input[type="number"] {
     #menu {
         grid-template-columns: repeat(2, 1fr);
     }
-    #menu > *:nth-child(7) {
-        grid-column: 2;
+    #menu > *:nth-child(9) {
+      grid-column: 2;
     }
 }
 
@@ -84,9 +84,9 @@ input[type="number"] {
     #menu {
         grid-template-columns: repeat(3, 1fr);
     }    
-    #menu > *:nth-child(7) {
+    /*#menu > *:nth-child(7) {
         grid-column: 3;
-    }
+    }*/
 }
 
 /* ###################### ACTION ###################### */

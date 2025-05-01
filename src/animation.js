@@ -523,6 +523,19 @@ export function toggleLabels() {
     });
 }
 
+export let frames = [];
+
+function loadAxes() {
+    objects.forEach((obj) => {
+        const frame = new THREE.AxesHelper(obj.cameraRadius * 100);
+        frames.push(frame);
+        obj.group.add(frame);
+        frame.visible = ctrl.framesVisible;
+    });
+}
+
+export let ambientLight = new THREE.AmbientLight();
+
 export function loadObjects() {
     objects.get(0).group = new THREE.Group();
     objects.get(0).group.add(starFieldSurface);
@@ -588,6 +601,9 @@ export function loadObjects() {
 }
 
 export function loadScene() {
+
+    ambientLight.visible = false;
+    scene.add(ambientLight);
 
     /** 
      * Test date: 2025-03-12T09:27:00.000
@@ -978,6 +994,7 @@ export async function loadThreeJSEngine() {
     await loadModels();
     loadLabels();
     loadObjects();
+    loadAxes();
     loadScene();
     currentCamera = defaultCamera;
     initCameras();
