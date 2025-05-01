@@ -603,7 +603,7 @@ export let frames = [];
 
 function loadAxes() {
     objects.forEach((obj) => {
-        const frame = new THREE.AxesHelper(obj.cameraRadius * 100);
+        const frame = new THREE.AxesHelper(obj.cameraRadius * 1.5);
         frames.push(frame);
         obj.group.add(frame);
         frame.visible = ctrl.framesVisible;
