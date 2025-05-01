@@ -206,12 +206,19 @@ export function updateObjectStates() {
                 if(id !== 0) anim.hide(id);     // skip starField (SOLAR_SYSTEM_BARYCENTER)
                 continue;
             }
-
+            
             object.group.position.copy(obj.position);
             object.group.quaternion.copy(obj.quaternion);
 
             if(ctrl.firstPersonView && id === ctrl.observerId) continue;    // if we are in FPV, skip the current observer 
-            if(id!==0) anim.show(id);   // skip starField (SOLAR_SYSTEM_BARYCENTER)
+            if(id === -9102000 || id === -15513000) {
+                const distance = objects.get(id).group.position.distanceTo(objects.get(-91000).group.position);
+                if(distance < 0.002) {
+                    anim.hide(id);
+                    continue;
+                }
+            }
+            if(id !== 0) anim.show(id);   // skip starField (SOLAR_SYSTEM_BARYCENTER)
         }
 
         return;
@@ -245,6 +252,13 @@ export function updateObjectStates() {
         ));
 
         if(ctrl.firstPersonView && id === ctrl.observerId) continue;    // if we are in FPV, skip the current observer 
+        if(id === -9102000 || id === -15513000) {
+            const distance = objects.get(id).group.position.distanceTo(objects.get(-91000).group.position);
+            if(distance < 0.002) {
+                anim.hide(id);
+                continue;
+            }
+        }
         if(id!==0) anim.show(id);   // skip starField (SOLAR_SYSTEM_BARYCENTER)
     }
 }
