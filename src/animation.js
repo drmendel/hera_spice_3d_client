@@ -10,10 +10,11 @@ import { canvasName } from './config';
 import { objects, cameras, cameraFOVs } from './data';
 import * as ctrl from './controls';
 import * as data from './data';
+import { sqrt } from 'three/tsl';
 
 let canvas;
 let scene;
-let currentCamera;
+export let currentCamera;
 let currentCameraId;
 let defaultCamera;
 let cameraControls;
@@ -591,6 +592,58 @@ export function loadLabels() {
     milaniX.center.set(0.5, 0.5);
     milaniX.layers.set(1);
     milaniX.position.set(0, 0, 0);
+}
+
+function getScreenPosition(object) {
+    const vector = object.group.position.clone().project(currentCamera);
+    return {
+        x: (vector.x * 0.5 + 0.5) * labelRenderer.domElement.clientWidth,
+        y: (-vector.y * 0.5 + 0.5) * labelRenderer.domElement.clientHeight
+    };
+}
+
+function calculateDistance(id, targetId) {
+    const pos1 = getScreenPosition(data.objects.get(id));
+    const pos2 = getScreenPosition(data.objects.get(targetId));
+    const dx = pos1.x - pos2.x;
+    const dy = pos1.y - pos2.y;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+export function updateSecondaryObjectVisibility(id) {
+    let hideBool = true;
+    const minDistance = 5; // 25
+
+    switch(id) {
+        case 301:
+            if(calculateDistance(301, 399) < minDistance) hide(id);
+            else hideBool = false;
+            break;
+        case 401:
+            if(calculateDistance(401, 499) < minDistance) hide(id);
+            else hideBool = false;
+            break;
+        case 402:
+            if(calculateDistance(402, 499) < minDistance) hide(id);
+            else hideBool = false;
+            break;
+        case -658031:
+            if(calculateDistance(-658031, -658030) < minDistance) hide(id);
+            else hideBool = false;
+            break;
+        case -9102000:
+            if(calculateDistance(-9102000, -91000) < minDistance) hide(id);
+            else hideBool = false;
+            break;
+        case -15513000:
+            if(calculateDistance(-15513000, -91000) < minDistance) hide(id);
+            else hideBool = false;
+            break;
+        default:
+            hideBool = false;
+            break;
+    }
+    return hideBool;
 }
 
 export function toggleLabels() {

@@ -218,6 +218,7 @@ export function updateObjectStates() {
                     continue;
                 }
             }
+            if(anim.updateSecondaryObjectVisibility(id)) continue;
             if(id !== 0) anim.show(id);   // skip starField (SOLAR_SYSTEM_BARYCENTER)
         }
 
@@ -259,6 +260,7 @@ export function updateObjectStates() {
                 continue;
             }
         }
+        if(anim.updateSecondaryObjectVisibility(id)) continue;
         if(id!==0) anim.show(id);   // skip starField (SOLAR_SYSTEM_BARYCENTER)
     }
 }
