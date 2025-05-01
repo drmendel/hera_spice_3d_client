@@ -184,3 +184,9 @@ canvas {
   #help-box::-webkit-scrollbar-thumb:hover {
     background-color: #777; /* Slightly lighter color on hover */
   }
+
+  .x {
+    font-size: 10px;
+    color: rgb(175,175,175);
+    font-family: 'Roboto', 'IBM Plex Sans', sans-serif;
+  }
