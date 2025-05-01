@@ -450,7 +450,7 @@ export function loadLabels() {
     
     const moonDivX = document.createElement('div');
     moonDivX.className = 'x';
-    venusDivX.textContent = 'X';
+    moonDivX.textContent = 'X';
     moonX = new CSS2DObject(moonDivX);
     moonX.center.set(0.5, 0.5);
     moonX.layers.set(1);
