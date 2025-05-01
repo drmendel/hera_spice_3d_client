@@ -321,7 +321,7 @@ let marsSurface;
 function loadSurfaces() {
     starFieldSurface = new THREE.Mesh(starFieldGeometry, starFieldMaterial);
     starFieldSurface.rotateX(Math.PI / 2);
-    starFieldLight = new THREE.AmbientLight(0xffffff, 0.015);
+    starFieldLight = new THREE.AmbientLight(0xffffff, 0.0075);
 
     sunSurface = new THREE.Mesh(sunGeometry, sunMaterial);
     sunSurface.rotateX(Math.PI / 2);
