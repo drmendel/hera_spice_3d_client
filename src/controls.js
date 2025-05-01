@@ -93,7 +93,7 @@ export function getSimulationTime() {
   simulationTime = new Date(simulationBaseTime.getTime() + scaledTime);
 
   // Stop simulation if the computed time exceeds conf.maxDate
-  if (simulationTime.getTime() > conf.maxDate.getTime()) setSimulationTime();
+  if (simulationTime.getTime() > conf.maxDate.getTime()) setSimulationDateTo(conf.minDate, false);
   return simulationTime;  // Return the computed simulation time as a Date object
 }
 
