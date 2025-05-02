@@ -1,6 +1,9 @@
 // ###################### GLOBAL VARIABLES ######################
 
-export let webSocketUrl = "ws://localhost:8080";
+const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+const host = window.location.host; // e.g., mywebsite.com
+
+export let webSocketUrl = `${protocol}://${host}/ws/`;
 export const requestPerSec = 10;     // req/sec
 export const canvasName = 'threeCanvas';
 export const lightColor = 'rgb(175,175,175)';
