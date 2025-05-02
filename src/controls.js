@@ -369,6 +369,8 @@ function toggleFullscreen() {
     document.documentElement.requestFullscreen();
   }
 
+  console.log(data.instantaneousTelemetryData);
+
   updateFullScreenButton(!isFullscreen);
 }
 /**
@@ -553,12 +555,19 @@ export function hideUnavailableOptions() {
     document.querySelectorAll('option').forEach(opt => {
       const id = getObjectId(+opt.value);
 
-    const g = (a, i) => data[a].array[i]?.objects.get(id)?.position;
-    
-      const show = simulationRunning
-      ? (g('instantaneousTelemetryData',0) && g('lightTimeAdjustedTelemetryData',0) && g('instantaneousTelemetryData',1) && g('lightTimeAdjustedTelemetryData',1))
-      : (g('instantaneousTelemetryData',0) && g('lightTimeAdjustedTelemetryData',0));
-    
+      const g = (a, i) => data[a].array[i]?.objects.has(id);
+
+      let show = false;
+      if(simulationRunning) show = g('instantaneousTelemetryData', 0) && g('instantaneousTelemetryData', 1);
+      else show = g('instantaneousTelemetryData', 0);
+
+      /**
+       * We only check if instantaneous data is available for the objects.
+       * From the observer's perspective, all telemetry is "instantaneous":
+       * if lightTimeAdjustment is enabled—because the observer is at the origin.
+       * Light-time from [0, 0, 0] to [0, 0, 0] is zero, so adjustment is irrelevant.
+      **/
+
       opt.classList.toggle('hidden', !show);
     });
   }
