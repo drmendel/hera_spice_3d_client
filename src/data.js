@@ -2,6 +2,7 @@ import * as THREE from "three";
 import * as ctrl from "./controls.js";
 import * as anim from "./animation.js";
 import * as ws from "./websocket.js";
+import { requestPerSec } from "./config.js";
 
 /**
  * Mapping of three.js groups to their respective spice identifiers.
@@ -142,7 +143,7 @@ export class TelemetryData {
 
 export let instantaneousTelemetryData = new TelemetryData();
 export let lightTimeAdjustedTelemetryData = new TelemetryData();
-export let deltaT = 100 / 1000;    // sec
+export let deltaT = 1 / requestPerSec;    // sec
 
 export function removeOutDatedTelemetryData() {
     while (instantaneousTelemetryData.array.length > 2 && instantaneousTelemetryData.array[1].date.getTime() < ctrl.simulationTime.getTime()) {
