@@ -91,8 +91,11 @@ export function closeWebSocket() {
 function wsOnClose() {
     webSocket = null;
     if(shouldWebSocketBeAvailable) {
-        if(!userAlerted) alert("Websocket server unreachable. Attempting reconnection...");
-        console.log('Connection to server interrupted. Attempting reconnection...');
+        if(!userAlerted) {
+            alert("Websocket server unreachable. Attempting reconnection...");
+            console.log('Connection to server interrupted. Attempting reconnection...');
+            userAlerted = true;
+        }
         setTimeout(wsReconnection, 5000);
     }
 }
