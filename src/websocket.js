@@ -7,6 +7,14 @@ export let webSocket = null;
 let shouldWebSocketBeAvailable = true;
 let userAlerted = false;
 
+setTimeout(() => {
+    if (shouldWebSocketBeAvailable) {
+        if(!webSocket || webSocket.readyState !== webSocket.OPEN) return;
+        webSocket.send("ping");
+    }
+}, 15000);
+
+
 /**
  * Opens a webSocket connection if it's closed and should be available.
  */
@@ -101,6 +109,9 @@ function wsReconnection() {
 }
 
 async function wsOnMessage(event) {
+
+    if(event.data.byteLength < 9) return;
+
     const view = new DataView(event.data);
     
     const timestamp = view.getFloat64(0, true); // 8 bytes for the date
