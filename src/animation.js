@@ -298,14 +298,19 @@ let moonGeometry;
 let marsGeometry;
 
 function loadGeometry() {
-    starFieldGeometry = new THREE.SphereGeometry(1E25, 300, 300);
+    const heightSegments = 300;
+    const widthSegments = 300;
+    const sphereGeometry = new THREE.SphereGeometry(1, heightSegments, widthSegments);
+    
+    const scaleGeometry = (sphereGeometry, scale) => sphereGeometry.clone().scale(scale, scale, scale);
 
-    sunGeometry = new THREE.SphereGeometry(696340, 32, 32);
-    mercuryGeometry = new THREE.SphereGeometry(2439.7, 32, 32);
-    venusGeometry = new THREE.SphereGeometry(6051.8, 32, 32);
-    earthGeometry = new THREE.SphereGeometry(6378, 32, 32);
-    moonGeometry = new THREE.SphereGeometry(1737.4, 32, 32);
-    marsGeometry = new THREE.SphereGeometry(3389.5, 32, 32);
+    starFieldGeometry = scaleGeometry(sphereGeometry, 1E25);
+    sunGeometry = scaleGeometry(sphereGeometry, 696340);
+    mercuryGeometry = scaleGeometry(sphereGeometry, 2439.7);
+    venusGeometry = scaleGeometry(sphereGeometry, 6051.8);
+    earthGeometry = scaleGeometry(sphereGeometry, 6378);
+    moonGeometry = scaleGeometry(sphereGeometry, 1737.4);
+    marsGeometry = scaleGeometry(sphereGeometry, 3389.5);
 }
 
 let starFieldSurface;
