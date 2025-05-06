@@ -1301,8 +1301,8 @@ export function animate() {
     if(ctrl.simulationRunning) {
         data.removeOutDatedTelemetryData();
         ctrl.updateSimulationTime();
+        ctrl.updatePlaybackButton();
     }
-    ctrl.updatePlaybackButton();
     data.requestTelemetryData();
     data.updateObjectStates();
     cameraControls.update();
