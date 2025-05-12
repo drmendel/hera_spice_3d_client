@@ -86,67 +86,147 @@
       </div>
     </div>
 
+
+    
     <div class="hidden" id="help-box">
       <h2 class="centered" id="help">HELP</h2>
       <h3 class="left">MENU</h3>
-      <p><strong>FSCR</strong> Toggle fullscreen mode.</p>
-      <p><strong>LTA</strong> Enable or disable light time delay calculations.</p>
-      <p><strong>FPV</strong> Switch to a first-person perspective.
-        <br><em>Note: Only available while the simulation is paused.</em></br>
-      </p>
-      <p><strong>LBL</strong> Show or hide object labels.</p>
-      <p><strong>TLM</strong> Display telemetry data overlay.</p>
-      <p><strong>SFD:</strong> Toggle the background starfield visibility.</p>
-    
+      <table>
+        <tbody>
+          <tr>
+            <td><strong>FSCR</strong></td>
+            <td>Fullscreen mode.</td>
+          </tr>
+          <tr>
+            <td><strong>FPV</strong></td>
+            <td>First-person view.</td>
+          </tr>
+          <tr>
+            <td><strong>LTA</strong></td>
+            <td>Light-time adjustment.</td>
+          </tr>
+          <tr>
+            <td><strong>AMBL</strong></td>
+            <td>Ambient light.</td>
+          </tr>
+          <tr>
+            <td><strong>SFD</strong></td>
+            <td>Starfield background.</td>
+          </tr>
+          <tr>
+            <td><strong>LBL</strong></td>
+            <td>Object labels.</td>
+          </tr>
+          <tr>
+            <td><strong>FRM</strong></td>
+            <td>Body-fixed frames.</td>
+          </tr>
+          <tr>
+            <td><strong>TLM</strong></td>
+            <td>Telemetry window.</td>
+          </tr>
+          <tr>
+            <td><strong>HELP</strong></td>
+            <td>Help window.</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+
       <h3 class="left">PLAYBACK</h3>
-      <p><strong>TIME INPUT:</strong> Enter a time using this format:</p>
-      <p class="centered"><code>YYYY-MM-DDTHH:mm:ss.sss</code>
-        <p><em>Note: The input is restricted between a minimum and maximum date.</em></p>
-      </p>
-        
-      
-      <p><strong>PLAY/PAUSE BUTTON:</strong> Start or pause the simulation.</p>
-      <p><strong>SPEED LEVEL:</strong> Simulated time advanced per real second:</p>
-      <ul>
-        <li>1 - 1 second (real time)</li>
-        <li>2 - 2 seconds</li>
-        <li>3 - 30 seconds</li>
-        <li>4 - 1 minute</li>
-        <li>5 - 30 minutes</li>
-        <li>6 - 1 hour</li>
-        <li>7 - 6 hours</li>
-        <li>8 - 1 day</li>
-        <li>9 - 1 week</li>
-        <li>10 - 1 month</li>
-      </ul>
-      <p><strong>OBSERVER SELECTION:</strong></p>
-      <ul>
-        <li><strong>SUN:</strong> Central star of our solar system, source of light and energy.</li>
-        <li><strong>MERCURY:</strong> Smallest planet, closest to the Sun.</li>
-        <li><strong>VENUS:</strong> Second planet, thick atmosphere, extreme surface temperatures.</li>
-        <li><strong>EARTH:</strong> Third planet, home to life.</li>
-        <li><strong>MOON:</strong> Earth’s only natural orbiter.</li>
-        <li><strong>MARS:</strong> The fourth planet from the Sun, known for its striking red surface due to iron oxide (rust) that covers much of its terrain.</li>
-        <li><strong>PHOBOS:</strong> Largest moon of Mars, orbits very close.</li>
-        <li><strong>DEIMOS:</strong> Smaller moon of Mars, orbits farther than Phobos.</li>
-        <li><strong>DIDYMOS:</strong> Secondary target of the HERA mission.</li>
-        <li><strong>DIMORPHOS:</strong> Primary mission target.</li>
-        <li><strong>HERA:</strong> Main spacecraft.
-          <ul>
-            <li>HSH – Hyperscout Hyperspectral Camera</li>
-            <li>AFC1 – Asteroid Framing Camera 1</li>
-            <li>AFC2 – Asteroid Framing Camera 2</li>
-          </ul>
-        </li>
-        <li><strong>JUVENTAS:</strong> CubeSat deployed by HERA.</li>
-        <ul>
-          <li>JNC – Navigation Camera</li>
-        </ul>
-        <li><strong>MILANI:</strong> CubeSat deployed by HERA.</li>
-        <ul>
-          <li>MNC – Navigation Camera</li>
-        </ul></li>
-      </ul>
+      <table>
+        <tbody>
+          <tr>
+            <td><strong>PLAY/PAUSE BUTTON</strong></td>
+            <td>Start or stop the simulation.</td>
+          </tr>   
+          <tr>
+            <td><strong>TIME INPUT</strong></td>
+            <td>Enter the time in one of these formats (local or UTC):</td>
+          </tr>
+          <tr><td colspan="2"><p style="padding-left: 2vw;">
+            <code>YYYY-MM-DDTHH:mm:ss.sss<br>
+            YYYY-MM-DDTHH:mm:ss.sssZ</code>
+            <br><br><em style="padding-top: 0.25vw;">
+              The input is restricted to a range between 2024-10-07T23:58:51.818Z and 2028-01-01T00:00:00.000Z,<br> 
+              where the "Z" suffix denotes Zulu time, which corresponds to Coordinated Universal Time (UTC).
+            </em>
+          </p></td></tr>
+          <tr>
+            <td><strong>SPEED LEVEL</strong></td>
+          </tr>
+          <tr>
+            <td colspan="3" style="padding-bottom: 0.5vw;">
+              <table style="padding-left: 2vw;">
+                <tbody>
+                  <tr><td style="text-align: right; vertical-align: middle; padding-bottom: 0.5vw;">Level</td><td style="padding-left: 1vw;">Elapsed simulated time under one second.</td></tr>
+                  <tr><td>1</td><td style="padding-left: 1vw;">1 second (real time)</td><td>(real time)</td></tr>
+                  <tr><td>2</td><td style="padding-left: 1vw;">2 seconds</td></tr>
+                  <tr><td>4</td><td style="padding-left: 1vw;">30 seconds</td></tr> 
+                  <tr><td>5</td><td style="padding-left: 1vw;">1 minute</td><td>(60 s)</td></tr>
+                  <tr><td>6</td><td style="padding-left: 1vw;">30 minutes</td><td>(1800 s)</td></tr>
+                  <tr><td>7</td><td style="padding-left: 1vw;">1 hour</td><td>(3 600 s)</td></tr>
+                  <tr><td>3</td><td style="padding-left: 1vw;">6 hours</td><td>(21 600 s)</td></tr>
+                  <tr><td>8</td><td style="padding-left: 1vw;">1 day</td><td>(86 400 s)</td></tr>
+                  <tr><td>9</td><td style="padding-left: 1vw;">1 week</td><td>(604 800 s)</td></tr>
+                  <tr><td>10</td><td style="padding-left: 1vw;">1 month</td><td>(2 419 200 s)</td></tr>
+                  <tr>
+                    <td colspan="3">
+                      <p style="padding-left: 2vw;">
+                        <em style="padding-top: 0.25vw;">
+                          At higher speeds, the simulation's accuracy may be compromised.<br>
+                          To get accurate data, stop the simulation or set the speed a lower level.
+                        </em>
+                      </p>
+                    </td>
+                  </tr>  
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>OBSERVER DROPDOWN</strong></td>
+            <td>Change the observer.</td>
+          </tr>
+          <tr>
+            <td colspan="3" style="padding-bottom: 0.5vw;">
+              <table style="padding-left: 2vw;">
+                <tbody>
+                  <tr><td>HERA</td><td style="padding-left: 1vw;">Spacecraft</td><td>ESA's spacecraft to study the aftermath of NASA DART mission.</td></tr>
+                  <tr><td>HSH</td><td style="padding-left: 1vw;">Hyperscout Hyperspectral</td><td>Hera's hyperspectral imager.</td></tr>
+                  <tr><td>AFC1</td><td style="padding-left: 1vw;">Asteroid Framing Camera 1</td><td>Hera's monochrome camera.</td></tr> 
+                  <tr><td>AFC2</td><td style="padding-left: 1vw;">Asteroid Framing Camera 2</td><td>Hera's secondary monochrome camera.</td></tr>
+                  <tr><td>JUVENTAS</td><td style="padding-left: 1vw;">CubeSat</td><td>CubeSat deployed by Hera.</td></tr>
+                  <tr><td>JNC</td><td style="padding-left: 1vw;">Juventas Navigation Camera</td><td>Camera on Juventas CubeSat.</td></tr>
+                  <tr><td>MILANI</td><td style="padding-left: 1vw;">CubeSat</td><td>CubeSat deployed by Hera.</td></tr>
+                  <tr><td>MNC</td><td style="padding-left: 1vw;">Milani Navigation Camera</td><td>Camera on Milani CubeSat.</td></tr>
+                  <tr><td>DIDYMOS</td><td style="padding-left: 1vw;">Asteroid</td><td>Secondary target of the Hera mission.</td></tr>
+                  <tr><td>DIMORPHOS</td><td style="padding-left: 1vw;">Moon, Asteroid</td><td>Primary target of Hera mission.</td></tr>
+                  <tr><td>SUN</td><td style="padding-left: 1vw;">Star</td><td>The central star of our solar system, providing "white" light and heat.</td></tr>
+                  <tr><td>MERCURY</td><td style="padding-left: 1vw;">Planet</td><td>The closest planet to the Sun.</td></tr>
+                  <tr><td>VENUS</td><td style="padding-left: 1vw;">Planet</td><td>The second planet from the Sun.</td></tr>
+                  <tr><td>EARTH</td><td style="padding-left: 1vw;">Planet</td><td>Third planet from Sun. Home to so called: life.</td></tr>
+                  <tr><td>MOON</td><td style="padding-left: 1vw;">Moon</td><td>Moon, Earth's natural satellite.</td></tr>
+                  <tr><td>MARS</td><td style="padding-left: 1vw;">Planet</td><td>Mars, the fourth planet, known for its red surface.</td></tr>
+                  <tr><td>PHOBOS</td><td style="padding-left: 1vw;">Moon</td><td>Phobos, Mars' larger moon.</td></tr>
+                  <tr><td>DEIMOS</td><td style="padding-left: 1vw;">Moon</td><td>Deimos, Mars' smaller moon.</td></tr>
+                  <tr>
+                    <td colspan="3">
+                      <p style="padding-left: 2vw;">
+                        <em style="padding-top: 0.25vw;">
+                          There is no data available for all objects at any given epoch.<br>
+                          Some of these options, might not show up in the list until telemetry data is available for them.
+                        </em>
+                      </p>
+                    </td>
+                  </tr>  
+                </tbody>
+              </table>
+            </td>
+          </tr>        
+        </tbody>
+      </table>
     </div>
 
 
