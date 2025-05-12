@@ -7,7 +7,7 @@ export let webSocket = null;
 let shouldWebSocketBeAvailable = true;
 let userAlerted = false;
 
-setTimeout(() => {
+setInterval(() => {
     if (shouldWebSocketBeAvailable) {
         if(!webSocket || webSocket.readyState !== webSocket.OPEN) return;
         webSocket.send("ping");
