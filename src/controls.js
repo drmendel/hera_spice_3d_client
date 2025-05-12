@@ -468,6 +468,9 @@ function updateLabelVisibilityButton() {
 function toggleTelemetryVisibility() {
   telemetryDisplay = !telemetryDisplay;
   updateTelemetryVisibilityButton();
+  const tlmDiv = document.getElementById("telemetry");
+  if(telemetryDisplay) tlmDiv.classList.remove("hidden");
+  else tlmDiv.classList.add("hidden");
 }
 
 /**
