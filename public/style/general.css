@@ -40,7 +40,7 @@ canvas {
 
 #ui-elements {
     position: fixed;
-    z-index: 5;
+    z-index: 6;
     top: 0;
     left: 0;
     width: 100%;
@@ -57,7 +57,7 @@ canvas {
 }
 
 .progress-bar-container {
-    z-index: 6;
+    z-index: 7;
     position: absolute;
     left: 50%;
     top: 50%;
@@ -117,18 +117,19 @@ canvas {
 #help-box {
     z-index: 5;
     position: fixed;
-    bottom: 10px;
-    left: 10px;
-    width: 25vw;
-    height: 50vh;
+    top: 50%;
+    left: 50%;
+    width: 65vw;
+    height: 65vh;
     background-color: black;
     border: 2px solid gray;
     color: gray;
     overflow-y: auto;
     box-sizing: border-box;
     border-radius: 10px;
-    padding: 0% 1.5% 0% 1.5%; /* top, right, bottom, left */
+    padding: 0% 1.5%;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    transform: translate(-50%, -50%);
   }
 
   #help {
@@ -185,8 +186,126 @@ canvas {
     background-color: #777; /* Slightly lighter color on hover */
   }
 
+
+
+
+  #telemetry {
+    z-index: 4;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 65vw;
+    height: 65vh;
+    background-color: black;
+    border: 2px solid gray;
+    color: gray;
+    overflow-y: auto;
+    box-sizing: border-box;
+    border-radius: 10px;
+    padding: 0% 1.5%;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    transform: translate(-50%, -50%);
+  }
+
+  #tlm {
+    font-size: 25px;
+    font-weight: 600;
+    color: gray;
+  }
+
+  #telemetry::-webkit-scrollbar {
+    width: 10px;
+    border-radius: 10px;
+  }
+
+  #telemetry::-webkit-scrollbar-track {
+    height: 6px;
+    width: 6px;
+    background-color: #333; /* Dark background for the track */
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+
+  #telemetry::-webkit-scrollbar-thumb {
+    background-color: #555; /* Dark gray color for the thumb */
+    border-radius: 4px; /* Rounded corners for the thumb */
+  }
+
+  #telemetry::-webkit-scrollbar-thumb:hover {
+    background-color: #777; /* Slightly lighter color on hover */
+  }
+
   .x {
     font-size: 10px;
     color: rgb(175,175,175);
     font-family: 'Roboto', 'IBM Plex Sans', sans-serif;
   }
+
+
+  #telemetry-table {
+    width: 100%;
+    height: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+
+
+
+  .mantissa {
+    width: 7ch;
+  }
+
+  .exp {
+    width: 7ch;
+  }
+
+  .bold-row {
+    font-weight: bold;
+  }
+
+  .vec {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #telemetry-table th > table {
+    margin: 0 auto;
+    padding-top: 0.5vw;
+    padding-bottom: 0.5vw;
+  }
+
+  #telemetry-table td > table {
+    margin: 0 auto;
+    padding-top: 0.5vw;
+    padding-bottom: 0.5vw;
+  }
+
+  #telemetry-table td > table td {
+    margin: 0 auto;
+  }
+
+  #telemetry-table {
+    font-size: clamp(0.6rem, 1vw, 1rem); /* Shrinks text if screen is narrow */
+  }
+
+  @media (max-width: 1024px) {
+    #telemetry-table {
+      font-size: 0.75rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    #telemetry-table {
+      font-size: 0.4rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    #telemetry-table {
+      font-size: 0.1rem;
+    }
+  }
+
+
+

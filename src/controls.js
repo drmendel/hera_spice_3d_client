@@ -471,6 +471,7 @@ function toggleTelemetryVisibility() {
   const tlmDiv = document.getElementById("telemetry");
   if(telemetryDisplay) tlmDiv.classList.remove("hidden");
   else tlmDiv.classList.add("hidden");
+  updateTable();
 }
 
 /**
@@ -607,4 +608,84 @@ function updateAmbientLightButton() {
   const color = engine.ambientLight.visible ? conf.lightColor : conf.darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
+}
+
+const telemetryTable = document.getElementById("telemetry-table");
+const tbody = telemetryTable.querySelector('tbody');
+
+export function updateTable() {
+  if(!telemetryDisplay) return;
+  if (!tbody) {
+    console.error('Error: Table body (tbody) not found!');
+    return;
+  }
+
+  let tableContent = ''; // String buffer to hold table rows
+
+  const tmpData = lightTimeAdjustment ? data.lightTimeAdjustedTelemetryData : data.instantaneousTelemetryData;
+  if (!tmpData?.array?.[0]?.objects || tmpData.array[0].objects.size === 0) return;
+
+  const date = tmpData.array[0].date;
+  document.getElementById("date").textContent = date.toISOString();
+
+
+  // Add the observer at first with bold characters
+  const currentOrigo = getObjectId(observerId);
+    tableContent += `
+    <tr>
+      <td>${currentOrigo}</td> 
+      <td>${data.objects.get(currentOrigo).name}</td>
+      <td>${vec3ToStr(tmpData.array[0].objects.get(currentOrigo).position)}</td>
+      <td>${vec3ToStr(tmpData.array[0].objects.get(currentOrigo).velocity)}</td>
+      <td>${quatToStr(tmpData.array[0].objects.get(currentOrigo).quaternion)}</td>
+      <td>${vec3ToStr(tmpData.array[0].objects.get(currentOrigo).angularVelocity)}</td>
+    </tr>
+  `;
+
+  tmpData.array[0].objects.forEach((obj, id) => {
+    if(id === currentOrigo) return;
+
+    const name = data.objects.get(id)?.name || 'Unknown'; // Safely get name
+    const pos = obj.position;
+    const vel = obj.velocity;
+    const quat = obj.quaternion;
+    const angVel = obj.angularVelocity;
+
+    // Build the table row as a string and append to tableContent
+    tableContent += `
+      <tr>
+        <td>${id}</td> 
+        <td>${name}</td>
+        <td>${vec3ToStr(pos)}</td>
+        <td>${vec3ToStr(vel)}</td>
+        <td>${quatToStr(quat)}</td>
+        <td>${vec3ToStr(angVel)}</td>
+      </tr>
+    `;
+  });
+
+  // Update the table content all at once
+  tbody.innerHTML = tableContent;
+}
+
+function formatSci(num) {
+  const [mantissa, exponent] = num.toExponential(4).split('e');
+  return `<span class="mantissa">${mantissa}</span><span class="exp">e${exponent}</span>`;
+}
+
+function vec3ToStr(v) {
+  return `<table style="margin: 0 auto; text-align: center;">
+    <tr><td>${formatSci(v.x)}</td></tr>
+    <tr><td>${formatSci(v.y)}</td></tr>
+    <tr><td>${formatSci(v.z)}</td></tr>
+  </table>`;
+}
+
+function quatToStr(q) {
+  return `<table style="margin: 0 auto; text-align: center;">
+    <tr><td>${formatSci(q.x)}</td></tr>
+    <tr><td>${formatSci(q.y)}</td></tr>
+    <tr><td>${formatSci(q.z)}</td></tr>
+    <tr><td>${formatSci(q.w)}</td></tr>
+  </table>`;
 }

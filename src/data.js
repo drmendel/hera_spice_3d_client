@@ -193,6 +193,7 @@ export function requestTelemetryData() {
     }
 }
 
+let tlmUpdated = false;
 
 export function updateObjectStates() {
     const telemetryData = ctrl.lightTimeAdjustment ? lightTimeAdjustedTelemetryData : instantaneousTelemetryData;
@@ -223,8 +224,16 @@ export function updateObjectStates() {
             if(id !== 0) anim.show(id);   // skip starField (SOLAR_SYSTEM_BARYCENTER)
         }
 
+        if(!tlmUpdated) {
+            ctrl.updateTable();
+            tlmUpdated = true;
+        }
+        
         return;
     }
+
+    if(tlmUpdated) tlmUpdated = false;
+    ctrl.updateTable();
 
     //console.log(instantaneousTelemetryData);
     //console.log(lightTimeAdjustedTelemetryData);

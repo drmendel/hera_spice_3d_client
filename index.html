@@ -87,7 +87,7 @@
     </div>
 
 
-    
+
     <div class="hidden" id="help-box">
       <h2 class="centered" id="help">HELP</h2>
       <h3 class="left">MENU</h3>
@@ -229,6 +229,24 @@
       </table>
     </div>
 
+
+
+    <div class="hidden" id="telemetry" style="margin-bottom: 10vw;">
+      <h2 class="centered" id="tlm">Telemetry Data</h2>
+      <h3 class="centered" id="date"></h1>
+      <table class="centered" id="telemetry-table" border="1">
+        <thead>
+          <tr id="th1">
+            <th>SPICE ID</th><th>NAME</th><th>POSITION</th><th>VELOCITY</th><th>QUATERNION</th><th>ANGULAR VELOCITY</th>
+          </tr>
+          <tr id="th2">
+            <td>id</td><td>name</td><td>xyz [km]</td><td>xyz  [km/s]</td><td>xyzw  [-]</td><td>xyz    [rad/s]</td>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="centered" style="padding-bottom: 2vw;"></div>
+    </div>
 
     <script type="module" src="/src/controls.js"></script>
     <script type="module" src="/src/main.js"></script>
