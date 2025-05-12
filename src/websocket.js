@@ -113,9 +113,11 @@ function wsReconnection() {
 
 async function wsOnMessage(event) {
 
-    if(event.data.byteLength < 9) return;
+    const binData = event.data;
 
-    const view = new DataView(event.data);
+    if (!(binData instanceof ArrayBuffer) || binData.byteLength < 9) return;
+    
+    const view = new DataView(binData);
     
     const timestamp = view.getFloat64(0, true); // 8 bytes for the date
     const date = new Date(timestamp * 1000); // 8 bytes for the date
