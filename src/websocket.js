@@ -2,6 +2,7 @@ import * as THREE from "three";
 import * as data from "./data";
 import * as ctrl from "./controls";
 import { webSocketUrl, minDate } from "./config";
+import { debug } from "three/src/nodes/TSL.js";
 
 export let webSocket = null;
 let shouldWebSocketBeAvailable = true;
@@ -20,10 +21,12 @@ setInterval(() => {
  */
 export function openWebSocket() {
     return new Promise((resolve, reject) => {
+        console.log(webSocketUrl, webSocket);
         if (!webSocket || webSocket.readyState === webSocket.CLOSED) {
             shouldWebSocketBeAvailable = true;
 
             webSocket = new WebSocket(webSocketUrl);
+            console.log(webSocketUrl, webSocket);
             webSocket.binaryType = 'arraybuffer';
 
             webSocket.onopen = () => {
@@ -107,7 +110,7 @@ function wsReconnection() {
             ctrl.toggleSimulationRunning();
         }
     }).catch(() => {
-        // Do nothing
+        ctrl.setSimulationDateTo(ctrl.simulationTime, false);
     });
 }
 
@@ -205,9 +208,11 @@ async function wsOnMessage(event) {
     }
 }
 
+let dateSetted = false;
+
 export function waitForOpen() {
   return new Promise((resolve, reject) => {
-    const maxWait = 30*60*1000; // ms
+    const maxWait = 5*60*1000; // ms
     const start = Date.now();
 
     const check = () => {
@@ -216,6 +221,10 @@ export function waitForOpen() {
       } else if (Date.now() - start > maxWait) {
         reject(new Error("WebSocket did not open in time"));
       } else {
+        if(!dateSetted) {
+            ctrl.setSimulationDateTo(ctrl.simulationRunning, false);
+            ctrl.updatePlaceholder(new Date("2025-03-12T09:27:00.000Z"));
+        }
         setTimeout(check, 1000);
       }
     };

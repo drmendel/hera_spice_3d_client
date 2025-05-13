@@ -209,8 +209,8 @@ function setRealBaseTime(date) {
 // ###################### UI FUNCTIONS ######################
 
 // Function to update the placeholder with the simulation time
-export function updatePlaceholder() {
-  timeInputElement.placeholder = getTimeString(simulationTime);  // Pass the timestamp to getTimeString
+export function updatePlaceholder(time = simulationTime) {
+  timeInputElement.placeholder = getTimeString(time);  // Pass the timestamp to getTimeString
 }
 
 export function updateSimulationTime() {
