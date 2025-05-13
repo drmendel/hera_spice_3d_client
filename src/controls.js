@@ -17,7 +17,7 @@ export let firstPersonView = false;
 export let labelDisplay = false;
 export let telemetryDisplay = false;
 export let starFieldDisplay = true;
-export let helpDisplay = false;
+export let infoDisplay = false;
 export let framesVisible = false;
 
 export const speedValues = [
@@ -70,7 +70,7 @@ export function setup() {
   document.getElementById('frame-visibility-button').addEventListener('mousedown', toggleFrameVisibility);
   document.getElementById('light-time-adjustment-button').addEventListener('mousedown', toggleLightTimeAdjustment);
   document.getElementById('data-visibility-button').addEventListener('mousedown', toggleTelemetryVisibility);
-  document.getElementById('help-button').addEventListener('mousedown', toggleHelpDisplay);
+  document.getElementById('info-button').addEventListener('mousedown', toggleInfoDisplay);
 }
 
 
@@ -350,7 +350,7 @@ export function changeObserver(eventTargetValue) {
  */
 function toggleMenu() {
   document.querySelectorAll('.controls *').forEach(el => el.classList.toggle('hidden'));
-  if(helpDisplay) document.getElementById('help-box').classList.toggle('hidden');
+  if(infoDisplay) document.getElementById('info-box').classList.toggle('hidden');
 }
 
 
@@ -510,31 +510,31 @@ export function updateStarFieldVisibilityButton() {
 }
 
 /**
- * Toggles the help display setting.
- * - Flips the `helpDisplay` boolean between true and false.
- * - Calls `updateHelpButton` to update the button's appearance.
+ * Toggles the info display setting.
+ * - Flips the `infoDisplay` boolean between true and false.
+ * - Calls `updateInfoButton` to update the button's appearance.
  */
-function toggleHelpDisplay() {
-  helpDisplay = !helpDisplay;
-  updateHelpButton();
-  updateHelpDisplay();
+function toggleInfoDisplay() {
+  infoDisplay = !infoDisplay;
+  updateInfoButton();
+  updateInfoDisplay();
 }
 
 /**
- * Updates the appearance of the help button.
- * - Changes the button's border and text color based on `helpDisplay` state.
+ * Updates the appearance of the info button.
+ * - Changes the button's border and text color based on `infoDisplay` state.
  */
-function updateHelpButton() {
-  const btn = document.getElementById('help-button');
+function updateInfoButton() {
+  const btn = document.getElementById('info-button');
   if (!btn) return;
-  const color = helpDisplay ? conf.lightColor : conf.darkColor;
+  const color = infoDisplay ? conf.lightColor : conf.darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
 
-function updateHelpDisplay() {
-  if(helpDisplay) document.getElementById('help-box').classList.remove('hidden');
-  else document.getElementById('help-box').classList.add('hidden');
+function updateInfoDisplay() {
+  if(infoDisplay) document.getElementById('info-box').classList.remove('hidden');
+  else document.getElementById('info-box').classList.add('hidden');
 }
 
 export function toggleLoading() {

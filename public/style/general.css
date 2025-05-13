@@ -118,10 +118,10 @@ canvas {
 }
 
 /*
-    HELP BOX
+    INFO BOX
 */
 
-#help-box {
+#info-box {
     z-index: 5;
     position: fixed;
     top: 50%;
@@ -139,7 +139,7 @@ canvas {
     transform: translate(-50%, -50%);
   }
 
-  #help {
+  #info {
     font-size: 25px;
     font-weight: 600;
     color: gray;
@@ -172,24 +172,24 @@ canvas {
   }
 
   /* Custom Scrollbar Styles */
-  #help-box::-webkit-scrollbar {
+  #info-box::-webkit-scrollbar {
     width: 10px;
     border-radius: 10px;
   }
 
-  #help-box::-webkit-scrollbar-track {
+  #info-box::-webkit-scrollbar-track {
     width: 6px;
     background-color: #333; /* Dark background for the track */
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
   }
 
-  #help-box::-webkit-scrollbar-thumb {
+  #info-box::-webkit-scrollbar-thumb {
     background-color: #555; /* Dark gray color for the thumb */
     border-radius: 4px; /* Rounded corners for the thumb */
   }
 
-  #help-box::-webkit-scrollbar-thumb:hover {
+  #info-box::-webkit-scrollbar-thumb:hover {
     background-color: #777; /* Slightly lighter color on hover */
   }
 
