@@ -256,6 +256,7 @@ export function updateObjectStates() {
             ctrl.simulationTime
         ));
 
+        if(id === 0) continue; // skip starField (SOLAR_SYSTEM_BARYCENTER)
         object.group.quaternion.copy(slerpRotation(
             data0.date, obj0.quaternion,
             data1.date, obj1.quaternion,
@@ -271,7 +272,7 @@ export function updateObjectStates() {
             }
         }
         if(anim.updateSecondaryObjectVisibility(id)) continue;
-        if(id!==0) anim.show(id);   // skip starField (SOLAR_SYSTEM_BARYCENTER)
+        anim.show(id);
     }
 }
 
