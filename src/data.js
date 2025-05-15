@@ -210,6 +210,7 @@ export function updateObjectStates() {
             }
             
             object.group.position.copy(obj.position);
+            if(id === 0) continue; // skip starField (SOLAR_SYSTEM_BARYCENTER)
             object.group.quaternion.copy(obj.quaternion);
 
             if(ctrl.firstPersonView && id === ctrl.observerId) continue;    // if we are in FPV, skip the current observer 
@@ -221,7 +222,7 @@ export function updateObjectStates() {
                 }
             }
             if(anim.updateSecondaryObjectVisibility(id)) continue;
-            if(id !== 0) anim.show(id);   // skip starField (SOLAR_SYSTEM_BARYCENTER)
+            anim.show(id);   // skip starField (SOLAR_SYSTEM_BARYCENTER)
         }
 
         if(!tlmUpdated) {
