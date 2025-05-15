@@ -207,7 +207,7 @@ async function wsOnMessage(event) {
 
 export function waitForOpen() {
   return new Promise((resolve, reject) => {
-    const maxWait = 30*60*1000; // ms
+    const maxWait = 10*1000; // ms
     const start = Date.now();
 
     const check = () => {
