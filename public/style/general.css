@@ -76,17 +76,18 @@ canvas {
 }
 
 #progress-label {
-    color: rgb(175,175,175);
-    font-size: 13vh;
-    font-family: 'Orbitron', 'oxanium'; /*Orbitron, oxanium,*/
-    border: none;
-    position: absolute;
-    top: 10vh;
+  color: rgb(175,175,175);
+  font-size: clamp(4vh, 8vw, 15vh);
+  font-family: 'Orbitron', 'oxanium';
+  border: none;
+  position: absolute;
+  top: 10vh;
+  transition: font-size 0.3s ease;
 }
 
 /* Container for the progress bar */
 #progress-bar-box {
-    width: 80%; /* Full width */
+    width: 70%; /* Full width */
     height: 3vh; /* Adjust the height as needed */
     background-color: rgb(50, 50, 50);
     position: fixed; /* Fix the bar to the bottom */
