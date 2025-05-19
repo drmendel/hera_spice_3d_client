@@ -87,7 +87,7 @@ canvas {
 
 /* Container for the progress bar */
 #progress-bar-box {
-    width: 70%; /* Full width */
+    width: 70vw; /* Full width */
     height: 3vh; /* Adjust the height as needed */
     background-color: rgb(50, 50, 50);
     position: fixed; /* Fix the bar to the bottom */
