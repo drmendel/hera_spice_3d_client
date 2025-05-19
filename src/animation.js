@@ -11,6 +11,7 @@ import { objects, cameras, cameraFOVs } from './data';
 import * as ctrl from './controls';
 import * as data from './data';
 import { sqrt } from 'three/tsl';
+import { webSocket } from './websocket';
 
 let canvas;
 let scene;
@@ -1303,13 +1304,15 @@ export function show(id) {
 }
 
 export function animate() {
-    if(ctrl.simulationRunning) {
-        data.removeOutDatedTelemetryData();
-        ctrl.updateSimulationTime();
-        ctrl.updatePlaybackButton();
+    if(webSocket?.readyState === WebSocket.OPEN) {
+        if(ctrl.simulationRunning) {
+            data.removeOutDatedTelemetryData();
+            ctrl.updateSimulationTime();
+            ctrl.updatePlaybackButton();
+        }
+        data.requestTelemetryData();
+        data.updateObjectStates();
     }
-    data.requestTelemetryData();
-    data.updateObjectStates();
     cameraControls.update();
     renderer.render(scene, currentCamera);
     labelRenderer.render(scene, currentCamera);

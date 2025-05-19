@@ -103,11 +103,8 @@ function wsOnClose() {
 function wsReconnection() {
     openWebSocket().then(() => {
         if(webSocket?.readyState === WebSocket.OPEN) {
-            ctrl.simulationRunningStore(true);
-            ctrl.toggleSimulationRunning();
+            ctrl.setParamsFromURL();
         }
-    }).catch(() => {
-        // Do nothing
     });
 }
 
