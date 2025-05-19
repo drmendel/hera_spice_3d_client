@@ -1,18 +1,22 @@
-import * as ctrl from './controls';
-import * as THREE from 'three';
-import * as anim from './animation';
-import * as conf from './config';
-import * as ws from './websocket';
+import { setup, simulationRunningStore, setSimulationTime,
+         updatePlaceholder, updatePlaybackButton } from './controls';
+import { loadThreeJSEngine, gsapCamera, animate } from './animation';
+import { defaultDate } from './config';
+import { openWebSocket } from './websocket';
 
-anim.loadThreeJSEngine().then(() => {
-    ctrl.setup();
-    anim.gsapCamera();
-    anim.animate();
+// ─────────────────────────────────────────────
+// Main Execution
+// ─────────────────────────────────────────────
+
+loadThreeJSEngine().then(() => {
+    setup();
+    gsapCamera();
+    animate();
 }).then(
-    ws.openWebSocket().catch(async () => {
-        ctrl.simulationRunningStore(false);
-        ctrl.setSimulationTime(String("2025-03-12T09:27:00.000"));
-        ctrl.updatePlaceholder();
-        ctrl.updatePlaybackButton();
-    }
-));
+    openWebSocket().catch(async () => {
+        simulationRunningStore(false);
+        setSimulationTime(defaultDate.toISOString());
+        updatePlaceholder();
+        updatePlaybackButton();
+    })
+);
