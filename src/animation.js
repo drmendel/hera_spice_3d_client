@@ -236,6 +236,8 @@ async function loadModels() {
         tmpDeimos.scene.scale.set(1, 1, 1);
         deimosModel = tmpDeimos.scene;
 
+        didymosModel = tmpDidymos.scene.rotateX(Math.PI / 2);
+        dimorphosModel = tmpDimorphos.scene.rotateX(Math.PI / 2);
         didymosModel = tmpDidymos.scene;
         dimorphosModel = tmpDimorphos.scene;
 
@@ -377,6 +379,7 @@ let phobosLabel, phobosX;
 let deimosLabel, deimosX;
 let didymosLabel, didymosX;
 let dimorphosLabel, dimorphosX;
+let dartImpactSiteLabel, dartImpactSiteX;
 let heraLabel, heraX;
 let juventasLabel, juventasX;
 let milaniLabel, milaniX;
@@ -551,6 +554,23 @@ export function loadLabels() {
     dimorphosX.center.set(0.5, 0.5);
     dimorphosX.layers.set(1);
     dimorphosX.position.set(0, 0, 0);
+
+
+    const dartImpactSiteDivLabel = document.createElement('div');
+    dartImpactSiteDivLabel.className = 'label';
+    dartImpactSiteDivLabel.textContent = 'DART IMPACT SITE';
+    dartImpactSiteLabel = new CSS2DObject(dartImpactSiteDivLabel);
+    dartImpactSiteLabel.center.set(-0.20, 1.25);
+    dartImpactSiteLabel.layers.set(1);
+    dartImpactSiteLabel.position.set(0, 0, 0);
+
+    const dartImpactSiteDivX = document.createElement('div');
+    dartImpactSiteDivX.className = 'x';
+    dartImpactSiteDivX.textContent = 'X';
+    dartImpactSiteX = new CSS2DObject(dartImpactSiteDivX);
+    dartImpactSiteX.center.set(0.5, 0.5);
+    dartImpactSiteX.layers.set(1);
+    dartImpactSiteX.position.set(0, 0, 0);
 
 
     const heraDivLabel = document.createElement('div');
@@ -730,6 +750,10 @@ export function loadObjects() {
     objects.get(-658031).group.add(dimorphosModel);
     objects.get(-658031).group.add(dimorphosLabel);
     objects.get(-658031).group.add(dimorphosX);
+
+    objects.get(-91900).group = new THREE.Group();
+    objects.get(-91900).group.add(dartImpactSiteLabel);
+    objects.get(-91900).group.add(dartImpactSiteX);
 
     objects.get(-91000).group = new THREE.Group();
     objects.get(-91000).group.add(heraModel);
@@ -1051,6 +1075,8 @@ export function loadScene() {
      */
     objects.get(-658031).group.position.set(7.2882E+07 + 1, 1.5587E+07, 8.7648E+06);
     scene.add(objects.get(-658031).group);
+    objects.get(-91900).group.position.set(7.2882E+07  + 0.06002207374076425, 1.5587E+07 + 0.037749042560167825, 8.7648E+06 - 0.0411256870578024);
+    scene.add(objects.get(-91900).group);
 
 
 
