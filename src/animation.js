@@ -1,16 +1,50 @@
-import * as THREE from 'three';
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
+import {
+    MeshStandardMaterial,
+    MeshBasicMaterial,
+    PerspectiveCamera,
+    SphereGeometry,
+    LoadingManager,
+    TextureLoader,
+    WebGLRenderer,
+    AmbientLight,
+    PointLight,
+    AxesHelper,
+    Quaternion,
+    BackSide,
+    Color,
+    Scene,
+    Group,
+    Mesh
+} from 'three';
+
+import {
+    updatePlaybackButton,
+    updateSimulationTime,
+    setSimulationDateTo,
+    simulationRunning,
+    firstPersonView,
+    simulationTime,
+    framesVisible, 
+    getObjectId, 
+    observerId,
+ } from './controls';
+
+ import {
+    removeOutDatedTelemetryData,
+    requestTelemetryData,
+    updateObjectStates,
+    cameraFOVs,
+    objects,
+    cameras,
+} from './data';
+
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { canvasName } from './config';
 import { gsap } from 'gsap';
 
-import { canvasName } from './config';
-import { objects, cameras, cameraFOVs } from './data';
-import * as ctrl from './controls';
-import * as data from './data';
-import { sqrt } from 'three/tsl';
+
 
 let canvas;
 let scene;
@@ -23,23 +57,22 @@ let labelRenderer;
 let textureLoader;
 let gltfLoader;
 let loadingManager;
-
 let maxProgress = 0;
 
 function init() {
     canvas = document.getElementById(canvasName);
-    scene = new THREE.Scene();
+    scene = new Scene();
     
-    defaultCamera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1E-6, 1E12);
+    defaultCamera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1E-6, 1E12);
     defaultCamera.layers.enableAll();
     cameras.get(0).camera = defaultCamera;
-    // const aspect = window.innerWidth / window.innerHeight; const frustumSize = 1000; defaultCamera = new THREE.OrthographicCamera(-frustumSize * aspect / 2, frustumSize * aspect / 2, frustumSize / 2, -frustumSize / 2, 0.01, 5000000000);
+    // const aspect = window.innerWidth / window.innerHeight; const frustumSize = 1000; defaultCamera = new OrthographicCamera(-frustumSize * aspect / 2, frustumSize * aspect / 2, frustumSize / 2, -frustumSize / 2, 0.01, 5000000000);
     defaultCamera.position.set(0, 0, 1000); // Set an initial position for the defaultCamera
     
     currentCamera = defaultCamera;
     currentCameraId = 0;
 
-    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, logarithmicDepthBuffer: true });
+    renderer = new WebGLRenderer({ canvas: canvas, antialias: true, logarithmicDepthBuffer: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     labelRenderer = new CSS2DRenderer();
@@ -59,7 +92,7 @@ function init() {
     const threeCanvas = document.getElementById('three-canvas');
     const uiElements = document.getElementById('ui-elements');
 
-    loadingManager = new THREE.LoadingManager();
+    loadingManager = new LoadingManager();
 
     loadingManager.onStart = function (url, itemsLoaded, itemsTotal) {
     };
@@ -73,10 +106,10 @@ function init() {
     };
 
     loadingManager.onLoad = function () {
-        progressBarContainer.style.display = 'none';
+        setTimeout(() => { progressBarContainer.style.display = 'none'; }, 2000);
     };
 
-    textureLoader = new THREE.TextureLoader(loadingManager);
+    textureLoader = new TextureLoader(loadingManager);
     gltfLoader = new GLTFLoader(loadingManager);
 
     window.addEventListener('resize', () => {
@@ -166,6 +199,13 @@ function setCameraOrientations() {
     cameras.get(-9102310).camera.position.set(-0.0775E-3, -0.0019E-3, 0.1777E-3);
     cameras.get(-9102310).camera.rotateX(Math.PI);
     cameras.get(-9102310).camera.rotateZ(Math.PI);
+
+    //const camHelp1 = new CameraHelper(cameras.get(-91400).camera); 
+    //scene.add(camHelp1);
+    //const camHelp2 = new CameraHelper(cameras.get(-91110).camera); 
+    //scene.add(camHelp2);
+    //const camHelp3 = new CameraHelper(cameras.get(-91120).camera); 
+    //scene.add(camHelp3);
 }
 
 function setCameraLayers() {
@@ -187,6 +227,10 @@ let marsTexture;
 
 function loadTextures() {
     starFieldTexture = textureLoader.load('/images/stars/8k_stars.jpg');
+    /*textureLoader.load('/images/stars/starmap_2020_8k.png', function(texture) {
+        texture.mapping = EquirectangularReflectionMapping;
+        scene.background = texture;
+    });*/
 
     sunTexture = textureLoader.load('/images/sun/8k_sun.jpg');
     mercuryTexture = textureLoader.load('/images/mercury/2k_mercury.jpg');
@@ -264,35 +308,25 @@ let venusMaterial;
 let earthMaterial;
 let moonMaterial;
 let marsMaterial;
-
-const scMaterials = [
-    new THREE.MeshStandardMaterial({ color: 0xcccccc, emissive: 0xffffff, emissiveIntensity: 2 }), // +X (right) — green
-    new THREE.MeshStandardMaterial({ color: 0xcccccc, emissive: 0xffffff, emissiveIntensity: 2 }), // -X (left)  — red
-    new THREE.MeshStandardMaterial({ color: 0xcccccc, emissive: 0xffffff, emissiveIntensity: 2 }), // +Y (top)   — white
-    new THREE.MeshStandardMaterial({ color: 0xcccccc, emissive: 0xffffff, emissiveIntensity: 2 }), // -Y (bottom)— dark gray
-    new THREE.MeshStandardMaterial({ color: 0xcccccc, emissive: 0xffffff, emissiveIntensity: 2 }), // +Z (front) — blue
-    new THREE.MeshStandardMaterial({ color: 0xcccccc, emissive: 0xffffff, emissiveIntensity: 2 })  // -Z (back)  — orange
-  ];
   
-
 function loadMaterials() {
-    starFieldMaterial = new THREE.MeshBasicMaterial({
+    starFieldMaterial = new MeshBasicMaterial({
         map: starFieldTexture,
-        side: THREE.BackSide,
-        color: new THREE.Color(0x555555)
+        side: BackSide,
+        color: new Color(0x555555)
     });
 
-    sunMaterial = new THREE.MeshStandardMaterial({
+    sunMaterial = new MeshStandardMaterial({
         map: sunTexture,
         emissive: 0xffffff,           
         emissiveMap: sunTexture,         
         emissiveIntensity: 2
     });
-    mercuryMaterial = new THREE.MeshStandardMaterial({ map: mercuryTexture });
-    venusMaterial = new THREE.MeshStandardMaterial({ map: venusTexture });
-    earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
-    moonMaterial = new THREE.MeshStandardMaterial({ map: moonTexture });
-    marsMaterial = new THREE.MeshStandardMaterial({ map: marsTexture });
+    mercuryMaterial = new MeshStandardMaterial({ map: mercuryTexture });
+    venusMaterial = new MeshStandardMaterial({ map: venusTexture });
+    earthMaterial = new MeshStandardMaterial({ map: earthTexture });
+    moonMaterial = new MeshStandardMaterial({ map: moonTexture });
+    marsMaterial = new MeshStandardMaterial({ map: marsTexture });
 }
 
 let starFieldGeometry;
@@ -307,7 +341,7 @@ let marsGeometry;
 function loadGeometry() {
     const heightSegments = 300;
     const widthSegments = 300;
-    const sphereGeometry = new THREE.SphereGeometry(1, heightSegments, widthSegments);
+    const sphereGeometry = new SphereGeometry(1, heightSegments, widthSegments);
     
     const scaleGeometry = (sphereGeometry, scale) => sphereGeometry.clone().scale(scale, scale, scale);
 
@@ -333,37 +367,37 @@ let moonSurface;
 let marsSurface;
 
 function loadSurfaces() {
-    starFieldSurface = new THREE.Mesh(starFieldGeometry, starFieldMaterial);
+    starFieldSurface = new Mesh(starFieldGeometry, starFieldMaterial);
     starFieldSurface.rotateX(Math.PI / 2);
-    starFieldLight = new THREE.AmbientLight(0xffffff, 0.0075);
+    starFieldLight = new AmbientLight(0xffffff, 0.0075);
 
-    sunSurface = new THREE.Mesh(sunGeometry, sunMaterial);
+    sunSurface = new Mesh(sunGeometry, sunMaterial);
     sunSurface.rotateX(Math.PI / 2);
-    sunLight = new THREE.PointLight(0xffffff, 2, 0, 3);
+    sunLight = new PointLight(0xffffff, 2, 0, 3);
     sunLight.decay = 0;
     sunLight.castShadow = true;
 
-    mercurySurface = new THREE.Mesh(mercuryGeometry, mercuryMaterial);
+    mercurySurface = new Mesh(mercuryGeometry, mercuryMaterial);
     mercurySurface.castShadow = true;
     mercurySurface.receiveShadow = true;
     mercurySurface.rotateX(Math.PI / 2);
     
-    venusSurface = new THREE.Mesh(venusGeometry, venusMaterial);
+    venusSurface = new Mesh(venusGeometry, venusMaterial);
     venusSurface.castShadow = true;
     venusSurface.receiveShadow = true;
     venusSurface.rotateX(Math.PI / 2);
     
-    earthSurface = new THREE.Mesh(earthGeometry, earthMaterial);
+    earthSurface = new Mesh(earthGeometry, earthMaterial);
     earthSurface.castShadow = true;
     earthSurface.receiveShadow = true;
     earthSurface.rotateX(Math.PI / 2);
     
-    moonSurface = new THREE.Mesh(moonGeometry, moonMaterial);
+    moonSurface = new Mesh(moonGeometry, moonMaterial);
     moonSurface.castShadow = true;
     moonSurface.receiveShadow = true;
     moonSurface.rotateX(Math.PI / 2);
     
-    marsSurface = new THREE.Mesh(marsGeometry, marsMaterial);
+    marsSurface = new Mesh(marsGeometry, marsMaterial);
     marsSurface.castShadow = true;
     marsSurface.receiveShadow = true;
     marsSurface.rotateX(Math.PI / 2);
@@ -633,8 +667,8 @@ function getScreenPosition(object) {
 }
 
 function calculateDistance(id, targetId) {
-    const pos1 = getScreenPosition(data.objects.get(id));
-    const pos2 = getScreenPosition(data.objects.get(targetId));
+    const pos1 = getScreenPosition(objects.get(id));
+    const pos2 = getScreenPosition(objects.get(targetId));
     const dx = pos1.x - pos2.x;
     const dy = pos1.y - pos2.y;
     return Math.sqrt(dx * dx + dy * dy);
@@ -686,76 +720,76 @@ export let frames = [];
 
 function loadAxes() {
     objects.forEach((obj) => {
-        const frame = new THREE.AxesHelper(obj.cameraRadius * 1.5);
+        const frame = new AxesHelper(obj.cameraRadius * 1.5);
         frames.push(frame);
         obj.group.add(frame);
-        frame.visible = ctrl.framesVisible;
+        frame.visible = framesVisible;
     });
 }
 
-export let ambientLight = new THREE.AmbientLight();
+export let ambientLight = new AmbientLight();
 
 export function loadObjects() {
-    objects.get(0).group = new THREE.Group();
+    objects.get(0).group = new Group();
     objects.get(0).group.add(starFieldSurface);
     objects.get(0).group.add(starFieldLight);
 
-    objects.get(10).group = new THREE.Group();
+    objects.get(10).group = new Group();
     objects.get(10).group.add(sunSurface);
     objects.get(10).group.add(sunLight);
     objects.get(10).group.add(sunLabel);
     objects.get(10).group.add(sunX);
 
-    objects.get(199).group = new THREE.Group();
+    objects.get(199).group = new Group();
     objects.get(199).group.add(mercurySurface);
     objects.get(199).group.add(mercuryLabel);
     objects.get(199).group.add(mercuryX);
 
-    objects.get(299).group = new THREE.Group();
+    objects.get(299).group = new Group();
     objects.get(299).group.add(venusSurface);
     objects.get(299).group.add(venusLabel);
     objects.get(299).group.add(venusX);
 
-    objects.get(399).group = new THREE.Group();
+    objects.get(399).group = new Group();
     objects.get(399).group.add(earthSurface);
     objects.get(399).group.add(earthLabel);
     objects.get(399).group.add(earthX);
 
-    objects.get(301).group = new THREE.Group();
+    objects.get(301).group = new Group();
     objects.get(301).group.add(moonSurface);
     objects.get(301).group.add(moonLabel);
     objects.get(301).group.add(moonX);
 
-    objects.get(499).group = new THREE.Group();
+    objects.get(499).group = new Group();
     objects.get(499).group.add(marsSurface);
     objects.get(499).group.add(marsLabel);
     objects.get(499).group.add(marsX);
 
-    objects.get(401).group = new THREE.Group();
+    objects.get(401).group = new Group();
     objects.get(401).group.add(phobosModel);
     objects.get(401).group.add(phobosLabel);
     objects.get(401).group.add(phobosX);
     
-    objects.get(402).group = new THREE.Group();
+    objects.get(402).group = new Group();
     objects.get(402).group.add(deimosModel);
     objects.get(402).group.add(deimosLabel);
     objects.get(402).group.add(deimosX);
 
-    objects.get(-658030).group = new THREE.Group();
+    objects.get(-658030).group = new Group();
     objects.get(-658030).group.add(didymosModel);
     objects.get(-658030).group.add(didymosLabel);
     objects.get(-658030).group.add(didymosX);
 
-    objects.get(-658031).group = new THREE.Group();
+    objects.get(-658031).group = new Group();
     objects.get(-658031).group.add(dimorphosModel);
     objects.get(-658031).group.add(dimorphosLabel);
     objects.get(-658031).group.add(dimorphosX);
 
-    objects.get(-91900).group = new THREE.Group();
+    objects.get(-91900).group = new Group();
     objects.get(-91900).group.add(dartImpactSiteLabel);
     objects.get(-91900).group.add(dartImpactSiteX);
 
-    objects.get(-91000).group = new THREE.Group();
+    objects.get(-91000).group = new Group();
     objects.get(-91000).group.add(heraModel);
     objects.get(-91000).group.add(cameras.get(-91400).camera);
     objects.get(-91000).group.add(cameras.get(-91110).camera);
@@ -763,13 +797,13 @@ export function loadObjects() {
     objects.get(-91000).group.add(heraLabel);
     objects.get(-91000).group.add(heraX);
 
-    objects.get(-15513000).group = new THREE.Group();
+    objects.get(-15513000).group = new Group();
     objects.get(-15513000).group.add(juventasModel);
     objects.get(-15513000).group.add(cameras.get(-15513310).camera);
     objects.get(-15513000).group.add(juventasLabel);
     objects.get(-15513000).group.add(juventasX);
 
-    objects.get(-9102000).group = new THREE.Group();
+    objects.get(-9102000).group = new Group();
     objects.get(-9102000).group.add(milaniModel);
     objects.get(-9102000).group.add(cameras.get(-9102310).camera);
     objects.get(-9102000).group.add(milaniLabel);
@@ -839,7 +873,7 @@ export function loadScene() {
      * -2.8653E-06   C8 70 53 A3  3F 09 C8 BE
      */
     objects.get(10).group.position.set(1.9173E+08, -1.4123E+08, -6.9948E+07);
-    objects.get(10).group.rotation.setFromQuaternion(new THREE.Quaternion(-1.6179E-01, 1.5788E-01, -4.5985E-01, 8.5874E-01));
+    objects.get(10).group.rotation.setFromQuaternion(new Quaternion(-1.6179E-01, 1.5788E-01, -4.5985E-01, 8.5874E-01));
     scene.add(objects.get(10).group);
 
 
@@ -867,7 +901,7 @@ export function loadScene() {
      * -1.2401E-06   FD 48 1D C1  53 CE B4 BE
     */
     objects.get(199).group.position.set(1.6388E+08, -1.0724E+08, -4.8904E+07);
-    objects.get(199).group.rotation.setFromQuaternion(new THREE.Quaternion(1.9525E-01, 1.5109E-01, -4.3590E-01, 8.6547E-01));
+    objects.get(199).group.rotation.setFromQuaternion(new Quaternion(1.9525E-01, 1.5109E-01, -4.3590E-01, 8.6547E-01));
     scene.add(objects.get(199).group);
 
 
@@ -895,7 +929,7 @@ export function loadScene() {
      *  2.9924E-07   32 3C 6B 2C  FD 14 94 3E 
      */
     objects.get(299).group.position.set(8.7963E+07, -1.1833E+08, -5.3075E+07);
-    objects.get(299).group.rotation.setFromQuaternion(new THREE.Quaternion(4.4608E-02, 1.9291E-01, -9.4326E-01, 2.6656E-01));
+    objects.get(299).group.rotation.setFromQuaternion(new Quaternion(4.4608E-02, 1.9291E-01, -9.4326E-01, 2.6656E-01));
     scene.add(objects.get(299).group);
 
 
@@ -923,7 +957,7 @@ export function loadScene() {
      * -7.2921E-05   80 34 2A D2  A7 1D 13 BF
      */
     objects.get(399).group.position.set(4.4632E+07, -1.2156E+08, -6.1420E+07);
-    objects.get(399).group.rotation.setFromQuaternion(new THREE.Quaternion(-4.9788E-04, 1.1188E-03, -4.0914E-01,  9.1247E-01));
+    objects.get(399).group.rotation.setFromQuaternion(new Quaternion(-4.9788E-04, 1.1188E-03, -4.0914E-01,  9.1247E-01));
     scene.add(objects.get(399).group);
 
 
@@ -951,7 +985,7 @@ export function loadScene() {
      * -2.6618E-06   BB DF FE BA  43 54 C6 BE
      */
     objects.get(301).group.position.set(4.4288E+07, -1.2139E+08, -6.1327E+07);
-    objects.get(301).group.rotation.setFromQuaternion(new THREE.Quaternion(1.8123E-01, 5.6576E-02, -2.8862E-01, 9.3843E-01));
+    objects.get(301).group.rotation.setFromQuaternion(new Quaternion(1.8123E-01, 5.6576E-02, -2.8862E-01, 9.3843E-01));
     scene.add(objects.get(301).group);
 
 
@@ -979,7 +1013,7 @@ export function loadScene() {
      * -7.0882E-05   46 04 3C 95  D2 94 12 BF
      */
     objects.get(499).group.position.set(-7.7896E+04, 6.6413E+04, 3.6204E+04);
-    objects.get(499).group.rotation.setFromQuaternion(new THREE.Quaternion(-5.5099E-02, 3.1357E-01, -7.5018E-01, 5.7955E-01));
+    objects.get(499).group.rotation.setFromQuaternion(new Quaternion(-5.5099E-02, 3.1357E-01, -7.5018E-01, 5.7955E-01));
     scene.add(objects.get(499).group);
 
 
@@ -1007,7 +1041,7 @@ export function loadScene() {
      * -2.3170E-04   D5 07 92 99  A9 5E 2E BF  
      */
     objects.get(401).group.position.set(-7.0768E+04, 6.3378E+04, 3.0722E+04);
-    objects.get(401).group.rotation.setFromQuaternion(new THREE.Quaternion(2.7615E-01, -1.4949E-01, 9.2741E-01, 2.0321E-01));
+    objects.get(401).group.rotation.setFromQuaternion(new Quaternion(2.7615E-01, -1.4949E-01, 9.2741E-01, 2.0321E-01));
     scene.add(objects.get(401).group);
 
 
@@ -1035,7 +1069,7 @@ export function loadScene() {
      * -5.7604E-05   46 37 91 57  87 33 0E BF
      */
     objects.get(402).group.position.set(-7.0792E+04, 4.8236E+04, 2.3179E+04);
-    objects.get(402).group.rotation.setFromQuaternion(new THREE.Quaternion(2.9867E-01, -7.3580E-02, 8.0370E-01, 5.0937E-01));
+    objects.get(402).group.rotation.setFromQuaternion(new Quaternion(2.9867E-01, -7.3580E-02, 8.0370E-01, 5.0937E-01));
     scene.add(objects.get(402).group);
 
 
@@ -1063,7 +1097,7 @@ export function loadScene() {
      * -7.7227E-04   7D CC C8 4B  44 4E 49 BF
      */
     objects.get(-658030).group.position.set(7.2882E+07, 1.5587E+07, 8.7648E+06);
-    objects.get(-658030).group.rotation.setFromQuaternion(new THREE.Quaternion(-8.2851E-01, -5.3685E-01, -1.4061E-01, 7.4744E-02));
+    objects.get(-658030).group.rotation.setFromQuaternion(new Quaternion(-8.2851E-01, -5.3685E-01, -1.4061E-01, 7.4744E-02));
     scene.add(objects.get(-658030).group);
 
 
@@ -1103,7 +1137,7 @@ export function loadScene() {
      *  7.9467E-05   D2 E1 6B 42  EB D4 14 3F
      */
     objects.get(-91000).group.position.set(0, 0, 0);
-    objects.get(-91000).group.rotation.setFromQuaternion(new THREE.Quaternion(-4.1667E-01, -3.9962E-01, 8.1776E-02, 8.1240E-01));
+    objects.get(-91000).group.rotation.setFromQuaternion(new Quaternion(-4.1667E-01, -3.9962E-01, 8.1776E-02, 8.1240E-01));
     scene.add(objects.get(-91000).group);
 
 
@@ -1131,7 +1165,7 @@ export function loadScene() {
      *  7.9467E-05   D1 E1 6B 42  EB D4 14 3F
      */
     objects.get(-15513000).group.position.set(-1.1518E-03, 6.0178E-04, 9.9444E-04);
-    objects.get(-15513000).group.rotation.setFromQuaternion(new THREE.Quaternion(-5.7721E-01, 1.2055E-02, 6.3228E-01, 5.1663E-01));
+    objects.get(-15513000).group.rotation.setFromQuaternion(new Quaternion(-5.7721E-01, 1.2055E-02, 6.3228E-01, 5.1663E-01));
     scene.add(objects.get(-15513000).group);
 
 
@@ -1159,7 +1193,7 @@ export function loadScene() {
      *  7.9467E-05   D1 E1 6B 42  EB D4 14 3F
      */
     objects.get(-9102000).group.position.set(-1.0378E-03, 1.2649E-03, 2.2979E-05);
-    objects.get(-9102000).group.rotation.setFromQuaternion(new THREE.Quaternion(-5.7721E-01, 1.2055E-02, 6.3228E-01, 5.1663E-01));
+    objects.get(-9102000).group.rotation.setFromQuaternion(new Quaternion(-5.7721E-01, 1.2055E-02, 6.3228E-01, 5.1663E-01));
     scene.add(objects.get(-9102000).group);
 }
 
@@ -1192,14 +1226,14 @@ let lastObjectId = -91000;  // Default Hera
 
 export async function gsapCamera() {
     objects.get(lastObjectId).group.visible = true;
-    lastObjectId = ctrl.getObjectId();
+    lastObjectId = getObjectId();
 
-    ctrl.setSimulationDateTo(ctrl.simulationTime, ctrl.simulationRunning);
+    setSimulationDateTo(simulationTime, simulationRunning);
 
     const startTime = Date.now();
     const maxWaitTime = 1000;
 
-    while (objects.get(ctrl.getObjectId()).group.position.x !== 0 && Date.now() - startTime < maxWaitTime) {
+    while (objects.get(getObjectId()).group.position.x !== 0 && Date.now() - startTime < maxWaitTime) {
         await new Promise(resolve => requestAnimationFrame(resolve));
     }
 
@@ -1207,7 +1241,7 @@ export async function gsapCamera() {
 }
 
 function moveCamera() {
-    const object = objects.get(ctrl.getObjectId());
+    const object = objects.get(getObjectId());
 
     cameraControls.enabled = false;
     cameraControls.target = object.group.position;
@@ -1218,7 +1252,7 @@ function moveCamera() {
     let distance;
     let direction;
 
-    if(ctrl.firstPersonView && !ctrl.simulationRunning) {
+    if(firstPersonView && !simulationRunning) {
         if(object.group.visible) object.group.visible = false;
         distance = object.cameraRadius / 100;
         direction = defaultCamera.position.clone().sub(object.group.position).normalize();
@@ -1249,7 +1283,7 @@ function moveCamera() {
 }
 
 export function gsapCameraFPV() {
-    const object = objects.get(ctrl.observerId);
+    const object = objects.get(observerId);
 
     cameraControls.enabled = false;
     cameraControls.update();
@@ -1257,7 +1291,7 @@ export function gsapCameraFPV() {
     let distance;
     let direction;
 
-    if (ctrl.firstPersonView) {
+    if (firstPersonView) {
         if(object.group.visible) object.group.visible = false;
         distance = object.cameraRadius / 100;
         direction = defaultCamera.position.clone().sub(object.group.position).normalize();
@@ -1271,7 +1305,7 @@ export function gsapCameraFPV() {
         cameraControls.minDistance = object.cameraRadius * 1.05;
         cameraControls.maxDistance = objects.get(10).cameraRadius * 2500;
         cameraControls.enableZoom = true;
-        show(ctrl.observerId);
+        show(observerId);
     }
 
     const newPosition = object.group.position.clone().add(direction.multiplyScalar(distance));
@@ -1288,12 +1322,12 @@ export function gsapCameraFPV() {
         },
         onComplete: () => {
             cameraControls.enabled = true; // Re-enable user control
-            if(ctrl.firstPersonView) {
+            if(firstPersonView) {
                 cameraControls.enableZoom = false;
-                hide(ctrl.observerId);
-                if(ctrl.observerId != lastObjectId) {
+                hide(observerId);
+                if(observerId != lastObjectId) {
                     show(lastObjectId);
-                    lastObjectId = ctrl.observerId;
+                    lastObjectId = observerId;
                 }
             }
         }
@@ -1329,13 +1363,13 @@ export function show(id) {
 }
 
 export function animate() {
-    if(ctrl.simulationRunning) {
-        data.removeOutDatedTelemetryData();
-        ctrl.updateSimulationTime();
-        ctrl.updatePlaybackButton();
+    if(simulationRunning) {
+        removeOutDatedTelemetryData();
+        updateSimulationTime();
+        updatePlaybackButton();
     }
-    data.requestTelemetryData();
-    data.updateObjectStates();
+    requestTelemetryData();
+    updateObjectStates();
     cameraControls.update();
     renderer.render(scene, currentCamera);
     labelRenderer.render(scene, currentCamera);
