@@ -121,31 +121,48 @@ function getTimeString(time) {
 export function setSimulationTime(dateString) {
   timeInputElement.value = "";
   timeInputElement.blur();
-  
-  if (!dateString) setSimulationDateTo(new Date(conf.minDate.getTime(), simulationRunning));
-  else {
-    const defaultParts = ["0000", "01", "01", "00", "00", "00", "000"];
-    const parts = dateString.split(/[-T:.]/);
 
-    // Fill missing parts with defaults
-    for (let i = 0; i < defaultParts.length; i++) {
-      parts[i] = parts[i] || defaultParts[i];
-    }
-
-    let fullDateString = `${parts[0].padStart(4, "0")}-${parts[1].padStart(2, "0")}-${parts[2].padStart(2, "0")}` +
-        `T${parts[3].padStart(2, "0")}:${parts[4].padStart(2, "0")}:${parts[5].padStart(2, "0")}.${parts[6].padStart(3, "0")}`;
-
-    let parsedDate = new Date(fullDateString);
-
-    if (isNaN(parsedDate.getTime())) {
-      console.error("Invalid date, using minimum date instead.");
-      parsedDate = new Date(conf.minDate);
-    }
-
-    // Ensure the date is within the allowed range
-    setSimulationDateTo(new Date(Math.max(conf.minDate.getTime(), Math.min(parsedDate.getTime(), conf.maxDate.getTime()))), simulationRunning);
+  if (!dateString) {
+    setSimulationDateTo(new Date(conf.minDate.getTime()), simulationRunning);
+    return;
   }
+
+  const isZulu = dateString.toUpperCase().includes("Z");
+  const cleaned = dateString.replace(/Z/gi, "").trim();
+  const parts = cleaned.split(/[^0-9]+/).filter(p => p !== "");
+
+  // Defaults if missing, for year/month/day use fixed fallback, for time use 0
+  const defaultParts = [1970, 1, 1, 0, 0, 0, 0];
+
+  // Parse each part or fallback to default
+  const parsedParts = defaultParts.map((defaultVal, i) => {
+    let val = parts[i] !== undefined ? parseInt(parts[i]) : defaultVal;
+    // For year, month, day: if val is 0 or invalid, use default 1 (except year)
+    if (i === 0) {
+      if (isNaN(val) || val === 0) val = defaultVal; // year fallback (1970)
+    } else if (i === 1 || i === 2) {
+      if (isNaN(val) || val <= 0) val = 1; // month or day fallback to 1
+    } else {
+      if (isNaN(val) || val < 0) val = 0; // time parts fallback to 0
+    }
+    return val;
+  });
+
+  const [y, m, d, h, min, s, ms] = parsedParts;
+
+  const parsedDate = isZulu
+    ? new Date(Date.UTC(y, m - 1, d, h, min, s, ms))
+    : new Date(y, m - 1, d, h, min, s, ms);
+
+  const finalDate = isNaN(parsedDate.getTime())
+    ? new Date(conf.minDate)
+    : new Date(Math.max(conf.minDate.getTime(), Math.min(parsedDate.getTime(), conf.maxDate.getTime())));
+
+  setSimulationDateTo(finalDate, simulationRunning);
 }
+
+
+
 
 export function simulationRunningStore(bool) {
   simulationRunning = bool;
