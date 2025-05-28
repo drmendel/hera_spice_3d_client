@@ -1,30 +1,52 @@
-import * as THREE from "three";
-import * as ctrl from "./controls.js";
-import * as anim from "./animation.js";
-import * as ws from "./websocket.js";
+import {
+    observerId,
+    speedLevel,
+    speedValues,
+    updateTable,
+    simulationTime,
+    firstPersonView,
+    simulationRunning,
+    lightTimeAdjustment,
+} from "./controls.js";
+
+import {
+    Group,
+    Vector3,
+    Quaternion,
+    PerspectiveCamera,
+} from "three";
+
+import {
+    hide,
+    show,
+    updateSecondaryObjectVisibility
+} from "./animation.js";
+
+import { sendMessage } from "./websocket.js";
 import { requestPerSec } from "./config.js";
+  
 
 /**
  * Mapping of three.js groups to their respective spice identifiers.
  * These represent celestial bodies and spacecraft in the CSPICE system.
  */
 export let objects = new Map([
-    [0, { name: "SOLAR SYSTEM BARYCENTER", cameraRadius: 0, group: new THREE.Group() }],
-    [10, { name: "SUN", cameraRadius: 696340, group: new THREE.Group() }],
-    [199, { name: "MERCURY", cameraRadius: 2439.7, group: new THREE.Group() }],
-    [299, { name: "VENUS", cameraRadius: 6051.8, group: new THREE.Group() }],
-    [399, { name: "EARTH", cameraRadius: 6378, group: new THREE.Group() }],
-    [301, { name: "MOON", cameraRadius: 1737.4, group: new THREE.Group() }],
-    [499, { name: "MARS", cameraRadius: 3389.5, group: new THREE.Group() }],
-    [401, { name: "PHOBOS", cameraRadius: 13.1, group: new THREE.Group() }],
-    [402, { name: "DEIMOS", cameraRadius: 6.2, group: new THREE.Group() }],
-    [-658030, { name: "DIDYMOS", cameraRadius: 0.780, group: new THREE.Group() }],
-    [-658031, { name: "DIMORPHOS", cameraRadius: 0.085, group: new THREE.Group() }],
+    [0, { name: "SOLAR SYSTEM BARYCENTER", cameraRadius: 0, group: new Group() }],
+    [10, { name: "SUN", cameraRadius: 696340, group: new Group() }],
+    [199, { name: "MERCURY", cameraRadius: 2439.7, group: new Group() }],
+    [299, { name: "VENUS", cameraRadius: 6051.8, group: new Group() }],
+    [399, { name: "EARTH", cameraRadius: 6378, group: new Group() }],
+    [301, { name: "MOON", cameraRadius: 1737.4, group: new Group() }],
+    [499, { name: "MARS", cameraRadius: 3389.5, group: new Group() }],
+    [401, { name: "PHOBOS", cameraRadius: 13.1, group: new Group() }],
+    [402, { name: "DEIMOS", cameraRadius: 6.2, group: new Group() }],
+    [-658030, { name: "DIDYMOS", cameraRadius: 0.780, group: new Group() }],
+    [-658031, { name: "DIMORPHOS", cameraRadius: 0.085, group: new Group() }],
 
-    [-91900, { name: "DART IMPACT SITE", cameraRadius: 0, group: new THREE.Group() }],                              // this is just a point
-    [-91000, { name: "HERA SPACECRAFT", cameraRadius: 0.0065, group: new THREE.Group() }],
-    [-15513000, { name: "JUVENTAS SPACECRAFT", cameraRadius: 0.002, group: new THREE.Group() }],
-    [-9102000, { name: "MILANI SPACECRAFT", cameraRadius: 0.002, group: new THREE.Group() }]
+    [-91900, { name: "DART IMPACT SITE", cameraRadius: 0, group: new Group() }],                              // this is just a point
+    [-91000, { name: "HERA SPACECRAFT", cameraRadius: 0.0065, group: new Group() }],
+    [-15513000, { name: "JUVENTAS SPACECRAFT", cameraRadius: 0.002, group: new Group() }],
+    [-9102000, { name: "MILANI SPACECRAFT", cameraRadius: 0.002, group: new Group() }]
 ]);
 
 const hshAspect = 2018 / 1088;
@@ -32,8 +54,10 @@ const afcAspect = 1024 / 1024;
 const jncAspect = 2048 / 1536;
 const mncAspect = 2048 / 1536;
 
+// A camera field of view (FOV) mapping for different spacecraft cameras.
+
 export const cameraFOVs = new Map([
-    [0, 45],
+    [0, 120],
     [-91400, 9.9],
     [-91120, 5.5],
     [-91110, 5.5],
@@ -46,24 +70,54 @@ export const cameraFOVs = new Map([
  * These represent the available cameras in the simulation:
  *  - one general camera called DEFAULT
  *  - different camera systems on the HERA spacecraft
+ * 
+ *  The fov properties may change when the browser window is resized.
+ *  Whe should use the cameraFOVs map instread.
  */
 export const cameras = new Map([
-    [0, { name: "DEFAULT", aspect: 1, camera: new THREE.PerspectiveCamera(45, 1, 1E-6, 1E12) }],
-    [-91400, { name: "HSH", aspect: hshAspect, camera: new THREE.PerspectiveCamera(9.9, hshAspect, 2.5E-3, 1E12)}],    // HyperScout Hyperspectral
-    [-91120, { name: "AFC2", aspect: afcAspect, camera: new THREE.PerspectiveCamera(5.5, afcAspect, 2.5E-3, 1E12)}],   // Asteroid Framing Camera 2
-    [-91110, { name: "AFC1", aspect: afcAspect, camera: new THREE.PerspectiveCamera(5.5, afcAspect, 2.5E-3, 1E12)}],   // Asteroid Framing Camera 1
-    [-15513310, { name: "JNC", aspect: jncAspect, camera: new THREE.PerspectiveCamera(28.5, jncAspect, 2.5E-3, 1E12)}], // Juventas Navigation Camera
-    [-9102310, { name: "MNC", aspect: mncAspect, camera: new THREE.PerspectiveCamera(16, mncAspect, 2.5E-3, 1E12)}]  // Milani Navigation Camera
-]);
+    [0, {
+      name: "DEFAULT",
+      aspect: 1,
+      camera: new PerspectiveCamera(120, 1, 1e-6, 1e12),
+    }],
+    [-91400, {
+      name: "HSH", // HyperScout Hyperspectral
+      aspect: hshAspect,
+      camera: new PerspectiveCamera(9.9, hshAspect, 0.1, 1e12),
+    }],
+    [-91120, {
+      name: "AFC2", // Asteroid Framing Camera 2
+      aspect: afcAspect,
+      camera: new PerspectiveCamera(5.5, afcAspect, 0.1, 1e12),
+    }],
+    [-91110, {
+      name: "AFC1", // Asteroid Framing Camera 1
+      aspect: afcAspect,
+      camera: new PerspectiveCamera(5.5, afcAspect, 0.1, 1e12),
+    }],
+    [-15513310, {
+      name: "JNC", // Juventas Navigation Camera
+      aspect: jncAspect,
+      camera: new PerspectiveCamera(28.5, jncAspect, 0.1, 1e12),
+    }],
+    [-9102310, {
+      name: "MNC", // Milani Navigation Camera
+      aspect: mncAspect,
+      camera: new PerspectiveCamera(16, mncAspect, 0.1, 1e12),
+    }],
+  ]);
+  
 
 /* 
+    SPICE IDENTIFIERS FOR HERA, JUVENTAS, MILANI SPACECRAFTS AND THEIR INSTRUMENTS
+
     HERA_SPACECRAFT (-91000)*    HERA_LGA+X (-91071)*
     HERA_SA+Y (-91011)*          HERA_LGA-X (-91072)*
     HERA_SA-Y (-91015)*          HERA_AFC-1 (-91110)*
     HERA_STR-OH1 (-91061)*       HERA_AFC-2 (-91120)*
     HERA_STR-OH2 (-91062)*       HERA_TIRI (-91200)*
     HERA_JUVENTAS_IFP (-91063)*  HERA_PALT (-91300)*
-    HERA_MILANI_IFP (-91064)*    HERA_HSH (-91400)*
+    HERA_MILANI_IFP (-91064)*    HERA_HSHDART (-91400)*
     HERA_HGA (-91070)*           HERA_SMC (-91500)*
 
     JUVENTAS_SPACECRAFT (-15513000)*  JUVENTAS_JURA-Y (-15513114)*
@@ -87,10 +141,10 @@ export const cameras = new Map([
 
 export class ObjectData {
     constructor(position, velocity, quaternion, angularVelocity) {
-        this.position = new THREE.Vector3(position.x, position.y, position.z); 
-        this.velocity = new THREE.Vector3(velocity.x, velocity.y, velocity.z);
-        this.quaternion = new THREE.Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
-        this.angularVelocity = new THREE.Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z);
+        this.position = new Vector3(position.x, position.y, position.z); 
+        this.velocity = new Vector3(velocity.x, velocity.y, velocity.z);
+        this.quaternion = new Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+        this.angularVelocity = new Vector3(angularVelocity.x, angularVelocity.y, angularVelocity.z);
     }
 }
 
@@ -146,28 +200,28 @@ export let lightTimeAdjustedTelemetryData = new TelemetryData();
 export let deltaT = 1 / requestPerSec;    // sec
 
 export function removeOutDatedTelemetryData() {
-    while (instantaneousTelemetryData.array.length > 2 && instantaneousTelemetryData.array[1].date.getTime() < ctrl.simulationTime.getTime()) {
+    while (instantaneousTelemetryData.array.length > 2 && instantaneousTelemetryData.array[1].date.getTime() < simulationTime.getTime()) {
         instantaneousTelemetryData.popFrontTimestampData();
     }
-    while (lightTimeAdjustedTelemetryData.array.length > 2 && lightTimeAdjustedTelemetryData.array[1].date.getTime() < ctrl.simulationTime.getTime()) {
+    while (lightTimeAdjustedTelemetryData.array.length > 2 && lightTimeAdjustedTelemetryData.array[1].date.getTime() < simulationTime.getTime()) {
         lightTimeAdjustedTelemetryData.popFrontTimestampData();
     }
 }
 
 function sendRequest(data, mode) {
     if(data.requestedSize === 0 && data.array.length === 0) {
-        const time = ctrl.simulationTime.getTime() / 1000;
-        ws.sendMessage(time, mode, ctrl.observerId);
+        const time = simulationTime.getTime() / 1000;
+        sendMessage(time, mode, observerId);
         data.requestedSize++;
     }
 }
 
 function sendRequests(data, mode) {
-    const speed = ctrl.speedValues[ctrl.speedLevel - 1] * deltaT;
+    const speed = speedValues[speedLevel - 1] * deltaT;
     const missing = data.maxSize - (data.array.length + data.requestedSize);
     for (let i = 0; i < missing; i++) {
-        const time = ctrl.simulationTime.getTime() / 1000 + (data.array.length + i) * speed;
-        ws.sendMessage(time, mode, ctrl.observerId);
+        const time = simulationTime.getTime() / 1000 + (data.array.length + i) * speed;
+        sendMessage(time, mode, observerId);
         data.requestedSize++;
     }
 };
@@ -179,7 +233,7 @@ async function waitForMessages() {
 }
 
 export function requestTelemetryData() {
-    if(!ctrl.simulationRunning) {
+    if(!simulationRunning) {
         waitForMessages().then(() => {
             sendRequest(instantaneousTelemetryData, 'i');
             sendRequest(lightTimeAdjustedTelemetryData, 'l');
@@ -196,7 +250,7 @@ export function requestTelemetryData() {
 let tlmUpdated = false;
 
 export function updateObjectStates() {
-    const telemetryData = ctrl.lightTimeAdjustment ? lightTimeAdjustedTelemetryData : instantaneousTelemetryData;
+    const telemetryData = lightTimeAdjustment ? lightTimeAdjustedTelemetryData : instantaneousTelemetryData;
     
     if(telemetryData.array.length < 1) return;
     
@@ -205,28 +259,28 @@ export function updateObjectStates() {
         for (const [id, object] of objects) {
             const obj = data.objects.get(id);
             if (!obj) {
-                if(id !== 0) anim.hide(id);     // skip starField (SOLAR_SYSTEM_BARYCENTER)
+                if(id !== 0) hide(id);     // skip starField (SOLAR_SYSTEM_BARYCENTER)
                 continue;
             }
             
             object.group.position.copy(obj.position);
-            if(id === 0) continue; // skip starField (SOLAR_SYSTEM_BARYCENTER)
+            if(id === 0) continue;              // skip starField (SOLAR_SYSTEM_BARYCENTER)
             object.group.quaternion.copy(obj.quaternion);
 
-            if(ctrl.firstPersonView && id === ctrl.observerId) continue;    // if we are in FPV, skip the current observer 
+            if(firstPersonView && id === observerId) continue;    // if we are in FPV, skip the current observer 
             if(id === -9102000 || id === -15513000) {
                 const distance = objects.get(id).group.position.distanceTo(objects.get(-91000).group.position);
                 if(distance < 0.002) {
-                    anim.hide(id);
+                    hide(id);
                     continue;
                 }
             }
-            if(anim.updateSecondaryObjectVisibility(id)) continue;
-            anim.show(id);   // skip starField (SOLAR_SYSTEM_BARYCENTER)
+            if(updateSecondaryObjectVisibility(id)) continue;
+            show(id);                      // skip starField (SOLAR_SYSTEM_BARYCENTER)
         }
 
         if(!tlmUpdated) {
-            ctrl.updateTable();
+            updateTable();
             tlmUpdated = true;
         }
         
@@ -234,10 +288,7 @@ export function updateObjectStates() {
     }
 
     if(tlmUpdated) tlmUpdated = false;
-    ctrl.updateTable();
-
-    //console.log(instantaneousTelemetryData);
-    //console.log(lightTimeAdjustedTelemetryData);
+    updateTable();
 
     const data0 = telemetryData.array[0];
     const data1 = telemetryData.array[1];
@@ -247,37 +298,39 @@ export function updateObjectStates() {
         const obj1 = data1.objects.get(id);
 
         if (!obj0 || !obj1) {
-            if(id !== 0) anim.hide(id);     // skip starField (SOLAR_SYSTEM_BARYCENTER)
+            if(id !== 0) hide(id);     // skip starField (SOLAR_SYSTEM_BARYCENTER)
             continue;
         }
 
         object.group.position.copy(hermitePosition(
             data0.date, obj0.position, obj0.velocity,
             data1.date, obj1.position, obj1.velocity,
-            ctrl.simulationTime
+            simulationTime
         ));
 
-        if(id === 0) continue; // skip starField (SOLAR_SYSTEM_BARYCENTER)
+        if(id === 0) continue;              // skip starField (SOLAR_SYSTEM_BARYCENTER)
         object.group.quaternion.copy(slerpRotation(
             data0.date, obj0.quaternion,
             data1.date, obj1.quaternion,
-            ctrl.simulationTime
+            simulationTime
         ));
 
-        if(ctrl.firstPersonView && id === ctrl.observerId) continue;    // if we are in FPV, skip the current observer 
+        if(firstPersonView && id === observerId) continue;    // if we are in FPV, skip the current observer 
         if(id === -9102000 || id === -15513000) {
             const distance = objects.get(id).group.position.distanceTo(objects.get(-91000).group.position);
             if(distance < 0.002) {
-                anim.hide(id);
+                hide(id);
                 continue;
             }
         }
-        if(anim.updateSecondaryObjectVisibility(id)) continue;
-        anim.show(id);
+        if(updateSecondaryObjectVisibility(id)) continue;
+        show(id);
     }
 }
 
-const tmpVector = new THREE.Vector3();
+
+
+let tmpVector = new Vector3();
 
 function hermitePosition(time0, position0, velocity0, time1, position1, velocity1, simulationTime) {
     const t0 = time0.getTime();
@@ -304,5 +357,5 @@ function slerpRotation(time0, quaternion0, time1, quaternion1, simulationTime) {
     const ts = simulationTime.getTime();
     const t = (ts - t0) / (t1 - t0);
 
-    return new THREE.Quaternion().slerpQuaternions(quaternion0, quaternion1, t); // use `t` here
+    return new Quaternion().slerpQuaternions(quaternion0, quaternion1, t);
 }
