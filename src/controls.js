@@ -10,6 +10,8 @@ export let simulationBaseTime = new Date(); // local time
 export let simulationTime = new Date();
 export let realBaseTime = new Date();       // local time
 export let speedLevel = 1;
+const maxLevel = 12;
+const minLevel = 1;
 
 export let simulationRunning = true;
 export let lightTimeAdjustment = false;
@@ -23,8 +25,10 @@ export let framesVisible = false;
 export const speedValues = [
   1,        //  1 [second]
   2,        //  2 [second]
+  15,       // 15 [second]
   30,       // 30 [second]
   60,       //  1 [minute]
+  900,      // 15 [minute]
   1800,     // 30 [minute]
   3600,     //  1 [hour]
   21600,    //  6 [hour]
@@ -274,7 +278,7 @@ function setSpeed() {
   const psi = document.getElementById('playback-speed-input');
   if (!psi) return;
 
-  const speed = Math.min(10, Math.max(1, Number(psi.value)));
+  const speed = Math.min(maxLevel, Math.max(minLvel, Number(psi.value)));
   psi.value = String(speed);
 
   // Ensure correct time tracking
@@ -292,7 +296,7 @@ function setSpeed() {
 async function crementSpeed(increment) {
   const psi = document.getElementById('playback-speed-input');
   if (!psi) return;
-  psi.value = Math.min(10, Math.max(1, Number(psi.value) + (increment ? 1 : -1)));
+  psi.value = Math.min(maxLevel, Math.max(minLevel, Number(psi.value) + (increment ? 1 : -1)));
 
   if(!increment) {
     const simulationState = simulationRunning;
