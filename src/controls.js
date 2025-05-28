@@ -105,17 +105,17 @@ export function getSimulationTime() {
 
 
 function getTimeString(time) {
-  const year = time.getFullYear();  // Use getFullYear() to get the full year
-  const month = String(time.getMonth() + 1).padStart(2, '0'); // Ensure two digits
-  const day = String(time.getDate()).padStart(2, '0');
-  const hours = String(time.getHours()).padStart(2, '0');
-  const minutes = String(time.getMinutes()).padStart(2, '0');
-  const seconds = String(time.getSeconds()).padStart(2, '0');
+  const year = time.getUTCFullYear();  // Use getFullYear() to get the full year
+  const month = String(time.getUTCMonth() + 1).padStart(2, '0'); // Ensure two digits
+  const day = String(time.getUTCDate()).padStart(2, '0');
+  const hours = String(time.getUTCHours()).padStart(2, '0');
+  const minutes = String(time.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(time.getUTCSeconds()).padStart(2, '0');
 
-  if(speedLevel >= 3) return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
-  const milliseconds = String(time.getMilliseconds()).padStart(3, '0');
+  if(speedLevel >= 3) return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}Z`;
+  const milliseconds = String(time.getUTCMilliseconds()).padStart(3, '0');
 
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}`;
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
 }
 
 export function setSimulationTime(dateString) {
