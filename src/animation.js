@@ -695,6 +695,10 @@ export function updateSecondaryObjectVisibility(id) {
             if(calculateDistance(-658031, -658030) < minDistance) hide(id);
             else hideBool = false;
             break;
+        case -91900:
+            if(calculateDistance(-91900, -658031) < minDistance) hide(id);
+            else hideBool = false;
+            break;
         case -9102000:
             if(calculateDistance(-9102000, -91000) < minDistance) hide(id);
             else hideBool = false;
@@ -1332,26 +1336,6 @@ export function gsapCameraFPV() {
             }
         }
     });
-}
-
-export function cameraSetTo(cameraId) {
-    switch (cameraId) {
-        case -91500:
-            break;
-        case -91400:
-            break;
-        case -91120:
-            break;
-        case -91110:
-            break;
-        case -15513310:
-            break;
-        case -91002310:
-            break;
-        default:
-            console.warn('Camera not found!');
-            break;
-    }
 }
 
 export function hide(id) {
