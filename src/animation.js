@@ -696,6 +696,7 @@ export function updateSecondaryObjectVisibility(id) {
             else hideBool = false;
             break;
         case -91900:
+            if(observerId != -658031) { hide(id); return true; }
             if(calculateDistance(-91900, -658031) < minDistance) hide(id);
             else hideBool = false;
             break;
