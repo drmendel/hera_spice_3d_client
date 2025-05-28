@@ -57,7 +57,7 @@ const mncAspect = 2048 / 1536;
 // A camera field of view (FOV) mapping for different spacecraft cameras.
 
 export const cameraFOVs = new Map([
-    [0, 120],
+    [0, 50],
     [-91400, 9.9],
     [-91120, 5.5],
     [-91110, 5.5],
@@ -78,7 +78,7 @@ export const cameras = new Map([
     [0, {
       name: "DEFAULT",
       aspect: 1,
-      camera: new PerspectiveCamera(120, 1, 1e-6, 1e12),
+      camera: new PerspectiveCamera(50, 1, 1e-6, 1e12),
     }],
     [-91400, {
       name: "HSH", // HyperScout Hyperspectral
