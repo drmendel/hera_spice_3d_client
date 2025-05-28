@@ -161,6 +161,7 @@ export function simulationRunningStore(bool) {
  * This function helps initialize the simulation state based on URL parameters.
  */
 export function setParamsFromURL() {
+  if(ws.webSocket.readyState !== WebSocket.OPEN) return;
   const urlParams = new URLSearchParams(window.location.search);
   
   const timestampParam = urlParams.get('timestamp');
