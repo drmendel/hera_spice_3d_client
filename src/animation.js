@@ -187,11 +187,12 @@ function initCameras() {
 function setCameraOrientations() {
     cameras.get(-91400).camera.position.set(-0.2760E-3, -0.6540E-3, 1.7835E-3);
     cameras.get(-91400).camera.rotateX(Math.PI);
-    cameras.get(-91400).camera.rotateZ(Math.PI / 2);
+    cameras.get(-91400).camera.rotateZ(-Math.PI / 2);
     cameras.get(-91120).camera.position.set(-0.6895E-3, 0.3500E-3, 1.8821E-3);
     cameras.get(-91120).camera.rotateX(Math.PI);
-    cameras.get(-91120).camera.rotateZ(Math.PI);
+    cameras.get(-91120).camera.rotateZ(Math.PI / 2);
     cameras.get(-91110).camera.position.set(-0.6895E-3, -0.3500E-3, 1.8821E-3);
+    cameras.get(-91110).camera.rotateZ(Math.PI / 2);
     cameras.get(-91110).camera.rotateX(Math.PI);
     cameras.get(-15513310).camera.position.set(-0.0427E-3, 0.0278E-3, 0.1743E-3);
     cameras.get(-15513310).camera.rotateX(Math.PI);
