@@ -278,8 +278,12 @@ async function loadModels() {
         
         tmpPhobos.scene.scale.set(1, 1, 1);
         phobosModel = tmpPhobos.scene;
+        phobosModel.rotateZ(Math.PI / 2);
+        phobosModel.rotateY(Math.PI / 2);
         tmpDeimos.scene.scale.set(1, 1, 1);
         deimosModel = tmpDeimos.scene;
+        deimosModel.rotateX(Math.PI / 2);
+        deimosModel.rotateY(Math.PI);
 
         didymosModel = tmpDidymos.scene.rotateX(Math.PI / 2);
         dimorphosModel = tmpDimorphos.scene.rotateX(Math.PI / 2);
