@@ -1220,7 +1220,6 @@ export async function loadThreeJSEngine() {
     loadScene();
     currentCamera = defaultCamera;
     initCameras();
-    animate();
 }
 
 export function getCameraId(cameraName) {
