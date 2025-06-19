@@ -27,7 +27,7 @@ export function openWebSocket() {
             webSocket.binaryType = 'arraybuffer';
 
             webSocket.onopen = () => {
-                console.log('WebSocket connected');
+                //console.log('WebSocket connected');
                 userAlerted = false;
                 resolve(webSocket); // Resolves the promise once the socket is open
             };

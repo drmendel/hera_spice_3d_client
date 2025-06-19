@@ -102,7 +102,7 @@ function init() {
         if(maxProgress < progress) maxProgress = progress;
         const bar = maxProgress < 100 ? String(maxProgress) : String(100);
         progressBar.style.width = bar + '%';
-        console.log(item);
+        //console.log(item);
     };
 
     loadingManager.onLoad = function () {
