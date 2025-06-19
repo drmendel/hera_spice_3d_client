@@ -41,7 +41,7 @@ export let objects = new Map([
     [401, { name: "PHOBOS", cameraRadius: 13.1, group: new Group() }],
     [402, { name: "DEIMOS", cameraRadius: 6.2, group: new Group() }],
     [-658030, { name: "DIDYMOS", cameraRadius: 0.780, group: new Group() }],
-    [-658031, { name: "DIMORPHOS", cameraRadius: 0.085, group: new Group() }],
+    [-658031, { name: "DIMORPHOS", cameraRadius: 0.170, group: new Group() }],
 
     [-91900, { name: "DART IMPACT SITE", cameraRadius: 0, group: new Group() }],                              // this is just a point
     [-91000, { name: "HERA SPACECRAFT", cameraRadius: 0.0065, group: new Group() }],
