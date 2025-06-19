@@ -228,20 +228,13 @@ let moonTexture;
 let marsTexture;
 
 function loadTextures() {
-    starFieldTexture = textureLoader.load('/images/stars/8k_stars.jpg');
-    /*textureLoader.load('/images/stars/starmap_2020_8k.png', function(texture) {
-        texture.mapping = EquirectangularReflectionMapping;
-        scene.background = texture;
-    });*/
-
-    sunTexture = textureLoader.load('/images/sun/8k_sun.jpg');
-    mercuryTexture = textureLoader.load('/images/mercury/2k_mercury.jpg');
-    venusTexture = textureLoader.load('/images/venus/2k_venus.jpg');
-    
-    earthTexture = textureLoader.load('/images/earth/2k_earth_daymap.jpg');
-    moonTexture = textureLoader.load('/images/moon/2k_moon.jpg');
-    
-    marsTexture = textureLoader.load('/images/mars/2k_mars.jpg');
+    starFieldTexture = textureLoader.load('/images/8k_stars.jpg');
+    sunTexture = textureLoader.load('/images/8k_sun.png');
+    mercuryTexture = textureLoader.load('/images/2k_mercury.jpg');
+    venusTexture = textureLoader.load('/images/2k_venus.jpg');
+    earthTexture = textureLoader.load('/images/2k_earth_daymap.jpg');
+    moonTexture = textureLoader.load('/images/2k_moon.jpg');
+    marsTexture = textureLoader.load('/images/2k_mars.jpg');
 }
 
 let phobosModel;
