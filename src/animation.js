@@ -267,13 +267,13 @@ function loadModel(loader, url) {
 async function loadModels() {
     try {
         const promises = [
-            loadModel(gltfLoader, '/models/phobos/phobos_spice_frame.glb'),
-            loadModel(gltfLoader, '/models/deimos/deimos_spice_frame.glb'),
-            loadModel(gltfLoader, '/models/didymos/didymos.glb'),               
-            loadModel(gltfLoader, '/models/dimorphos/dimorphos.glb'),
-            loadModel(gltfLoader, '/models/hera/hera_deployed.glb'),
-            loadModel(gltfLoader, '/models/juventas/juventas_deployed.glb'),
-            loadModel(gltfLoader, '/models/milani/milani_deployed.glb')
+            loadModel(gltfLoader, '/models/phobos.glb'),
+            loadModel(gltfLoader, '/models/deimos.glb'),
+            loadModel(gltfLoader, '/models/didymos.glb'),
+            loadModel(gltfLoader, '/models/dimorphos.glb'),
+            loadModel(gltfLoader, '/models/hera.glb'),
+            loadModel(gltfLoader, '/models/juventas.glb'),
+            loadModel(gltfLoader, '/models/milani.glb')
         ];
         const [tmpPhobos, tmpDeimos, tmpDidymos, tmpDimorphos, tmpHera, tmpJuventas, tmpMilani] = await Promise.all(promises);
         
