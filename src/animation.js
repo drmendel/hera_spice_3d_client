@@ -148,12 +148,12 @@ function resizeCameraBox() {
     // Screen is wider than camera aspect → pillarbox
     if (windowWidth / windowHeight > cameras.get(currentCameraId).aspect) {
         height = windowHeight - margin;
-        width = windowHeight * cameras.get(currentCameraId).aspect - margin;
+        width = windowHeight * cameras.get(currentCameraId).aspect - margin * windowWidth / windowHeight;
     }
     // Screen is taller than camera aspect → letterbox  
     else {
         width = windowWidth - margin;
-        height = windowWidth / cameras.get(currentCameraId).aspect - margin;
+        height = windowWidth / cameras.get(currentCameraId).aspect - margin * windowHeight / windowWidth;
     }
 
     box.style.width = `${width}px`;
