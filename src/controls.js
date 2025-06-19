@@ -391,8 +391,6 @@ function toggleFullscreen() {
     document.documentElement.requestFullscreen();
   }
 
-  console.log(data.instantaneousTelemetryData);
-
   updateFullScreenButton(!isFullscreen);
 }
 /**
