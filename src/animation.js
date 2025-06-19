@@ -319,7 +319,7 @@ function loadMaterials() {
         map: sunTexture,
         emissive: 0xffffff,           
         emissiveMap: sunTexture,         
-        emissiveIntensity: 2
+        emissiveIntensity: 1.4
     });
     mercuryMaterial = new MeshStandardMaterial({ map: mercuryTexture });
     venusMaterial = new MeshStandardMaterial({ map: venusTexture });
