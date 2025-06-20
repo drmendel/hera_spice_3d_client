@@ -14,6 +14,12 @@ input, button, select, label {
 
 #time-input::placeholder {
     color: rgb(128, 128, 128);
+    opacity: 1;
+}
+
+#time-input::-moz-placeholder {
+    color: rgb(128, 128, 128);
+    opacity: 1;
 }
 
 #playback-speed-input {
