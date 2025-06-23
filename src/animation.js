@@ -24,8 +24,8 @@ import {
     simulationRunning,
     firstPersonView,
     simulationTime,
-    framesVisible, 
-    getObjectId, 
+    framesVisible,
+    getObjectId,
     observerId,
  } from './controls';
 
@@ -62,13 +62,13 @@ let maxProgress = 0;
 function init() {
     canvas = document.getElementById(canvasName);
     scene = new Scene();
-    
+
     defaultCamera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1E-6, 1E12);
     defaultCamera.layers.enableAll();
     cameras.get(0).camera = defaultCamera;
     // const aspect = window.innerWidth / window.innerHeight; const frustumSize = 1000; defaultCamera = new OrthographicCamera(-frustumSize * aspect / 2, frustumSize * aspect / 2, frustumSize / 2, -frustumSize / 2, 0.01, 5000000000);
     defaultCamera.position.set(0, 0, 1000); // Set an initial position for the defaultCamera
-    
+
     currentCamera = defaultCamera;
     currentCameraId = 0;
 
@@ -86,7 +86,7 @@ function init() {
     cameraControls.enableDamping = true;
     cameraControls.dampingFactor = 0.03;
     cameraControls.enableZoom = true;
-    
+
     const progressBarContainer = document.querySelector('.progress-bar-container');
     const progressBar = document.getElementById('progress-bar');
     const threeCanvas = document.getElementById('three-canvas');
@@ -96,7 +96,7 @@ function init() {
 
     loadingManager.onStart = function (url, itemsLoaded, itemsTotal) {
     };
-    
+
     loadingManager.onProgress = function (item, loaded, total) {
         const progress = (loaded / total) * 110;
         if(maxProgress < progress) maxProgress = progress;
@@ -120,16 +120,16 @@ function init() {
 
 function resizeCameraAspect() {
     const canvas = document.querySelector('canvas');
-    
+
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
 
     canvas.width = windowWidth;
     canvas.height = windowHeight;
-    
+
     renderer.setSize(windowWidth, windowHeight);
     labelRenderer.setSize(windowWidth, windowHeight);
-    
+
     currentCamera.aspect = windowWidth / windowHeight;
     currentCamera.updateProjectionMatrix();
 }
@@ -141,7 +141,7 @@ function resizeCameraBox() {
 
     if(currentCamera != defaultCamera) box.style.display = 'block';
     else box.style.display = 'none';
-    
+
     let width, height;
     const margin = 6;
 
@@ -150,7 +150,7 @@ function resizeCameraBox() {
         height = windowHeight - margin;
         width = windowHeight * cameras.get(currentCameraId).aspect - margin * windowWidth / windowHeight;
     }
-    // Screen is taller than camera aspect → letterbox  
+    // Screen is taller than camera aspect → letterbox
     else {
         width = windowWidth - margin;
         height = windowWidth / cameras.get(currentCameraId).aspect - margin * windowHeight / windowWidth;
@@ -202,11 +202,11 @@ function setCameraOrientations() {
     cameras.get(-9102310).camera.rotateX(Math.PI);
 
 
-    //const camHelp1 = new CameraHelper(cameras.get(-91400).camera); 
+    //const camHelp1 = new CameraHelper(cameras.get(-91400).camera);
     //scene.add(camHelp1);
-    //const camHelp2 = new CameraHelper(cameras.get(-91110).camera); 
+    //const camHelp2 = new CameraHelper(cameras.get(-91110).camera);
     //scene.add(camHelp2);
-    //const camHelp3 = new CameraHelper(cameras.get(-91120).camera); 
+    //const camHelp3 = new CameraHelper(cameras.get(-91120).camera);
     //scene.add(camHelp3);
 }
 
@@ -269,7 +269,7 @@ async function loadModels() {
             loadModel(gltfLoader, '/models/milani.glb')
         ];
         const [tmpPhobos, tmpDeimos, tmpDidymos, tmpDimorphos, tmpHera, tmpJuventas, tmpMilani] = await Promise.all(promises);
-        
+
         tmpPhobos.scene.scale.set(1, 1, 1);
         phobosModel = tmpPhobos.scene;
         phobosModel.rotateZ(Math.PI / 2);
@@ -287,7 +287,7 @@ async function loadModels() {
         tmpHera.scene.scale.setScalar(0.001);
         tmpHera.scene.rotateX(Math.PI / 2);
         heraModel = tmpHera.scene;
-        
+
         tmpJuventas.scene.scale.setScalar(0.001);
         juventasModel = tmpJuventas.scene;
 
@@ -307,7 +307,7 @@ let venusMaterial;
 let earthMaterial;
 let moonMaterial;
 let marsMaterial;
-  
+
 function loadMaterials() {
     starFieldMaterial = new MeshBasicMaterial({
         map: starFieldTexture,
@@ -317,8 +317,8 @@ function loadMaterials() {
 
     sunMaterial = new MeshStandardMaterial({
         map: sunTexture,
-        emissive: 0xffffff,           
-        emissiveMap: sunTexture,         
+        emissive: 0xffffff,
+        emissiveMap: sunTexture,
         emissiveIntensity: 1.4
     });
     mercuryMaterial = new MeshStandardMaterial({ map: mercuryTexture });
@@ -341,7 +341,7 @@ function loadGeometry() {
     const heightSegments = 300;
     const widthSegments = 300;
     const sphereGeometry = new SphereGeometry(1, heightSegments, widthSegments);
-    
+
     const scaleGeometry = (sphereGeometry, scale) => sphereGeometry.clone().scale(scale, scale, scale);
 
     starFieldGeometry = scaleGeometry(sphereGeometry, 1E25);
@@ -380,22 +380,22 @@ function loadSurfaces() {
     mercurySurface.castShadow = true;
     mercurySurface.receiveShadow = true;
     mercurySurface.rotateX(Math.PI / 2);
-    
+
     venusSurface = new Mesh(venusGeometry, venusMaterial);
     venusSurface.castShadow = true;
     venusSurface.receiveShadow = true;
     venusSurface.rotateX(Math.PI / 2);
-    
+
     earthSurface = new Mesh(earthGeometry, earthMaterial);
     earthSurface.castShadow = true;
     earthSurface.receiveShadow = true;
     earthSurface.rotateX(Math.PI / 2);
-    
+
     moonSurface = new Mesh(moonGeometry, moonMaterial);
     moonSurface.castShadow = true;
     moonSurface.receiveShadow = true;
     moonSurface.rotateX(Math.PI / 2);
-    
+
     marsSurface = new Mesh(marsGeometry, marsMaterial);
     marsSurface.castShadow = true;
     marsSurface.receiveShadow = true;
@@ -477,7 +477,7 @@ export function loadLabels() {
     earthLabel.center.set(-0.20, 1.25);
     earthLabel.layers.set(1);
     earthLabel.position.set(0, 0, 0);
-    
+
     const earthDivX = document.createElement('div');
     earthDivX.className = 'x';
     earthDivX.textContent = 'X';
@@ -494,7 +494,7 @@ export function loadLabels() {
     moonLabel.center.set(-0.20, 1.25);
     moonLabel.layers.set(1);
     moonLabel.position.set(0, 0, 0);
-    
+
     const moonDivX = document.createElement('div');
     moonDivX.className = 'x';
     moonDivX.textContent = 'X';
@@ -773,7 +773,7 @@ export function loadObjects() {
     objects.get(401).group.add(phobosModel);
     objects.get(401).group.add(phobosLabel);
     objects.get(401).group.add(phobosX);
-    
+
     objects.get(402).group = new Group();
     objects.get(402).group.add(deimosModel);
     objects.get(402).group.add(deimosLabel);
@@ -819,7 +819,7 @@ export function loadScene() {
     ambientLight.visible = false;
     scene.add(ambientLight);
 
-    /** 
+    /**
      * Test date: 2025-03-12T09:27:00.000
     */
 
@@ -857,16 +857,16 @@ export function loadScene() {
     // SUN
 
     /**
-     *          10   0A 00 00 00 
-     * 
+     *          10   0A 00 00 00
+     *
      *  1.9173E+08   B2 04 18 3A  2D DB A6 41
      * -1.4123E+08   72 CC CD 68  15 D6 A0 C1
      * -6.9948E+07   68 E8 4B 4B  4C AD 90 C1
-     *   
+     *
      *  2.0678E+01   41 59 A8 73  AA AD 34 40
      *  9.4840E+00   74 E3 22 F4  C8 F7 22 40
      *  4.3313E+00   21 25 41 09  41 53 11 40
-     *   
+     *
      *  1.6179E-01   6F 47 AD EA  83 B5 C4 3F
      *  1.5788E-01   F6 F6 86 48  5D 35 C4 3F
      * -4.5985E-01   97 CD F3 71  43 6E DD BF
@@ -885,21 +885,21 @@ export function loadScene() {
     // MERCURY
 
     /**
-     *         199   C7 00 00 00 
+     *         199   C7 00 00 00
      *
      *  1.6388E+08   FE 86 1F CC  38 89 A3 41
      * -1.0724E+08   AD 66 B3 76  87 91 99 C1
      * -4.8904E+07   F2 02 A8 C7  AD 51 87 C1
-     * 
+     *
      * -2.8983E+01   73 D5 15 A4  B6 FB 3C C0
      * -1.5469E+01   68 1A C2 1F  01 F0 2E C0
      * -3.8514E+00   44 75 C1 17  B4 CF 0E C0
-     * 
+     *
      *  1.9525E-01   87 27 0C 69  D0 FD C8 3F
      *  1.5109E-01   F6 EF 19 F5  E5 56 C3 3F
      * -4.3590E-01   9B 33 42 11  BD E5 DB BF
      *  8.6547E-01   F3 B8 7A F1  F5 B1 EB 3F
-     * 
+     *
      * -9.0001E-14   94 85 5E 61  41 55 39 BD
      *  1.2960E-14   00 00 00 FF  D1 2E 0D 3D
      * -1.2401E-06   FD 48 1D C1  53 CE B4 BE
