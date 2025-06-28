@@ -1,50 +1,81 @@
-import * as THREE from "three";
-import * as data from "./data";
-import * as ctrl from "./controls";
+import {
+    toggleSimulationRunning,
+    simulationRunningStore,
+    setSimulationDateTo,
+    updatePlaceholder,
+    changeObserver
+} from "./controls";
+
+import {
+    lightTimeAdjustedTelemetryData,
+    instantaneousTelemetryData,
+    TimestampData
+} from "./data";
+
 import { webSocketUrl, minDate } from "./config";
-
-export let webSocket = null;
-let shouldWebSocketBeAvailable = true;
-let userAlerted = false;
-
-setInterval(() => {
-    if (shouldWebSocketBeAvailable) {
-        if(!webSocket || webSocket.readyState !== webSocket.OPEN) return;
-        webSocket.send("ping");
-    }
-}, 15000);
+import { Vector3, Quaternion } from "three";
 
 
-/**
- * Opens a webSocket connection if it's closed and should be available.
- */
-export function openWebSocket() {
-    return new Promise((resolve, reject) => {
-        if (!webSocket || webSocket.readyState === webSocket.CLOSED) {
-            shouldWebSocketBeAvailable = true;
 
-            webSocket = new WebSocket(webSocketUrl);
-            webSocket.binaryType = 'arraybuffer';
-
-            webSocket.onopen = () => {
-                //console.log('WebSocket connected');
-                userAlerted = false;
-                resolve(webSocket); // Resolves the promise once the socket is open
-            };
-            webSocket.onerror = (err) => {
-                reject();
-            };
-
-            webSocket.onmessage = wsOnMessage;
-            webSocket.onclose = wsOnClose;
-        } else {
-            resolve(webSocket); // If already open, resolve immediately
-        }
-    });
+// ─────────────────────────────────────────────
+// Setter for fallbackToMinDate
+// ─────────────────────────────────────────────
+export let fallbackToMinDate = false;
+export function setFallBackToMinDate(value) {
+    fallbackToMinDate = value;
 }
 
+
+
+// ─────────────────────────────────────────────
+// WebSocket Open
+// ─────────────────────────────────────────────
+
+let userAlerted = false;
+export let webSocket = null;
+
+export async function openWebSocket() {
+    if (!webSocket || webSocket.readyState === WebSocket.CLOSED) {
+        shouldWebSocketBeAvailable = true;
+        webSocket = new WebSocket(webSocketUrl);
+        webSocket.binaryType = 'arraybuffer';
+
+        return new Promise((resolve, reject) => {
+            webSocket.onopen = () => {
+                userAlerted = false;
+                resolve(webSocket);
+            };
+            webSocket.onerror = () => reject();
+            webSocket.onmessage = wsOnMessage;
+            webSocket.onclose = wsOnClose;
+        });
+    }
+    return webSocket;
+}
+
+
+
+// ─────────────────────────────────────────────
+// WebSocket Connection Keepalive
+// ─────────────────────────────────────────────
+
+let shouldWebSocketBeAvailable = true;
+const PING_INTERVAL_MS = 15000;
+
+setInterval(() => {
+    if (shouldWebSocketBeAvailable && webSocket?.readyState === WebSocket.OPEN) {
+        webSocket.send("ping");
+    }
+}, PING_INTERVAL_MS);
+
+
+
+// ─────────────────────────────────────────────
+// Send Message
+// ─────────────────────────────────────────────
+
 export function sendMessage(utcTimestamp, mode, observerId) {
-    if(!webSocket || webSocket.readyState !== webSocket.OPEN) {
+    if (!webSocket || webSocket.readyState !== WebSocket.OPEN) {
         console.error('webSocket is not open. Cannot send message.');
         return;
     }
@@ -52,46 +83,53 @@ export function sendMessage(utcTimestamp, mode, observerId) {
 }
 
 function createMessage(utcTimestamp, mode, observerId) {
-    let id;
-    switch(observerId) {
-        case -91400:
-        case -91120:
-        case -91110:
-            id = -91000;
-            break;
-        case -15513310:
-            id = -15513000;
-            break;
-        case -9102310:
-            id = -9102000;
-            break;
-        default:
-            id = observerId;
-            break; 
-    }
+    let id = (() => {
+        switch(observerId) {
+            case -91400:
+            case -91120:
+            case -91110: return -91000;
+            case -15513310: return -15513000;
+            case -9102310: return -9102000;
+            default: return observerId;
+        }
+    })();
 
     const message = new ArrayBuffer(13);
     const view = new DataView(message);
 
-    view.setFloat64(0, utcTimestamp, true); // 8 bytes for the date
-    view.setUint8(8, mode.charCodeAt(0)); // 1 byte for the mode
-    view.setUint32(9, id, true); // 4 bytes for the observerId
+    view.setFloat64(0, utcTimestamp, true);
+    view.setUint8(8, mode.charCodeAt(0));
+    view.setUint32(9, id, true);
 
     return message;
 }
+
+
+
+// ─────────────────────────────────────────────
+// Close WebSocket
+// ─────────────────────────────────────────────
 
 export function closeWebSocket() {
     if (webSocket) {
         shouldWebSocketBeAvailable = false;
         webSocket.close();
+    } else {
+        console.warn('webSocket is not open, cannot close');
     }
-    else console.warn('webSocket is not open, cannot close');
 }
+
+
+
+// ─────────────────────────────────────────────
+// WebSocket Event Handlers
+// ─────────────────────────────────────────────
 
 function wsOnClose() {
     webSocket = null;
-    if(shouldWebSocketBeAvailable) {
-        if(!userAlerted) {
+
+    if (shouldWebSocketBeAvailable) {
+        if (!userAlerted) {
             console.log('Connection to server interrupted. Attempting reconnection...');
             userAlerted = true;
         }
@@ -99,54 +137,37 @@ function wsOnClose() {
     }
 }
 
-export function wsReconnection() {
-    openWebSocket().then(() => {
-        if(webSocket?.readyState === WebSocket.OPEN) {
-            ctrl.simulationRunningStore(true);
-            ctrl.toggleSimulationRunning();
-        }
-    });
-}
-
 async function wsOnMessage(event) {
-
     const binData = event.data;
-
     if (!(binData instanceof ArrayBuffer) || binData.byteLength < 9) return;
-    
+
     const view = new DataView(binData);
-    
-    const timestamp = view.getFloat64(0, true); // 8 bytes for the date
-    const date = new Date(timestamp * 1000); // 8 bytes for the date
-    const mode = view.getUint8(8); // 1 byte for the mode
-    
-    const timestampData = new data.TimestampData(date);
-    
+
+    const timestamp = view.getFloat64(0, true);
+    const date = new Date(timestamp * 1000);
+    const mode = view.getUint8(8);
+
+    const timestampData = new TimestampData(date);
     let offset = 9;
 
-    while (offset < event.data.byteLength) {
-        // Read object ID (Int32 = 4 bytes)
-        const id = view.getInt32(offset, true);
-        offset += 4;
+    while (offset < binData.byteLength) {
+        const id = view.getInt32(offset, true); offset += 4;
 
-        // Read Position (3 x Float64 = 24 bytes)
-        const position = new THREE.Vector3(
+        const position = new Vector3(
             view.getFloat64(offset, true),
             view.getFloat64(offset + 8, true),
             view.getFloat64(offset + 16, true)
         );
         offset += 24;
 
-        // Read Velocity (3 x Float64 = 24 bytes)
-        const velocity = new THREE.Vector3(
+        const velocity = new Vector3(
             view.getFloat64(offset, true),
             view.getFloat64(offset + 8, true),
             view.getFloat64(offset + 16, true)
         );
         offset += 24;
 
-        // Read Quaternion (4 x Float64 = 32 bytes)
-        const quaternion = new THREE.Quaternion(
+        const quaternion = new Quaternion(
             view.getFloat64(offset, true),
             view.getFloat64(offset + 8, true),
             view.getFloat64(offset + 16, true),
@@ -154,8 +175,7 @@ async function wsOnMessage(event) {
         );
         offset += 32;
 
-        // Read Angular Velocity (3 x Float64 = 24 bytes)
-        const angularVelocity = new THREE.Vector3(
+        const angularVelocity = new Vector3(
             view.getFloat64(offset, true),
             view.getFloat64(offset + 8, true),
             view.getFloat64(offset + 16, true)
@@ -166,62 +186,56 @@ async function wsOnMessage(event) {
     }
 
     switch (mode) {
-        case 105: // 'i' character as a numeric value
-            data.instantaneousTelemetryData.pushBackTimestampData(timestampData);
+        case 105: // 'i'
+            instantaneousTelemetryData.pushBackTimestampData(timestampData);
             break;
-        case 108: // 'l' character as a numeric value
-            data.lightTimeAdjustedTelemetryData.pushBackTimestampData(timestampData);
+        case 108: // 'l'
+            lightTimeAdjustedTelemetryData.pushBackTimestampData(timestampData);
             break;
-        case 101: // 'e' character as a numeric value
+        case 101: // 'e'
             break;
-        case 102: // 'f' char instantError
-            data.instantaneousTelemetryData.requestedSize--;
-            if(!fallbackToMinDate) {
+        case 102: // 'f' instantError
+        case 103: // 'g' lightError
+            if (!fallbackToMinDate) {
                 fallbackToMinDate = true;
-                ctrl.changeObserver(-91000);
-                ctrl.simulationRunningStore(false);
-                await ctrl.setSimulationDateTo(minDate);
-                ctrl.updatePlaceholder();
+                changeObserver(-91000);
+                simulationRunningStore(false);
+                await setSimulationDateTo(minDate);
+                updatePlaceholder();
             }
-            break;
-        case 103: // 'g' char lightError
-            data.lightTimeAdjustedTelemetryData.requestedSize--;
-            if(!fallbackToMinDate) {
-                fallbackToMinDate = true;
-                ctrl.changeObserver(-91000);
-                ctrl.simulationRunningStore(false);
-                await ctrl.setSimulationDateTo(minDate);
-                ctrl.updatePlaceholder();
-            } 
+            if (mode === 102) instantaneousTelemetryData.requestedSize--;
+            else if (mode === 103) lightTimeAdjustedTelemetryData.requestedSize--;
             break;
         default:
             console.error('Unknown mode:', mode);
-            if(data.instantaneousTelemetryData.requestedSize !== 0) data.instantaneousTelemetryData.requestedSize--;
-            if(data.lightTimeAdjustedTelemetryData.requestedSize !== 0) data.instantaneousTelemetryData.requestedSize--;
+            if (instantaneousTelemetryData.requestedSize !== 0) instantaneousTelemetryData.requestedSize--;
+            if (lightTimeAdjustedTelemetryData.requestedSize !== 0) lightTimeAdjustedTelemetryData.requestedSize--;
             break;
     }
 }
 
-export function waitForOpen() {
-  return new Promise((resolve, reject) => {
-    const maxWait = 10*1000; // ms
-    const start = Date.now();
 
-    const check = () => {
-      if (webSocket?.readyState === WebSocket.OPEN) {
-        resolve();
-      } else if (Date.now() - start > maxWait) {
-        reject(new Error("WebSocket did not open in time"));
-      } else {
-        setTimeout(check, 1000);
-      }
-    };
 
-    check();
-  });
+// ─────────────────────────────────────────────
+// WebSocket Connection Handlers
+// ─────────────────────────────────────────────
+
+export function waitForOpen(timeoutMs = 10000) {
+    return new Promise((resolve, reject) => {
+        const start = Date.now();
+
+        (function check() {
+            if (webSocket?.readyState === WebSocket.OPEN) resolve();
+            else if (Date.now() - start > timeoutMs) reject(new Error("WebSocket did not open in time"));
+            else setTimeout(check, 1000);
+        })();
+    });
 }
 
-export let fallbackToMinDate = false;
-export function setFallBackToMinDate(bool) {
-    fallbackToMinDate = bool;
+export async function wsReconnection() {
+    await openWebSocket();
+    if (webSocket?.readyState === WebSocket.OPEN) {
+        simulationRunningStore(true);
+        toggleSimulationRunning();
+    }
 }
