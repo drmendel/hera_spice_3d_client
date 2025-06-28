@@ -17,10 +17,6 @@
   <body id="website-body">
   
     <canvas id="threeCanvas"></canvas>
-
-    <div  class="loading-spinner" id="loading-spinner">
-      <span class="loader"></span>
-    </div>
   
     <div class="progress-bar-container">
       <div id="progress-label">HERA 3D SPACE</div>
@@ -38,13 +34,13 @@
           <button id="playback-button">Play</button>
         </div>
         <div class="controls row" id="playback-2nd-row">
-          <label class="playback-speed" id="playback-speed-label">Speed Level</label>
+          <label class="playback-speed" id="playback-speed-label" for="playback-speed-input">Speed Level</label>
           <input class="playback-speed" type="text" id="playback-speed-input" min="1" max="10" value="1" step="1">
           <button class="crement-button" id="increment-button">+</button>
           <button class="crement-button" id="decrement-button">-</button>
         </div>
         <div class="controls row" id="playback-3rd-row">
-          <label class="playback" id="playback-observer-label">Observer</label>
+          <label class="playback" id="playback-observer-label" for="observer-dropdown">Observer</label>
           <select class="playback" id="observer-dropdown">
             <option value="-91000">HERA</option>
             <option value="-91400">HSH</option>
