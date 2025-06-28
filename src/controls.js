@@ -1,15 +1,48 @@
-// ###################### GLOBAL VARIABLES ######################
+import {
+  gsapCameraFPV,
+  ambientLight,
+  changeCamera,
+  toggleLabels,
+  gsapCamera,
+  frames,
+  show,
+  hide
+} from "./animation";
 
-import * as engine from "./animation";
-import * as conf from "./config";
-import * as data from './data';
-import * as ws from './websocket';
+import {
+  minDate,
+  maxDate,
+  darkColor,
+  lightColor
+} from "./config";
 
-export let observerId = -91000;             // default observer id: Hera
-export let simulationBaseTime = new Date(); // local time
+import {
+  lightTimeAdjustedTelemetryData,
+  instantaneousTelemetryData,
+  requestTelemetryData,
+  updateObjectStates,
+  objects,
+  deltaT
+} from './data';
+
+import {
+  fallbackToMinDate,
+  wsReconnection,
+  webSocket
+} from './websocket';
+
+
+
+// ─────────────────────────────────────────────
+// Control Variables
+// ─────────────────────────────────────────────
+
+export let observerId = -91000; // Hera
+export let simulationBaseTime = new Date();
 export let simulationTime = new Date();
-export let realBaseTime = new Date();       // local time
+export let realBaseTime = new Date();
 export let speedLevel = 1;
+
 const maxLevel = 12;
 const minLevel = 1;
 
@@ -38,24 +71,22 @@ export const speedValues = [
 ];
 
 
-
-// ##################### SETUP ##########################
+// ─────────────────────────────────────────────
+// Setup
+// ─────────────────────────────────────────────
 
 const timeInputElement = document.getElementById('time-input');
 
 export function setup() {
-
   // General
-  
   setParamsFromURL();
   updatePlaybackButton();
   updateSpeed();
   updateStarFieldVisibilityButton();
 
   // Listeners 
-
   setInterval(updatePlaceholder, 7);
-  setInterval(hideUnavailableOptions, data.deltaT);
+  setInterval(hideUnavailableOptions, deltaT);
 
   timeInputElement.addEventListener('change', () => setSimulationTime(String(timeInputElement.value)));
   document.getElementById('playback-button').addEventListener('mousedown', toggleSimulationRunning);
@@ -80,37 +111,25 @@ export function setup() {
     if (document.visibilityState === "hidden") {
         setSimulationDateTo(simulationTime, false);
     } else if (document.visibilityState === "visible") {
-        ws.wsReconnection();
+        wsReconnection();
     }
   });
 }
 
 
+// ─────────────────────────────────────────────
+// Getters
+// ─────────────────────────────────────────────
 
-// ###################### DATA FUNCTIONS ######################
-
-/**
- * Calculates the current simulation time based on elapsed real-world time.
- * - Computes the elapsed time since `realBaseTime` in milliseconds.
- * - Scales the elapsed time by the current speed factor.
- * - Returns the updated simulation time as a `Date` object.
- * - Stops the simulation if the computed simulation time exceeds `conf.maxDate`.
- *
- * @returns {Date} The computed simulation time as a Date object.
- */
 export function getSimulationTime() {
-  const elapsedTime = new Date() - realBaseTime;  // Elapsed time in milliseconds
-  const scaledTime = elapsedTime * speedValues[speedLevel - 1];  // Scaled elapsed time
+  const elapsedTime = new Date() - realBaseTime;
+  const scaledTime = elapsedTime * speedValues[speedLevel - 1];
 
   simulationTime = new Date(simulationBaseTime.getTime() + scaledTime);
 
-  // Stop simulation if the computed time exceeds conf.maxDate
-  if (simulationTime.getTime() > conf.maxDate.getTime()) setSimulationDateTo(conf.minDate, false);
-  return simulationTime;  // Return the computed simulation time as a Date object
+  if (simulationTime.getTime() > maxDate.getTime()) setSimulationDateTo(minDate, false);
+  return simulationTime;
 }
-
-
-
 
 function getTimeString(time) {
   const year = time.getUTCFullYear();  // Use getFullYear() to get the full year
@@ -126,12 +145,18 @@ function getTimeString(time) {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
 }
 
+
+
+// ─────────────────────────────────────────────
+// Setters
+// ─────────────────────────────────────────────
+
 export function setSimulationTime(dateString) {
   timeInputElement.value = "";
   timeInputElement.blur();
 
   if (!dateString) {
-    setSimulationDateTo(new Date(conf.minDate.getTime()), simulationRunning);
+    setSimulationDateTo(new Date(minDate.getTime()), simulationRunning);
     return;
   }
 
@@ -163,30 +188,18 @@ export function setSimulationTime(dateString) {
     : new Date(y, m - 1, d, h, min, s, ms);
 
   const finalDate = isNaN(parsedDate.getTime())
-    ? new Date(conf.minDate)
-    : new Date(Math.max(conf.minDate.getTime(), Math.min(parsedDate.getTime(), conf.maxDate.getTime())));
+    ? new Date(minDate)
+    : new Date(Math.max(minDate.getTime(), Math.min(parsedDate.getTime(), maxDate.getTime())));
 
   setSimulationDateTo(finalDate, simulationRunning);
 }
-
-
-
 
 export function simulationRunningStore(bool) {
   simulationRunning = bool;
 }
 
-/**
- * Extracts parameters from the URL query string and sets the corresponding variables.
- * - `timestamp`: If provided, sets `simulationBaseTime` to the specified value; 
- *   otherwise, sets it to the current time.
- * - `observerId`: If provided, parses it as an integer and assigns it to `observerId`; 
- *   otherwise, defaults to `-91000` (Hera ID).
- * 
- * This function helps initialize the simulation state based on URL parameters.
- */
 export function setParamsFromURL() {
-  if(ws.webSocket.readyState !== WebSocket.OPEN) return;
+  if(webSocket.readyState !== WebSocket.OPEN) return;
   const urlParams = new URLSearchParams(window.location.search);
   
   const timestampParam = urlParams.get('timestamp');
@@ -225,36 +238,28 @@ export function setParamsFromURL() {
   changeObserver(observerId);
 }
 
-/**
- * Updates `realBaseTime` to the given timestamp or the current local timestamp.
- * If a valid `date` argument is provided, it will be used; otherwise, the current time is used.
- * 
- * @param {Date} [date] Optional. If provided and valid, sets `realBaseTime` to this value.
- */
 function setRealBaseTime(date) {
   if (date instanceof Date && !isNaN(date.getTime())) realBaseTime = date;
   else realBaseTime = new Date;
 }
 
-// ###################### UI FUNCTIONS ######################
 
-// Function to update the placeholder with the simulation time
+
+// ─────────────────────────────────────────────
+// PlayBack Controls
+// ─────────────────────────────────────────────
+
 export function updatePlaceholder() {
-  timeInputElement.placeholder = getTimeString(simulationTime);  // Pass the timestamp to getTimeString
+  timeInputElement.placeholder = getTimeString(simulationTime);
 }
 
 export function updateSimulationTime() {
   simulationTime = getSimulationTime();
 }
 
-/**
- * Toggles the state of the `simulationRunning` variable.
- * If `simulationRunning` is true, it sets it to false, indicating the simulation is stopped.
- * If `simulationRunning` is false, it sets it to true, indicating the simulation is running.
- */
 export async function toggleSimulationRunning() {
-  if(ws.webSocket === null) return; 
-  if (ws.webSocket.readyState !== WebSocket.OPEN) return;
+  if(webSocket === null) return; 
+  if (webSocket.readyState !== WebSocket.OPEN) return;
 
   if(simulationRunning) {
     await setSimulationDateTo(simulationTime, false);
@@ -271,14 +276,14 @@ export async function setSimulationDateTo(date, run) {
     simulationTime = date;
     simulationBaseTime = simulationTime;
     setRealBaseTime();
-    await waitForMessages(() => data.instantaneousTelemetryData.requestedSize, () => data.lightTimeAdjustedTelemetryData.requestedSize);
-    data.instantaneousTelemetryData.reset();
-    data.lightTimeAdjustedTelemetryData.reset();
-    data.requestTelemetryData();
-    await waitForMessages(() => data.instantaneousTelemetryData.requestedSize, () => data.lightTimeAdjustedTelemetryData.requestedSize);
-    data.updateObjectStates();
+    await waitForMessages(() => instantaneousTelemetryData.requestedSize, () => lightTimeAdjustedTelemetryData.requestedSize);
+    instantaneousTelemetryData.reset();
+    lightTimeAdjustedTelemetryData.reset();
+    requestTelemetryData();
+    await waitForMessages(() => instantaneousTelemetryData.requestedSize, () => lightTimeAdjustedTelemetryData.requestedSize);
+    updateObjectStates();
     updatePlaceholder();
-    if(ws.fallbackToMinDate) ws.setFallBackToMinDate(false);
+    if(fallbackToMinDate) setFallBackToMinDate(false);
 }
 
 export async function waitForMessages(getA, getB) {
@@ -287,11 +292,6 @@ export async function waitForMessages(getA, getB) {
   }
 }
 
-/**
- * Updates the text content of the playback button based on the `simulationRunning` state.
- * If the simulation is running, the button text will show "Pause".
- * If the simulation is stopped, the button text will show "Play".
- */
 export function updatePlaybackButton() {
   document.getElementById('playback-button').textContent = simulationRunning ? "Pause" : "Play";
 }
@@ -304,21 +304,14 @@ function setSpeed() {
   const psi = document.getElementById('playback-speed-input');
   if (!psi) return;
 
-  const speed = Math.min(maxLevel, Math.max(minLvel, Number(psi.value)));
+  const speed = Math.min(maxLevel, Math.max(minLevel, Number(psi.value)));
   psi.value = String(speed);
 
-  // Ensure correct time tracking
   simulationBaseTime = new Date(getSimulationTime().getTime());
   setRealBaseTime();
   speedLevel = speed;
 }
 
-
-/**
- * Increments or decrements the playback speed.
- * - `increment` (boolean): If true, increases speed; otherwise, decreases it.
- * - Ensures the speed stays within the range (1 to 10).
- */
 async function crementSpeed(increment) {
   const psi = document.getElementById('playback-speed-input');
   if (!psi) return;
@@ -327,27 +320,17 @@ async function crementSpeed(increment) {
   if(!increment) {
     const simulationState = simulationRunning;
     simulationRunning = false;
-    await waitForMessages(() => data.instantaneousTelemetryData.requestedSize, () => data.lightTimeAdjustedTelemetryData.requestedSize);
-    data.instantaneousTelemetryData.reset();
-    data.lightTimeAdjustedTelemetryData.reset();
+    await waitForMessages(() => instantaneousTelemetryData.requestedSize, () => lightTimeAdjustedTelemetryData.requestedSize);
+    instantaneousTelemetryData.reset();
+    lightTimeAdjustedTelemetryData.reset();
     simulationRunning = simulationState;
   }
 
-  // Update speed and timing references
-  simulationBaseTime = new Date(simulationTime.getTime());  // Preserve the current simulation time
-  realBaseTime = new Date();  // Use Date object for consistency
+  simulationBaseTime = new Date(simulationTime.getTime());
+  realBaseTime = new Date();
   speedLevel = Number(psi.value);
 }
 
-
-
-
-
-
-
-/**
- * Spice Observer List
-*/
 export function changeObserver(eventTargetValue) {
   observerId = Number(eventTargetValue);
   
@@ -359,140 +342,88 @@ export function changeObserver(eventTargetValue) {
   if(firstPersonView) toggleFirstPersonView();
   
   if(observerId === -91400 || observerId === -91120 || observerId === -91110 || observerId === -15513310 || observerId === -9102310) {
-    engine.changeCamera(observerId);
+    changeCamera(observerId);
     document.getElementById('camera-box').style.display = 'block';
   }
   else {
-    engine.changeCamera(0); // Default camera
-    engine.gsapCamera();
+    changeCamera(0); // Default camera
+    gsapCamera();
     document.getElementById('camera-box').style.display = 'none';
   }
 }
 
 
 
+// ─────────────────────────────────────────────
+// Menu Control
+// ─────────────────────────────────────────────
 
-
-/**
- * Toggles the visibility of elements inside the `.controls` container.
- * This function adds or removes the `hidden` class to each element inside `.controls`,
- * effectively showing or hiding the control elements.
- */
 function toggleMenu() {
   document.querySelectorAll('.controls *').forEach(el => el.classList.toggle('hidden'));
   if(infoDisplay) document.getElementById('info-box').classList.toggle('hidden');
 }
 
-
-
-/**
- * Toggles fullscreen mode for the document.
- * - If not in fullscreen, requests fullscreen for the document element.
- * - If in fullscreen, exits fullscreen mode.
- */
 function toggleFullscreen() {
   const isFullscreen = !!document.fullscreenElement;
 
-  if (isFullscreen) {
-    document.exitFullscreen();
-  } else {
-    document.documentElement.requestFullscreen();
-  }
+  if (isFullscreen) document.exitFullscreen();
+  else document.documentElement.requestFullscreen();
 
   updateFullScreenButton(!isFullscreen);
 }
-/**
- * Updates the fullscreen button's appearance based on fullscreen state.
- * @param {boolean} isFullscreen - Whether fullscreen mode is active.
- */
+
 function updateFullScreenButton(isFullscreen) {
   const btn = document.getElementById('full-screen-button');
 
   if (!btn) return; // Avoid errors if button is missing
 
-  const color = isFullscreen ? conf.lightColor : conf.darkColor;
+  const color = isFullscreen ? lightColor : darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
 
-
-
-/**
- * Toggles the light time adjustment setting.
- * - Flips the `lightTimeAdjustment` boolean between true and false.
- * - Calls `updateLighTimeAdjustmentButton` to update the button's appearance.
- */
 function toggleLightTimeAdjustment() {
   lightTimeAdjustment = !lightTimeAdjustment; // Toggle the boolean value
   updateLighTimeAdjustmentButton();
 }
-/**
- * Updates the appearance of the light time adjustment button.
- * - Changes the button's border and text color based on `lightTimeAdjustment` state.
- */
+
 function updateLighTimeAdjustmentButton() {
   const btn = document.getElementById('light-time-adjustment-button');
   if (!btn) return;
-  const color = lightTimeAdjustment ? conf.lightColor : conf.darkColor;
+  const color = lightTimeAdjustment ? lightColor : darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
 
-
-/**
- * Toggles the light time adjustment setting.
- * - Flips the `firstPersonView` boolean between true and false.
- * - Calls `updateFirstPersonViewButton` to update the button's appearance.
- */
 function toggleFirstPersonView() {
   if(observerId === -91400 || observerId === -91110 || observerId === -91120 || observerId === -15513310 || observerId === -9102310) return;
   firstPersonView = !firstPersonView;
   updateFirstPersonViewButton();
-  engine.gsapCameraFPV();
+  gsapCameraFPV();
 }
 
-/**
- * Updates the appearance of the first person view button.
- * - Changes the button's border and text color based on `firstPersonView` state.
- */
 function updateFirstPersonViewButton() {
   const btn = document.getElementById('first-person-view-button');
   if (!btn) return;
-  const color = firstPersonView ? conf.lightColor : conf.darkColor;
+  const color = firstPersonView ? lightColor : darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
 
-
-
-/**
- * Toggles the label visibility setting.
- * - Flips the `labelDisplay` boolean between true and false.
- * - Calls `updateLabelVisibilityButton` to update the button's appearance.
- */
 function toggleLabelVisibility() {
   labelDisplay = !labelDisplay;
-  engine.toggleLabels();
+  toggleLabels();
   updateLabelVisibilityButton();
 }
 
-/**
- * Updates the appearance of the label visibility button.
- * - Changes the button's border and text color based on `labelDisplay` state.
- */
 function updateLabelVisibilityButton() {
   const btn = document.getElementById('label-visibility-button');
   if (!btn) return;
-  const color = labelDisplay ? conf.lightColor : conf.darkColor;
+  const color = labelDisplay ? lightColor : darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
 
-/**
- * Toggles the telemetry visibility setting.
- * - Flips the `telemetryDisplay` boolean between true and false.
- * - Calls `updateTelemetryVisibilityButton` to update the button's appearance.
- */
 function toggleTelemetryVisibility() {
   telemetryDisplay = !telemetryDisplay;
   updateTelemetryVisibilityButton();
@@ -502,60 +433,38 @@ function toggleTelemetryVisibility() {
   updateTable();
 }
 
-/**
- * Updates the appearance of the telemetry visibility button.
- * - Changes the button's border and text color based on `telemetryDisplay` state.
- */
 function updateTelemetryVisibilityButton() {
   const btn = document.getElementById('data-visibility-button');
   if (!btn) return;
-  const color = telemetryDisplay ? conf.lightColor : conf.darkColor;
+  const color = telemetryDisplay ? lightColor : darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
 
-/**
- * Toggles the start field visibility setting.
- * - Flips the `starFieldDisplay` boolean between true and false.
- * - Calls `updateStarFieldVisibilityButton` to update the button's appearance.
- */
 function toggleStarFieldVisibility() {
   starFieldDisplay = !starFieldDisplay;
   updateStarFieldVisibilityButton();
-  starFieldDisplay ? engine.show(0) : engine.hide(0);
+  starFieldDisplay ? show(0) : hide(0);
 }
 
-/**
- * Updates the appearance of the start field visibility button.
- * - Changes the button's border and text color based on `starFieldDisplay` state.
- */
 export function updateStarFieldVisibilityButton() {
   const btn = document.getElementById('starfield-visibility-button');
   if (!btn) return;
-  const color = starFieldDisplay ? conf.lightColor : conf.darkColor;
+  const color = starFieldDisplay ? lightColor : darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
 
-/**
- * Toggles the info display setting.
- * - Flips the `infoDisplay` boolean between true and false.
- * - Calls `updateInfoButton` to update the button's appearance.
- */
 function toggleInfoDisplay() {
   infoDisplay = !infoDisplay;
   updateInfoButton();
   updateInfoDisplay();
 }
 
-/**
- * Updates the appearance of the info button.
- * - Changes the button's border and text color based on `infoDisplay` state.
- */
 function updateInfoButton() {
   const btn = document.getElementById('info-button');
   if (!btn) return;
-  const color = infoDisplay ? conf.lightColor : conf.darkColor;
+  const color = infoDisplay ? lightColor : darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
@@ -563,11 +472,6 @@ function updateInfoButton() {
 function updateInfoDisplay() {
   if(infoDisplay) document.getElementById('info-box').classList.remove('hidden');
   else document.getElementById('info-box').classList.add('hidden');
-}
-
-export function toggleLoading() {
-  const spinner = document.getElementById("loading-spinner");
-  spinner.style.display = spinner.style.display === "flex" ? "none" : "flex";
 }
 
 export function getObjectId(id) {
@@ -582,8 +486,13 @@ export function getObjectId(id) {
   }
 }
 
+const data = {
+  instantaneousTelemetryData,
+  lightTimeAdjustedTelemetryData
+};
+
 export function hideUnavailableOptions() {
-  if(ws.webSocket?.readyState === WebSocket.OPEN) {
+  if(webSocket?.readyState === WebSocket.OPEN) {
     document.querySelectorAll('option').forEach(opt => {
       const id = getObjectId(+opt.value);
 
@@ -593,13 +502,6 @@ export function hideUnavailableOptions() {
       if(simulationRunning) show = g('instantaneousTelemetryData', 0) && g('instantaneousTelemetryData', 1);
       else show = g('instantaneousTelemetryData', 0);
 
-      /**
-       * We only check if instantaneous data is available for the objects.
-       * From the observer's perspective, all telemetry is "instantaneous":
-       * if lightTimeAdjustment is enabled—because the observer is at the origin.
-       * Light-time from [0, 0, 0] to [0, 0, 0] is zero, so adjustment is irrelevant.
-      **/
-
       opt.classList.toggle('hidden', !show);
     });
   }
@@ -607,7 +509,7 @@ export function hideUnavailableOptions() {
 
 function toggleFrameVisibility() {
   framesVisible = !framesVisible;
-  engine.frames.forEach((frame) => {
+  frames.forEach((frame) => {
     frame.visible = !frame.visible;
   });
   updateFrameVisibilityButton();
@@ -615,25 +517,19 @@ function toggleFrameVisibility() {
 
 function updateFrameVisibilityButton() {
   const btn = document.getElementById('frame-visibility-button');
-
-  if (!btn) return; // Avoid errors if button is missing
-
-  const color = framesVisible ? conf.lightColor : conf.darkColor;
+  const color = framesVisible ? lightColor : darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
 
 function toggleAmbientLight() {
-  engine.ambientLight.visible = !engine.ambientLight.visible;
+  ambientLight.visible = !ambientLight.visible;
   updateAmbientLightButton();
 }
 
 function updateAmbientLightButton() {
   const btn = document.getElementById('ambient-light-button');
-
-  if (!btn) return; // Avoid errors if button is missing
-
-  const color = engine.ambientLight.visible ? conf.lightColor : conf.darkColor;
+  const color = ambientLight.visible ? lightColor : darkColor;
   btn.style.borderColor = color;
   btn.style.color = color;
 }
@@ -648,9 +544,9 @@ export function updateTable() {
     return;
   }
 
-  let tableContent = ''; // String buffer to hold table rows
+  let tableContent = '';
 
-  const tmpData = lightTimeAdjustment ? data.lightTimeAdjustedTelemetryData : data.instantaneousTelemetryData;
+  const tmpData = lightTimeAdjustment ? lightTimeAdjustedTelemetryData : instantaneousTelemetryData;
   if (!tmpData?.array?.[0]?.objects || tmpData.array[0].objects.size === 0) return;
 
   const date = tmpData.array[0].date;
@@ -662,7 +558,7 @@ export function updateTable() {
     tableContent += `
     <tr>
       <td>${currentOrigo}</td> 
-      <td>${data.objects.get(currentOrigo).name}</td>
+      <td>${objects.get(currentOrigo).name}</td>
       <td>${vec3ToStr(tmpData.array[0].objects.get(currentOrigo).position)}</td>
       <td>${vec3ToStr(tmpData.array[0].objects.get(currentOrigo).velocity)}</td>
       <td>${quatToStr(tmpData.array[0].objects.get(currentOrigo).quaternion)}</td>
@@ -673,7 +569,7 @@ export function updateTable() {
   tmpData.array[0].objects.forEach((obj, id) => {
     if(id === currentOrigo) return;
 
-    const name = data.objects.get(id)?.name || 'Unknown'; // Safely get name
+    const name = objects.get(id)?.name || 'Unknown';
     const pos = obj.position;
     const vel = obj.velocity;
     const quat = obj.quaternion;
