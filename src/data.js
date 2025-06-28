@@ -38,8 +38,8 @@ export let objects = new Map([
     [399, { name: "EARTH", cameraRadius: 6378, group: new Group() }],
     [301, { name: "MOON", cameraRadius: 1737.4, group: new Group() }],
     [499, { name: "MARS", cameraRadius: 3389.5, group: new Group() }],
-    [401, { name: "PHOBOS", cameraRadius: 13.1, group: new Group() }],
-    [402, { name: "DEIMOS", cameraRadius: 6.2, group: new Group() }],
+    [401, { name: "PHOBOS", cameraRadius: 14, group: new Group() }],
+    [402, { name: "DEIMOS", cameraRadius: 8, group: new Group() }],
     [-658030, { name: "DIDYMOS", cameraRadius: 0.780, group: new Group() }],
     [-658031, { name: "DIMORPHOS", cameraRadius: 0.170, group: new Group() }],
 
