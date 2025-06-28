@@ -9,7 +9,7 @@ import {
     loadThreeJSEngine,
     gsapCamera,
     animate
-} from './animation';
+} from './engine';
 
 import { openWebSocket } from './websocket';
 

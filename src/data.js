@@ -7,7 +7,7 @@ import {
     speedValues,
     observerId,
     speedLevel
-} from "./controls.js";
+} from "./controls";
 
 import {
     PerspectiveCamera,
@@ -20,10 +20,10 @@ import {
     updateSecondaryObjectVisibility,
     show,
     hide
-} from "./animation.js";
+} from "./engine";
 
-import { sendMessage } from "./websocket.js";
-import { requestPerSec } from "./config.js";
+import { sendMessage } from "./websocket";
+import { requestPerSec } from "./config";
 
 
 
