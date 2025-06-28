@@ -75,6 +75,14 @@ export function setup() {
   document.getElementById('light-time-adjustment-button').addEventListener('mousedown', toggleLightTimeAdjustment);
   document.getElementById('data-visibility-button').addEventListener('mousedown', toggleTelemetryVisibility);
   document.getElementById('info-button').addEventListener('mousedown', toggleInfoDisplay);
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+        setSimulationDateTo(simulationTime, false);
+    } else if (document.visibilityState === "visible") {
+        ws.wsReconnection();
+    }
+  });
 }
 
 

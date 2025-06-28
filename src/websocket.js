@@ -92,7 +92,6 @@ function wsOnClose() {
     webSocket = null;
     if(shouldWebSocketBeAvailable) {
         if(!userAlerted) {
-            alert("Websocket server unreachable. Attempting reconnection...");
             console.log('Connection to server interrupted. Attempting reconnection...');
             userAlerted = true;
         }
@@ -100,14 +99,12 @@ function wsOnClose() {
     }
 }
 
-function wsReconnection() {
+export function wsReconnection() {
     openWebSocket().then(() => {
         if(webSocket?.readyState === WebSocket.OPEN) {
             ctrl.simulationRunningStore(true);
             ctrl.toggleSimulationRunning();
         }
-    }).catch(() => {
-        // Do nothing
     });
 }
 
