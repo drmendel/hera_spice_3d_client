@@ -229,7 +229,7 @@ let marsTexture;
 
 function loadTextures() {
     starFieldTexture = textureLoader.load('/images/8k_stars.jpg');
-    sunTexture = textureLoader.load('/images/8k_sun.png');
+    sunTexture = textureLoader.load('/images/8k_sun.jpg');
     mercuryTexture = textureLoader.load('/images/2k_mercury.jpg');
     venusTexture = textureLoader.load('/images/2k_venus.jpg');
     earthTexture = textureLoader.load('/images/2k_earth_daymap.jpg');
