@@ -21,7 +21,7 @@
 const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 const host = window.location.host;                           // e.g., mywebsite.com
 
-export let webSocketUrl = "ws://localhost:8080/ws/"; //`${protocol}://${host}/ws/`;
+export let webSocketUrl = `${protocol}://${host}/ws/`;
 export const requestPerSec = 10;                             // req/sec
 export const canvasName = 'threeCanvas';                     // three.js canvas
 export const lightColor = 'rgb(175,175,175)';              // light color for active buttons
