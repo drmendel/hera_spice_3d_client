@@ -215,7 +215,7 @@ export function simulationRunningStore(bool) {
 }
 
 export function setParamsFromURL() {
-  if(webSocket.readyState !== WebSocket.OPEN) return;
+  if(webSocket?.readyState !== WebSocket.OPEN) return;
   const urlParams = new URLSearchParams(window.location.search);
   
   const timestampParam = urlParams.get('timestamp');
