@@ -62,7 +62,7 @@ export let objects = new Map([
 
     [-91900, { name: "DART IMPACT SITE", cameraRadius: 0, group: new Group() }],
     [-91000, { name: "HERA SPACECRAFT", cameraRadius: 0.0065, group: new Group() }],
-    [-15513000, { name: "JUVENTAS SPACECRAFT", cameraRadius: 0.002, group: new Group() }],
+    [-9101000, { name: "JUVENTAS SPACECRAFT", cameraRadius: 0.002, group: new Group() }],
     [-9102000, { name: "MILANI SPACECRAFT", cameraRadius: 0.002, group: new Group() }]
 ]);
 
@@ -76,7 +76,7 @@ export const cameraFOVs = new Map([
     [-91400, 9.9],
     [-91120, 5.5],
     [-91110, 5.5],
-    [-15513310, 28.5],
+    [-9101310, 28.5],
     [-9102310, 16]
 ]);
 
