@@ -55,8 +55,8 @@ import {
 // ─────────────────────────────────────────────
 
 export let observerId = -91000; // Hera
-export let simulationBaseTime = new Date();
-export let simulationTime = new Date();
+export let simulationBaseTime = new Date(minDate);
+export let simulationTime = new Date(minDate);
 export let realBaseTime = new Date();
 export let speedLevel = 1;
 
@@ -226,7 +226,7 @@ export function setParamsFromURL() {
   simulationRunning = true;
   toggleSimulationRunning();
   const tmpSimulationBaseTime = new Date(timestampParam);
-  simulationBaseTime = isNaN(tmpSimulationBaseTime.getTime()) ? new Date() : tmpSimulationBaseTime;
+  simulationBaseTime = isNaN(tmpSimulationBaseTime.getTime()) ? new Date(minDate) : tmpSimulationBaseTime;
   setRealBaseTime();
   simulationTime = simulationBaseTime;
   updatePlaceholder();
