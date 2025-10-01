@@ -16,11 +16,8 @@
 
 import {
     toggleSimulationRunning,
-    simulationRunningStore,
-    setSimulationTime
+    simulationRunningStore
 } from "./controls";
-
-import { simulationTime } from "./controls";
 
 import {
     lightTimeAdjustedTelemetryData,
@@ -28,7 +25,7 @@ import {
     TimestampData
 } from "./data";
 
-import { webSocketUrl, maxDate } from "./config";
+import { webSocketUrl } from "./config";
 import { Vector3, Quaternion } from "three";
 
 
@@ -246,14 +243,5 @@ export async function wsReconnection() {
     if (webSocket?.readyState === WebSocket.OPEN) {
         simulationRunningStore(true);
         toggleSimulationRunning();
-    }
-}
-
-
-export function checkTime() {
-    if(simulationTime > maxDate - 1000) {
-        setSimulationTime(String("2024Z"));
-        instantaneousTelemetryData.reset();
-        lightTimeAdjustedTelemetryData.reset();
     }
 }

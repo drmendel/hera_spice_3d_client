@@ -42,7 +42,7 @@ import {
     simulationTime,
     framesVisible,
     getObjectId,
-    observerId,
+    observerId
  } from './controls';
 
  import {
@@ -51,13 +51,12 @@ import {
     updateObjectStates,
     cameraFOVs,
     objects,
-    cameras,
+    cameras
 } from './data';
 
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { checkTime } from './websocket';
 import { canvasName } from './config';
 import { gsap } from 'gsap';
 
@@ -1148,7 +1147,6 @@ export function animate() {
         updateSimulationTime();
         updatePlaybackButton();
     }
-    checkTime();
     requestTelemetryData();
     updateObjectStates();
     cameraControls.update();

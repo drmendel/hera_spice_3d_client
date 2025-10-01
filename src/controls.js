@@ -26,10 +26,10 @@ import {
 } from "./engine";
 
 import {
-  minDate,
-  maxDate,
+  lightColor,
   darkColor,
-  lightColor
+  minDate,
+  maxDate
 } from "./config";
 
 import {
@@ -144,7 +144,10 @@ export function getSimulationTime() {
 
   simulationTime = new Date(simulationBaseTime.getTime() + scaledTime);
 
-  if (simulationTime.getTime() > maxDate.getTime()) setSimulationDateTo(minDate, false);
+  if (simulationTime.getTime() > maxDate.getTime()) {
+    changeObserver("-91000");
+    setSimulationDateTo(minDate, false);
+  }
   return simulationTime;
 }
 
