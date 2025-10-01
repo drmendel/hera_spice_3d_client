@@ -241,7 +241,7 @@ export function setParamsFromURL() {
       observerId = -91110;
       break;
     case "JNC":
-      observerId = -15513310;
+      observerId = -9101310;
       break;
     case "MNC":
       observerId = -9102310;
@@ -357,7 +357,7 @@ export function changeObserver(eventTargetValue) {
 
   if(firstPersonView) toggleFirstPersonView();
   
-  if(observerId === -91400 || observerId === -91120 || observerId === -91110 || observerId === -15513310 || observerId === -9102310) {
+  if(observerId === -91400 || observerId === -91120 || observerId === -91110 || observerId === -9101310 || observerId === -9102310) {
     changeCamera(observerId);
     document.getElementById('camera-box').style.display = 'block';
   }
@@ -412,7 +412,7 @@ function updateLighTimeAdjustmentButton() {
 }
 
 function toggleFirstPersonView() {
-  if(observerId === -91400 || observerId === -91110 || observerId === -91120 || observerId === -15513310 || observerId === -9102310) return;
+  if(observerId === -91400 || observerId === -91110 || observerId === -91120 || observerId === -9101310 || observerId === -9102310) return;
   firstPersonView = !firstPersonView;
   updateFirstPersonViewButton();
   gsapCameraFPV();
@@ -496,7 +496,7 @@ export function getObjectId(id) {
     case -91400:
     case -91120:
     case -91110: return -91000;
-    case -15513310: return -15513000;
+    case -9101310: return -9101000;
     case -9102310: return -9102000;
     default: return tmpId;
   }

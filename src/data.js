@@ -101,7 +101,7 @@ export const cameras = new Map([
       aspect: afcAspect,
       camera: new PerspectiveCamera(5.5, afcAspect, 0.1, 1e12),
     }],
-    [-15513310, {
+    [-9101310, {
       name: "JNC", // Juventas Navigation Camera
       aspect: jncAspect,
       camera: new PerspectiveCamera(28.5, jncAspect, 0.1, 1e12),
@@ -260,7 +260,7 @@ export function updateObjectStates() {
             object.group.quaternion.copy(obj.quaternion);
 
             if(firstPersonView && id === observerId) continue;      // if we are in FPV, skip the current observer 
-            if(id === -9102000 || id === -15513000) {
+            if(id === -9102000 || id === -9101000) {
                 const distance = objects.get(id).group.position.distanceTo(objects.get(-91000).group.position);
                 if(distance < 0.002) {
                     hide(id);
@@ -308,7 +308,7 @@ export function updateObjectStates() {
         ));
 
         if(firstPersonView && id === observerId) continue;          // if we are in FPV, skip the current observer 
-        if(id === -9102000 || id === -15513000) {
+        if(id === -9102000 || id === -9101000) {
             const distance = objects.get(id).group.position.distanceTo(objects.get(-91000).group.position);
             if(distance < 0.002) {
                 hide(id);

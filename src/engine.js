@@ -234,9 +234,9 @@ function setCameraOrientations() {
     cameras.get(-91110).camera.rotateX(Math.PI);
     
     // JNC
-    cameras.get(-15513310).camera.position.set(-0.0427E-3, 0.0278E-3, 0.1743E-3);
-    cameras.get(-15513310).camera.rotateZ(Math.PI / 2);
-    cameras.get(-15513310).camera.rotateX(Math.PI);
+    cameras.get(-9101310).camera.position.set(-0.0427E-3, 0.0278E-3, 0.1743E-3);
+    cameras.get(-9101310).camera.rotateZ(Math.PI / 2);
+    cameras.get(-9101310).camera.rotateX(Math.PI);
     
     // MNC
     cameras.get(-9102310).camera.position.set(-0.0775E-3, -0.0019E-3, 0.1777E-3);
@@ -772,8 +772,8 @@ export function updateSecondaryObjectVisibility(id) {
             if(calculateDistance(-9102000, -91000) < minDistance) hide(id);
             else hideBool = false;
             break;
-        case -15513000:
-            if(calculateDistance(-15513000, -91000) < minDistance) hide(id);
+        case -9101000:
+            if(calculateDistance(-9101000, -91000) < minDistance) hide(id);
             else hideBool = false;
             break;
         default:
@@ -890,11 +890,11 @@ export function loadObjects() {
     objects.get(-91000).group.add(heraLabel);
     objects.get(-91000).group.add(heraX);
 
-    objects.get(-15513000).group = new Group();
-    objects.get(-15513000).group.add(juventasModel);
-    objects.get(-15513000).group.add(cameras.get(-15513310).camera);
-    objects.get(-15513000).group.add(juventasLabel);
-    objects.get(-15513000).group.add(juventasX);
+    objects.get(-9101000).group = new Group();
+    objects.get(-9101000).group.add(juventasModel);
+    objects.get(-9101000).group.add(cameras.get(-9101310).camera);
+    objects.get(-9101000).group.add(juventasLabel);
+    objects.get(-9101000).group.add(juventasX);
 
     objects.get(-9102000).group = new Group();
     objects.get(-9102000).group.add(milaniModel);
@@ -979,9 +979,9 @@ export function loadScene() {
     scene.add(objects.get(-91000).group);
 
     // JUVENTAS
-    objects.get(-15513000).group.position.set(-1.1518E-03, 6.0178E-04, 9.9444E-04);
-    objects.get(-15513000).group.rotation.setFromQuaternion(new Quaternion(-5.7721E-01, 1.2055E-02, 6.3228E-01, 5.1663E-01));
-    scene.add(objects.get(-15513000).group);
+    objects.get(-9101000).group.position.set(-1.1518E-03, 6.0178E-04, 9.9444E-04);
+    objects.get(-9101000).group.rotation.setFromQuaternion(new Quaternion(-5.7721E-01, 1.2055E-02, 6.3228E-01, 5.1663E-01));
+    scene.add(objects.get(-9101000).group);
 
     // MILANI
     objects.get(-9102000).group.position.set(-1.0378E-03, 1.2649E-03, 2.2979E-05);
