@@ -42,6 +42,7 @@ import {
 } from './data';
 
 import {
+  setFallBackToMinDate,
   fallbackToMinDate,
   wsReconnection,
   webSocket

@@ -17,10 +17,10 @@
 import {
     toggleSimulationRunning,
     simulationRunningStore,
-    setSimulationDateTo,
-    updatePlaceholder,
-    changeObserver
+    setSimulationTime
 } from "./controls";
+
+import { simulationTime } from "./controls";
 
 import {
     lightTimeAdjustedTelemetryData,
@@ -28,7 +28,7 @@ import {
     TimestampData
 } from "./data";
 
-import { webSocketUrl, minDate } from "./config";
+import { webSocketUrl, maxDate } from "./config";
 import { Vector3, Quaternion } from "three";
 
 
@@ -212,13 +212,6 @@ async function wsOnMessage(event) {
             break;
         case 102: // 'f' instantError
         case 103: // 'g' lightError
-            if (!fallbackToMinDate) {
-                fallbackToMinDate = true;
-                changeObserver(-91000);
-                simulationRunningStore(false);
-                await setSimulationDateTo(minDate);
-                updatePlaceholder();
-            }
             if (mode === 102) instantaneousTelemetryData.requestedSize--;
             else if (mode === 103) lightTimeAdjustedTelemetryData.requestedSize--;
             break;
@@ -253,5 +246,14 @@ export async function wsReconnection() {
     if (webSocket?.readyState === WebSocket.OPEN) {
         simulationRunningStore(true);
         toggleSimulationRunning();
+    }
+}
+
+
+export function checkTime() {
+    if(simulationTime > maxDate - 1000) {
+        setSimulationTime(String("2024Z"));
+        instantaneousTelemetryData.reset();
+        lightTimeAdjustedTelemetryData.reset();
     }
 }
